@@ -1,0 +1,616 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import {
+  getUserProfile,
+  updateUserProfile,
+  getUserAddresses,
+  saveUserAddress,
+  deleteUserAddress,
+  setAddressDefault,
+  getUserOrders,
+} from "@/lib/account";
+
+type Tab = "profile" | "address" | "orders";
+
+export default function MyAccountPage() {
+  const router = useRouter();
+  const [activeTab, setActiveTab] = useState<Tab>("profile");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarUser, setSidebarUser] = useState<any>({
+    firstName: "",
+    lastName: "",
+    memberSince: "",
+  });
+
+  useEffect(() => {
+    const cookies = document.cookie.split(";");
+    const hasRole = cookies.some((c) => c.trim().startsWith("user_role="));
+    if (!hasRole) {
+      router.push("/login");
+    } else {
+      getUserProfile().then((data) => {
+        if (data) setSidebarUser(data);
+      });
+    }
+  }, [router]);
+
+  const handleSignOut = () => {
+    document.cookie =
+      "user_role=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    document.cookie =
+      "user_id=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    router.push("/");
+    router.refresh();
+  };
+
+  const navItems: { label: string; icon: string; tab: Tab }[] = [
+    { label: "PROFIL SAYA", icon: "person", tab: "profile" },
+    { label: "ALAMAT PENGIRIMAN", icon: "location_on", tab: "address" },
+    { label: "RIWAYAT PESANAN", icon: "shopping_bag", tab: "orders" },
+  ];
+
+  return (
+    <div className="flex min-h-screen bg-surface-container-lowest text-on-surface font-['Inter']">
+      {/* ── SIDEBAR ── */}
+      <aside
+        className={`fixed left-0 top-0 h-full flex flex-col w-72 lg:w-80 bg-surface-container-lowest border-r border-stone-100 z-[60] transition-transform duration-300 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0`}
+      >
+        <div className="px-10 pt-12 pb-8 border-b border-stone-100">
+          <Link
+            href="/"
+            className="font-['Playfair_Display'] text-[24px] font-bold uppercase tracking-[0.2em] text-primary block"
+          >
+            EGOISM
+          </Link>
+          <p className="text-[13px] font-['Inter'] text-secondary mt-3">
+            {sidebarUser.firstName} {sidebarUser.lastName}
+          </p>
+          <p className="text-[11px] tracking-[0.08em] font-semibold text-secondary/60 mt-0.5 uppercase">
+            Member sejak {sidebarUser.memberSince}
+          </p>
+        </div>
+
+        <nav className="flex flex-col gap-1 px-6 py-8 flex-grow">
+          {navItems.map(({ label, icon, tab }) => (
+            <button
+              key={tab}
+              onClick={() => {
+                setActiveTab(tab);
+                setSidebarOpen(false);
+              }}
+              className={`flex items-center gap-4 py-3 px-4 text-left transition-colors duration-200 text-[12px] tracking-[0.12em] font-semibold uppercase w-full ${
+                activeTab === tab
+                  ? "text-primary bg-surface-container border-l-2 border-primary"
+                  : "text-secondary hover:text-primary hover:bg-surface-container/50"
+              }`}
+            >
+              <span className="material-symbols-outlined text-[18px]">
+                {icon}
+              </span>
+              {label}
+            </button>
+          ))}
+        </nav>
+
+        <div className="flex flex-col gap-4 mt-auto px-8 py-8 border-t border-stone-100">
+          <Link
+            href="/"
+            className="flex items-center gap-4 text-[12px] tracking-[0.12em] font-semibold text-secondary hover:text-primary transition-colors uppercase"
+          >
+            <span className="material-symbols-outlined text-[18px]">
+              arrow_back
+            </span>
+            KEMBALI KE TOKO
+          </Link>
+          <button
+            onClick={handleSignOut}
+            className="flex items-center gap-4 text-[12px] tracking-[0.12em] font-semibold text-red-400 hover:text-red-500 transition-colors uppercase"
+          >
+            <span className="material-symbols-outlined text-[18px]">
+              logout
+            </span>
+            SIGN OUT
+          </button>
+        </div>
+      </aside>
+
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-primary/20 z-[59] lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      {/* ── MAIN ── */}
+      <div className="flex-1 lg:ml-80 flex flex-col min-h-screen">
+        <header className="sticky top-0 z-50 bg-surface-container-lowest border-b border-stone-100 px-5 md:px-16 h-[70px] flex items-center justify-between">
+          <button
+            className="lg:hidden text-primary"
+            onClick={() => setSidebarOpen(true)}
+          >
+            <span className="material-symbols-outlined">menu</span>
+          </button>
+          <p className="text-[12px] tracking-[0.15em] font-semibold text-secondary uppercase hidden lg:block">
+            {navItems.find((n) => n.tab === activeTab)?.label}
+          </p>
+          <div className="flex items-center gap-6 ml-auto">
+            <Link
+              href="/keranjang"
+              className="text-[12px] tracking-[0.1em] font-semibold text-secondary hover:text-primary transition-colors uppercase"
+            >
+              CART
+            </Link>
+          </div>
+        </header>
+
+        <main className="flex-1 px-5 md:px-16 py-16 max-w-4xl w-full">
+          {activeTab === "profile" && <ProfileTab />}
+          {activeTab === "address" && <AddressTab />}
+          {activeTab === "orders" && <OrdersTab />}
+        </main>
+
+        <footer className="border-t border-stone-100 px-5 md:px-16 py-10 flex flex-col md:flex-row justify-between items-start gap-6">
+          <div>
+            <span className="font-['Playfair_Display'] text-[20px] font-bold uppercase tracking-wider text-primary block mb-1">
+              EGOISM
+            </span>
+            <p className="text-[11px] tracking-[0.1em] font-semibold text-secondary uppercase">
+              © 2024 EGOISM STUDIOS. ALL RIGHTS RESERVED.
+            </p>
+          </div>
+          <div className="flex gap-8">
+            <Link
+              href="/shipping-info"
+              className="text-[11px] tracking-[0.1em] font-semibold text-secondary hover:text-primary transition-colors uppercase"
+            >
+              Shipping
+            </Link>
+            <Link
+              href="/return-policy"
+              className="text-[11px] tracking-[0.1em] font-semibold text-secondary hover:text-primary transition-colors uppercase"
+            >
+              Returns
+            </Link>
+            <Link
+              href="/kontak"
+              className="text-[11px] tracking-[0.1em] font-semibold text-secondary hover:text-primary transition-colors uppercase"
+            >
+              Contact
+            </Link>
+          </div>
+        </footer>
+      </div>
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────
+   TAB 1 — PROFIL 
+───────────────────────────────────────── */
+function ProfileTab() {
+  const [editing, setEditing] = useState(false);
+  const [form, setForm] = useState<any>({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    memberSince: "",
+  });
+
+  useEffect(() => {
+    getUserProfile().then((data) => {
+      if (data) setForm(data);
+    });
+  }, []);
+
+  const handleSave = async () => {
+    await updateUserProfile(form);
+    setEditing(false);
+    window.location.reload();
+  };
+
+  const fields = [
+    { label: "First Name", key: "firstName" as const, type: "text" },
+    { label: "Last Name", key: "lastName" as const, type: "text" },
+    { label: "Email", key: "email" as const, type: "email" },
+    { label: "No. Telepon", key: "phone" as const, type: "tel" },
+  ];
+
+  return (
+    <div>
+      <div className="flex items-start justify-between mb-14">
+        <div>
+          <h2 className="font-['Playfair_Display'] text-[40px] md:text-[48px] leading-tight font-semibold text-primary uppercase mb-4">
+            Profil Saya
+          </h2>
+          <div className="h-px w-20 bg-stone-200" />
+        </div>
+        {!editing && (
+          <button
+            onClick={() => setEditing(true)}
+            className="flex items-center gap-2 text-[12px] tracking-[0.12em] font-semibold text-secondary hover:text-primary transition-colors uppercase border border-stone-200 hover:border-primary px-4 py-2 mt-2"
+          >
+            <span className="material-symbols-outlined text-[16px]">edit</span>
+            EDIT
+          </button>
+        )}
+      </div>
+
+      <div className="space-y-10 max-w-2xl">
+        <div className="flex items-center gap-6 pb-10 border-b border-stone-100">
+          <div className="w-20 h-20 bg-surface-container border border-stone-200 flex items-center justify-center flex-shrink-0">
+            <span className="font-['Playfair_Display'] text-[32px] font-bold text-secondary">
+              {form.firstName ? form.firstName[0] : "E"}
+            </span>
+          </div>
+          <div>
+            <p className="font-['Playfair_Display'] text-[22px] font-medium text-primary uppercase">
+              {form.firstName} {form.lastName}
+            </p>
+            <p className="text-[12px] tracking-[0.08em] text-secondary mt-1">
+              {form.email}
+            </p>
+            <p className="text-[11px] tracking-[0.1em] font-semibold text-secondary/60 uppercase mt-1">
+              Member sejak {form.memberSince}
+            </p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+          {fields.map(({ label, key, type }) => (
+            <div key={key} className="space-y-2">
+              <label className="text-[11px] tracking-[0.15em] font-semibold text-secondary block uppercase">
+                {label}
+              </label>
+              {editing ? (
+                <input
+                  type={type}
+                  value={form[key]}
+                  disabled={key === "email"}
+                  onChange={(e) => setForm({ ...form, [key]: e.target.value })}
+                  className="w-full bg-transparent border-b border-primary focus:ring-0 py-3 text-[16px] font-['Inter'] text-primary transition-colors outline-none disabled:opacity-50"
+                />
+              ) : (
+                <p className="py-3 text-[16px] font-['Inter'] text-primary border-b border-stone-100">
+                  {form[key] || "-"}
+                </p>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {editing && (
+          <div className="flex flex-col sm:flex-row gap-4 pt-4">
+            <button
+              onClick={handleSave}
+              className="bg-primary text-on-primary px-12 py-4 text-[13px] tracking-[0.12em] font-semibold uppercase hover:opacity-80 transition-opacity"
+            >
+              SIMPAN
+            </button>
+            <button
+              onClick={() => {
+                setEditing(false);
+                window.location.reload();
+              }}
+              className="border border-stone-200 text-secondary px-10 py-4 text-[13px] tracking-[0.12em] font-semibold uppercase hover:border-primary hover:text-primary transition-all"
+            >
+              BATAL
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────
+   TAB 2 — ALAMAT PENGIRIMAN
+───────────────────────────────────────── */
+function AddressTab() {
+  const [addresses, setAddresses] = useState<any[]>([]);
+  const [showForm, setShowForm] = useState(false);
+  const [editId, setEditId] = useState<string | null>(null);
+  const [form, setForm] = useState({
+    label: "",
+    recipient: "",
+    phone: "",
+    address: "",
+    city: "",
+    province: "",
+    postal: "",
+  });
+
+  const loadAddresses = () => {
+    getUserAddresses().then(setAddresses);
+  };
+
+  useEffect(() => {
+    loadAddresses();
+  }, []);
+
+  const openAdd = () => {
+    setForm({
+      label: "",
+      recipient: "",
+      phone: "",
+      address: "",
+      city: "",
+      province: "",
+      postal: "",
+    });
+    setEditId(null);
+    setShowForm(true);
+  };
+
+  const openEdit = (a: any) => {
+    setForm({
+      label: a.label,
+      recipient: a.recipient,
+      phone: a.phone,
+      address: a.address,
+      city: a.city,
+      province: a.province,
+      postal: a.postal,
+    });
+    setEditId(a.id);
+    setShowForm(true);
+  };
+
+  const saveForm = async () => {
+    await saveUserAddress(form, editId || undefined);
+    setShowForm(false);
+    loadAddresses();
+  };
+
+  const deleteAddress = async (id: string) => {
+    await deleteUserAddress(id);
+    loadAddresses();
+  };
+
+  const setDefault = async (id: string) => {
+    await setAddressDefault(id);
+    loadAddresses();
+  };
+
+  const fields = [
+    {
+      label: "Label Alamat (cth: Rumah, Kantor)",
+      key: "label" as const,
+      colSpan: "md:col-span-2",
+    },
+    { label: "Nama Penerima", key: "recipient" as const },
+    { label: "No. Telepon", key: "phone" as const },
+    {
+      label: "Alamat Lengkap",
+      key: "address" as const,
+      colSpan: "md:col-span-2",
+    },
+    { label: "Kota", key: "city" as const },
+    { label: "Provinsi", key: "province" as const },
+    { label: "Kode Pos", key: "postal" as const },
+  ];
+
+  return (
+    <div>
+      <div className="flex items-start justify-between mb-14">
+        <div>
+          <h2 className="font-['Playfair_Display'] text-[40px] md:text-[48px] leading-tight font-semibold text-primary uppercase mb-4">
+            Alamat Pengiriman
+          </h2>
+          <div className="h-px w-20 bg-stone-200" />
+          <p className="text-[14px] font-['Inter'] text-secondary mt-4">
+            Alamat ini akan otomatis terisi saat checkout.
+          </p>
+        </div>
+        {!showForm && (
+          <button
+            onClick={openAdd}
+            className="flex items-center gap-2 text-[12px] tracking-[0.12em] font-semibold text-secondary hover:text-primary border border-stone-200 hover:border-primary px-4 py-2 mt-2 transition-colors uppercase"
+          >
+            <span className="material-symbols-outlined text-[16px]">add</span>
+            TAMBAH
+          </button>
+        )}
+      </div>
+
+      {showForm && (
+        <div className="mb-12 border border-outline-variant p-8 bg-surface-container/30">
+          <h3 className="text-[13px] tracking-[0.15em] font-semibold text-primary uppercase mb-8">
+            {editId !== null ? "EDIT ALAMAT" : "TAMBAH ALAMAT BARU"}
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {fields.map(({ label, key, colSpan }) => (
+              <div key={key} className={`space-y-2 ${colSpan ?? ""}`}>
+                <label className="text-[11px] tracking-[0.15em] font-semibold text-secondary block uppercase">
+                  {label}
+                </label>
+                <input
+                  type="text"
+                  value={form[key]}
+                  onChange={(e) => setForm({ ...form, [key]: e.target.value })}
+                  className="w-full bg-transparent border-b border-primary focus:ring-0 py-3 text-[15px] font-['Inter'] text-primary outline-none"
+                  placeholder={label}
+                />
+              </div>
+            ))}
+          </div>
+          <div className="flex gap-4 mt-8">
+            <button
+              onClick={saveForm}
+              className="bg-primary text-on-primary px-10 py-4 text-[13px] tracking-[0.12em] font-semibold uppercase hover:opacity-80 transition-opacity"
+            >
+              SIMPAN
+            </button>
+            <button
+              onClick={() => setShowForm(false)}
+              className="border border-stone-200 text-secondary px-8 py-4 text-[13px] tracking-[0.12em] font-semibold uppercase hover:border-primary hover:text-primary transition-all"
+            >
+              BATAL
+            </button>
+          </div>
+        </div>
+      )}
+
+      {addresses.length === 0 ? (
+        <div className="text-center py-20 border border-dashed border-stone-200">
+          <span className="material-symbols-outlined text-[48px] text-stone-300 block mb-4">
+            location_off
+          </span>
+          <p className="text-[14px] font-['Inter'] text-secondary mb-6">
+            Belum ada alamat tersimpan.
+          </p>
+          <button
+            onClick={openAdd}
+            className="bg-primary text-on-primary px-10 py-4 text-[13px] tracking-[0.12em] font-semibold uppercase hover:opacity-80 transition-opacity"
+          >
+            + TAMBAH ALAMAT
+          </button>
+        </div>
+      ) : (
+        <div className="flex flex-col gap-6">
+          {addresses.map((addr) => (
+            <div
+              key={addr.id}
+              className={`border p-8 transition-colors ${addr.isDefault ? "border-primary" : "border-stone-100"}`}
+            >
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <span className="text-[12px] tracking-[0.12em] font-bold text-primary uppercase">
+                    {addr.label}
+                  </span>
+                  {addr.isDefault && (
+                    <span className="text-[10px] tracking-[0.1em] font-semibold bg-primary text-on-primary px-2 py-0.5 uppercase">
+                      UTAMA
+                    </span>
+                  )}
+                </div>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => openEdit(addr)}
+                    className="text-[11px] tracking-[0.1em] font-semibold text-secondary hover:text-primary transition-colors uppercase flex items-center gap-1"
+                  >
+                    <span className="material-symbols-outlined text-[14px]">
+                      edit
+                    </span>{" "}
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => deleteAddress(addr.id)}
+                    className="text-[11px] tracking-[0.1em] font-semibold text-red-400 hover:text-red-500 transition-colors uppercase flex items-center gap-1"
+                  >
+                    <span className="material-symbols-outlined text-[14px]">
+                      delete
+                    </span>{" "}
+                    Hapus
+                  </button>
+                </div>
+              </div>
+
+              <p className="text-[15px] font-['Inter'] font-semibold text-primary mb-1">
+                {addr.recipient}
+              </p>
+              <p className="text-[14px] font-['Inter'] text-secondary mb-1">
+                {addr.phone}
+              </p>
+              <p className="text-[14px] font-['Inter'] text-secondary">
+                {addr.address}
+              </p>
+              <p className="text-[14px] font-['Inter'] text-secondary">
+                {addr.city}, {addr.province} {addr.postal}
+              </p>
+
+              {!addr.isDefault && (
+                <button
+                  onClick={() => setDefault(addr.id)}
+                  className="mt-4 text-[11px] tracking-[0.12em] font-semibold text-secondary hover:text-primary border border-stone-200 hover:border-primary px-4 py-2 transition-colors uppercase"
+                >
+                  JADIKAN ALAMAT UTAMA
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────
+   TAB 3 — RIWAYAT PESANAN
+───────────────────────────────────────── */
+function OrdersTab() {
+  const [orders, setOrders] = useState<any[]>([]);
+
+  useEffect(() => {
+    getUserOrders().then(setOrders);
+  }, []);
+
+  const statusColor: Record<string, string> = {
+    DITERIMA: "text-green-600 border-green-200",
+    DIKIRIM: "text-blue-500 border-blue-200",
+    DIPROSES: "text-amber-500 border-amber-200",
+    DIBATALKAN: "text-red-400 border-red-200",
+  };
+
+  return (
+    <div>
+      <header className="mb-14">
+        <h2 className="font-['Playfair_Display'] text-[40px] md:text-[48px] leading-tight font-semibold text-primary uppercase mb-4">
+          Riwayat Pesanan
+        </h2>
+        <div className="h-px w-20 bg-stone-200" />
+      </header>
+
+      {orders.length === 0 ? (
+        <div className="text-center py-20 border border-dashed border-stone-200">
+          <span className="material-symbols-outlined text-[48px] text-stone-300 block mb-4">
+            shopping_bag
+          </span>
+          <p className="text-[14px] font-['Inter'] text-secondary mb-6">
+            Belum ada pesanan.
+          </p>
+          <Link
+            href="/koleksi"
+            className="bg-primary text-on-primary px-10 py-4 text-[13px] tracking-[0.12em] font-semibold uppercase hover:opacity-80 transition-opacity inline-block"
+          >
+            MULAI BELANJA
+          </Link>
+        </div>
+      ) : (
+        <div className="flex flex-col divide-y divide-stone-100">
+          {orders.map((order) => (
+            <div
+              key={order.id}
+              className="py-8 flex flex-col md:flex-row md:items-center justify-between gap-4"
+            >
+              <div>
+                <p className="font-['Playfair_Display'] text-[22px] font-medium text-primary uppercase mb-1">
+                  {order.id}
+                </p>
+                <p className="text-[12px] tracking-[0.1em] font-semibold text-secondary uppercase mb-1">
+                  {order.date}
+                </p>
+                <p className="text-[14px] font-['Inter'] text-secondary">
+                  {order.items}
+                </p>
+              </div>
+              <div className="flex flex-row md:flex-col items-center md:items-end gap-4 md:gap-2">
+                <p className="text-[16px] font-['Inter'] font-semibold text-primary">
+                  {order.total}
+                </p>
+                <span
+                  className={`text-[11px] tracking-[0.12em] font-semibold border px-3 py-1 uppercase ${statusColor[order.status] ?? "text-secondary border-stone-200"}`}
+                >
+                  {order.status}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}

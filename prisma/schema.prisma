@@ -1,0 +1,95 @@
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// 1. TAMBAHKAN KOLOM PHONE DAN RELASI DI TABEL USER YANG SUDAH ADA
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  firstName String?
+  lastName  String?
+  phone     String?   // <-- TAMBAHAN BARU
+  role      String   @default("USER")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  carts     Cart[]
+  addresses Address[] // <-- TAMBAHAN BARU
+  orders    Order[]   // <-- TAMBAHAN BARU
+}
+
+// ==========================================
+// 2. MODEL PRODUCT
+// ==========================================
+model Product {
+  id          String   @id @default(uuid())
+  slug        String   @unique
+  name        String
+  price       Int
+  category    String   
+  image       String   
+  description String   @db.Text
+  sizes       String   // Disimpan dalam bentuk JSON string array
+  colors      String   @default("[]") // PERBAIKAN: Menyimpan pilihan warna dalam bentuk JSON string array
+  isNew       Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  carts       Cart[]
+}
+
+// ==========================================
+// 3. MODEL CART
+// ==========================================
+model Cart {
+  id        String   @id @default(uuid())
+  userId    String
+  productId String
+  size      String
+  color     String   @default("BLACK") // PERBAIKAN: Kolom warna dinamis dari pilihan user
+  quantity  Int      @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  // PERBAIKAN: Keunikan baris sekarang dihitung berdasarkan kombinasi produk, ukuran, DAN warna
+  @@unique([userId, productId, size, color])
+}
+
+// 2. COPY-PASTE 2 TABEL BARU INI DI PALING BAWAH
+model Address {
+  id        String   @id @default(uuid())
+  userId    String
+  label     String
+  recipient String
+  phone     String
+  address   String
+  city      String
+  province  String
+  postal    String
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Order {
+  id          String   @id @default(uuid())
+  orderNumber String   @unique
+  userId      String
+  items       String   @db.Text // Menyimpan ringkasan nama barang
+  total       Int
+  status      String   @default("DIPROSES") // DIPROSES, DIKIRIM, DITERIMA, DIBATALKAN
+  createdAt   DateTime @default(now())
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
