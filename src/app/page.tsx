@@ -26,7 +26,7 @@ export default async function HomePage() {
         <div className="absolute inset-0 w-full h-full">
           {/* Hero Background — pastikan file ini ada di public/hero-main.jpg dan sudah di-commit ke git */}
           <Image
-            src="/hero-main.jpg"
+            src="/hero-main.png"
             alt="EGOISM Campaign"
             fill
             className="object-cover object-center"
