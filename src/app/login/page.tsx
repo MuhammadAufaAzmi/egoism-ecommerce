@@ -48,10 +48,10 @@ export default function LoginPage() {
       {/* Left: Image */}
       <section className="hidden md:block md:w-1/2 relative bg-surface min-h-screen animate-fade-in">
         <Image
-          src="https://lh3.googleusercontent.com/aida/ADBb0uhPIIa2a5nE7-lSzvtYjosuJpeYb7uGScYyc_NCsbwUTAiW40Xz2N-73IPeG8Wm2U_5_n1iox3fO20naK35wNyaGoHu5cPHegF0H37H49AIoqJlfsGAZns-haI2xw5PZR7vHIY_bFeBOVM3nlOXrBIbtp8sHX7gphXPMwv3TseYU8xfNc6mYZCQDdPMlvDo17eDkOuHiuSSOYzPjXL6m2fne1Xo98-VEyKn1oS9H7aZ3-rbzjH5xEIQTA"
+          src="https://images.unsplash.com/photo-1523398002171-b8217a5b5081?w=1200&q=80"
           alt="EGOISM Campaign"
           fill
-          className="object-cover"
+          className="object-cover object-center"
           priority
         />
       </section>

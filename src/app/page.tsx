@@ -24,12 +24,11 @@ export default async function HomePage() {
           ======================================== */}
       <section className="relative w-full h-[85vh] flex items-center justify-center overflow-hidden grain-overlay">
         <div className="absolute inset-0 w-full h-full">
-          {/* Latar Belakang Animated WEBP dipasang di sini */}
+          {/* Hero Background — pastikan file ini ada di public/hero-main.jpg dan sudah di-commit ke git */}
           <Image
-            src="/webp/hero-bg.webp"
+            src="/hero-main.jpg"
             alt="EGOISM Campaign"
             fill
-            unoptimized /* SANGAT PENTING: Agar WEBP tetap bergerak & tidak di-freeze oleh Next.js */
             className="object-cover object-center"
             priority
           />
