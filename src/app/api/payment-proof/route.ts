@@ -28,15 +28,15 @@ export async function POST(req: NextRequest) {
 
     const uploadResult: any = await new Promise((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream(
-        { 
+        {
           folder: "egoism/payment_proofs",
           format: "webp",
-          transformation: [{ quality: "auto:eco" }]
+          transformation: [{ quality: "auto:eco" }],
         },
         (error, result) => {
           if (error) reject(error);
           else resolve(result);
-        }
+        },
       );
       uploadStream.end(buffer);
     });
