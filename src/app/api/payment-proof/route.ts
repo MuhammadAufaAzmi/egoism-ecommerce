@@ -104,7 +104,7 @@ export async function POST(req: NextRequest) {
           <p style="font-size: 13px; color: #555; margin-bottom: 16px;">
             Bukti transfer telah diupload ke Cloudinary: <a href="${imagePath}">Lihat Bukti Transfer</a>. Silakan verifikasi dan update status pesanan di Admin Dashboard.
           </p>
-          <a href="${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/admin/pesanan"
+          <a href="${process.env.NEXT_PUBLIC_BASE_URL || "https://egoism-ecommerce.vercel.app/admin/pesanan"
              style="display:inline-block; background:#1a1a1a; color:#fff; padding: 12px 24px; text-decoration:none; font-size:12px; letter-spacing:0.1em; text-transform:uppercase;">
             Buka Admin Dashboard →
           </a>
