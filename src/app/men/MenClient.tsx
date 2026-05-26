@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo } from "react";
 import ProductCard from "@/components/ui/ProductCard";
+import ScrollReveal from "@/components/ui/ScrollReveal";
 
 interface MenClientProps {
   initialProducts: any[];
@@ -16,7 +17,7 @@ export default function MenClient({ initialProducts }: MenClientProps) {
   const [isSortOpen, setIsSortOpen] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
-  const availableSizes = ["ALL", "S", "M", "L", "XL", "XXL"];
+  const availableSizes = ["ALL", "S", "M", "L", "XL", "XXL", "3XL", "4XL", "5XL"];
 
   // Logika penyaringan dan pengurutan real-time tanpa me-refresh halaman
   const processedProducts = useMemo(() => {
@@ -47,8 +48,9 @@ export default function MenClient({ initialProducts }: MenClientProps) {
   return (
     <>
       {/* Filters Bar */}
-      <div className="w-full px-5 md:px-16 max-w-[1440px] mx-auto border-t border-outline-variant py-6 flex justify-between items-center mb-12">
-        <p className="text-[12px] leading-[16px] tracking-[0.1em] font-semibold font-['Inter'] text-secondary uppercase">
+      <ScrollReveal>
+      <div className="w-full    px-5 md:px-16 max-w-[1440px] mx-auto border-t border-outline-variant py-6 flex justify-between items-center mb-12">
+        <p className="text-[12px] leading-[16px] tracking-[0.1em] font-semibold text-secondary uppercase">
           {processedProducts.length} PIECES
         </p>
 
@@ -60,7 +62,7 @@ export default function MenClient({ initialProducts }: MenClientProps) {
                 setIsFilterOpen(!isFilterOpen);
                 setIsSortOpen(false);
               }}
-              className={`text-[12px] leading-[16px] tracking-[0.1em] font-semibold font-['Inter'] transition-colors uppercase ${isFilterOpen || filterSize !== "ALL" ? "text-primary" : "text-secondary hover:text-primary"}`}
+              className={`text-[12px] leading-[16px] tracking-[0.1em] font-semibold transition-colors uppercase ${isFilterOpen || filterSize !== "ALL" ? "text-primary" : "text-secondary hover:text-primary"}`}
             >
               FILTER {filterSize !== "ALL" && `(${filterSize})`}
             </button>
@@ -95,7 +97,7 @@ export default function MenClient({ initialProducts }: MenClientProps) {
                 setIsSortOpen(!isSortOpen);
                 setIsFilterOpen(false);
               }}
-              className={`text-[12px] leading-[16px] tracking-[0.1em] font-semibold font-['Inter'] transition-colors uppercase ${isSortOpen || sortBy !== "newest" ? "text-primary" : "text-secondary hover:text-primary"}`}
+              className={`text-[12px] leading-[16px] tracking-[0.1em] font-semibold transition-colors uppercase ${isSortOpen || sortBy !== "newest" ? "text-primary" : "text-secondary hover:text-primary"}`}
             >
               SORT
             </button>
@@ -136,17 +138,20 @@ export default function MenClient({ initialProducts }: MenClientProps) {
           </div>
         </div>
       </div>
+      </ScrollReveal>
 
       {/* Product Grid Terupdate */}
       <div className="w-full px-5 md:px-16 max-w-[1440px] mx-auto pb-24">
         {processedProducts.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-16">
-            {processedProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
+            {processedProducts.map((product, index) => (
+              <ScrollReveal key={product.id} delay={index * 100}>
+                <ProductCard product={product} />
+              </ScrollReveal>
             ))}
           </div>
         ) : (
-          <div className="w-full text-center py-24 border border-dashed border-outline-variant/30 font-['Inter'] text-secondary uppercase tracking-wider text-[14px]">
+          <div className="w-full text-center py-24 border border-dashed border-outline-variant/30 text-secondary uppercase tracking-wider text-[14px]">
             No garments matching your selection.
           </div>
         )}

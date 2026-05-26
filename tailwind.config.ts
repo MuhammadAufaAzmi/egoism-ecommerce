@@ -65,47 +65,10 @@ const config: Config = {
         "container-max": "1440px",
       },
       fontFamily: {
-        // Sporty heading — Bebas Neue (all-caps, ultra bold condensed)
-        heading: ["var(--font-bebas)", "sans-serif"],
-        // Sporty body — Barlow Condensed (clean, modern, athletic)
-        body: ["var(--font-barlow)", "sans-serif"],
-        // Shorthand aliases matching old usage patterns
-        "headline-lg-mobile": ["var(--font-bebas)", "sans-serif"],
-        "button-text": ["var(--font-barlow)", "sans-serif"],
-        "display-lg": ["var(--font-bebas)", "sans-serif"],
-        "body-md": ["var(--font-barlow)", "sans-serif"],
-        "label-caps": ["var(--font-barlow)", "sans-serif"],
-        "body-lg": ["var(--font-barlow)", "sans-serif"],
-        "headline-lg": ["var(--font-bebas)", "sans-serif"],
-        "headline-md": ["var(--font-bebas)", "sans-serif"],
-      },
-      fontSize: {
-        "headline-lg-mobile": [
-          "32px",
-          { lineHeight: "36px", letterSpacing: "0.05em", fontWeight: "400" },
-        ],
-        "button-text": [
-          "14px",
-          { lineHeight: "20px", letterSpacing: "0.12em", fontWeight: "600" },
-        ],
-        "display-lg": [
-          "80px",
-          { lineHeight: "84px", letterSpacing: "0.08em", fontWeight: "400" },
-        ],
-        "body-md": ["16px", { lineHeight: "24px", fontWeight: "400" }],
-        "label-caps": [
-          "12px",
-          { lineHeight: "16px", letterSpacing: "0.15em", fontWeight: "600" },
-        ],
-        "body-lg": ["18px", { lineHeight: "28px", fontWeight: "400" }],
-        "headline-lg": [
-          "48px",
-          { lineHeight: "52px", letterSpacing: "0.06em", fontWeight: "400" },
-        ],
-        "headline-md": [
-          "32px",
-          { lineHeight: "36px", letterSpacing: "0.04em", fontWeight: "400" },
-        ],
+        // Montserrat as the single unified font
+        sans: ["var(--font-montserrat)", "system-ui", "sans-serif"],
+        heading: ["var(--font-montserrat)", "system-ui", "sans-serif"],
+        body: ["var(--font-montserrat)", "system-ui", "sans-serif"],
       },
     },
   },

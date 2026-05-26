@@ -1,6 +1,13 @@
 import { NextResponse } from "next/server";
-import path from "path";
-import fs from "fs";
+import { cookies } from "next/headers";
+import { prisma } from "@/lib/prisma";
+import { v2 as cloudinary } from "cloudinary";
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 export async function POST(req: Request) {
   try {
@@ -14,30 +21,54 @@ export async function POST(req: Request) {
       );
     }
 
+    // CEK AUTENTIKASI: Hanya admin yang boleh upload
+    const cookieStore = await cookies();
+    const userId = cookieStore.get("user_id")?.value;
+    
+    if (!userId) {
+      return NextResponse.json(
+        { success: false, message: "Unauthorized - Silakan login" },
+        { status: 401 }
+      );
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { role: true }
+    });
+
+    if (user?.role !== "ADMIN") {
+      return NextResponse.json(
+        { success: false, message: "Forbidden - Akses ditolak" },
+        { status: 403 }
+      );
+    }
+
     // Ubah file menjadi buffer data mentah
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // Tentukan folder tujuan penyimpanan (public/uploads/)
-    const uploadDir = path.join(process.cwd(), "public", "uploads");
+    // Upload ke Cloudinary
+    const uploadResult: any = await new Promise((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        { 
+          folder: "egoism/products",
+          format: "webp",
+          transformation: [
+            { width: 1200, crop: "limit" },
+            { quality: "auto:good" }
+          ]
+        },
+        (error, result) => {
+          if (error) reject(error);
+          else resolve(result);
+        }
+      );
+      uploadStream.end(buffer);
+    });
 
-    // Buat foldernya secara otomatis jika belum ada di dalam proyek kamu
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
-
-    // Bersihkan nama file dari spasi karakter aneh agar URL aman
-    const safeFileName =
-      Date.now() + "-" + file.name.replace(/\s+/g, "-").toLowerCase();
-    const filePath = path.join(uploadDir, safeFileName);
-
-    // Tulis/simpan file fisik ke folder public/uploads
-    await fs.promises.writeFile(filePath, buffer);
-
-    // Kembalikan alamat path string yang nantinya dimasukkan ke MySQL
-    const dbImagePathPath = `/uploads/${safeFileName}`;
-
-    return NextResponse.json({ success: true, imagePath: dbImagePathPath });
+    // Kembalikan URL Cloudinary
+    return NextResponse.json({ success: true, imagePath: uploadResult.secure_url });
   } catch (error) {
     console.error("Upload API Error:", error);
     return NextResponse.json(

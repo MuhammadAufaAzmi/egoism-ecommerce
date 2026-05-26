@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { registerUser } from "@/lib/products";
+import { registerUser } from "@/lib/auth";
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -35,13 +35,13 @@ export default function RegisterPage() {
 
   return (
     <div className="bg-surface-container-lowest text-primary min-h-screen flex items-center justify-center px-6 md:px-16 py-24">
-      <div className="w-full max-w-md">
+      <div className="w-full max-w-md animate-fade-in-up">
         {/* Header Section */}
         <div className="mb-12 text-center md:text-left">
-          <p className="text-[12px] leading-[16px] tracking-[0.1em] font-semibold font-['Inter'] text-on-surface-variant uppercase mb-2">
+          <p className="text-[12px] leading-[16px] tracking-[0.1em] font-semibold text-on-surface-variant uppercase mb-2">
             START YOUR JOURNEY
           </p>
-          <h1 className="font-['Playfair_Display'] text-[40px] leading-[48px] md:text-[48px] md:leading-[56px] font-semibold uppercase tracking-wide">
+          <h1 className="text-[40px] leading-[48px] md:text-[48px] md:leading-[56px] font-semibold uppercase tracking-wide">
             CREATE ACCOUNT
           </h1>
         </div>
@@ -49,7 +49,7 @@ export default function RegisterPage() {
         {/* Notifikasi Status Masuk Database */}
         {message.text && (
           <div
-            className={`p-4 mb-6 text-[12px] font-['Inter'] font-semibold uppercase tracking-wider border rounded-none ${
+            className={`p-4 mb-6 text-[12px] font-semibold uppercase tracking-wider border rounded-none ${
               message.type === "success"
                 ? "bg-green-500/10 border-green-500/30 text-green-600"
                 : "bg-red-500/10 border-red-500/30 text-red-600"
@@ -64,7 +64,7 @@ export default function RegisterPage() {
           <div className="flex flex-col space-y-2">
             <label
               htmlFor="name"
-              className="text-[12px] leading-[16px] tracking-[0.1em] font-semibold font-['Inter'] text-on-surface-variant uppercase"
+              className="text-[12px] leading-[16px] tracking-[0.1em] font-semibold text-on-surface-variant uppercase"
             >
               FULL NAME
             </label>
@@ -75,7 +75,7 @@ export default function RegisterPage() {
               required
               value={formData.name}
               onChange={handleChange}
-              className="w-full bg-transparent border-b border-primary/30 font-['Inter'] text-[15px] py-3 focus:outline-none focus:border-primary transition-colors duration-300 rounded-none text-primary"
+              className="w-full bg-transparent border-b border-primary/30 text-[15px] py-3 focus:outline-none focus:border-primary transition-colors duration-300 rounded-none text-primary"
               placeholder="Enter your full name"
             />
           </div>
@@ -83,7 +83,7 @@ export default function RegisterPage() {
           <div className="flex flex-col space-y-2">
             <label
               htmlFor="email"
-              className="text-[12px] leading-[16px] tracking-[0.1em] font-semibold font-['Inter'] text-on-surface-variant uppercase"
+              className="text-[12px] leading-[16px] tracking-[0.1em] font-semibold text-on-surface-variant uppercase"
             >
               EMAIL ADDRESS
             </label>
@@ -94,7 +94,7 @@ export default function RegisterPage() {
               required
               value={formData.email}
               onChange={handleChange}
-              className="w-full bg-transparent border-b border-primary/30 font-['Inter'] text-[15px] py-3 focus:outline-none focus:border-primary transition-colors duration-300 rounded-none text-primary"
+              className="w-full bg-transparent border-b border-primary/30 text-[15px] py-3 focus:outline-none focus:border-primary transition-colors duration-300 rounded-none text-primary"
               placeholder="Enter your email"
             />
           </div>
@@ -102,7 +102,7 @@ export default function RegisterPage() {
           <div className="flex flex-col space-y-2">
             <label
               htmlFor="password"
-              className="text-[12px] leading-[16px] tracking-[0.1em] font-semibold font-['Inter'] text-on-surface-variant uppercase"
+              className="text-[12px] leading-[16px] tracking-[0.1em] font-semibold text-on-surface-variant uppercase"
             >
               PASSWORD
             </label>
@@ -113,7 +113,7 @@ export default function RegisterPage() {
               required
               value={formData.password}
               onChange={handleChange}
-              className="w-full bg-transparent border-b border-primary/30 font-['Inter'] text-[15px] py-3 focus:outline-none focus:border-primary transition-colors duration-300 rounded-none text-primary"
+              className="w-full bg-transparent border-b border-primary/30 text-[15px] py-3 focus:outline-none focus:border-primary transition-colors duration-300 rounded-none text-primary"
               placeholder="Create a secure password"
             />
           </div>
@@ -121,7 +121,7 @@ export default function RegisterPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-primary text-on-primary font-['Inter'] text-[14px] tracking-[0.05em] font-medium py-4 mt-8 uppercase tracking-widest hover:opacity-80 transition-opacity duration-300 disabled:opacity-50"
+            className="w-full bg-primary text-on-primary text-[14px] tracking-[0.05em] font-medium py-4 mt-8 uppercase tracking-widest hover:opacity-80 transition-opacity duration-300 disabled:opacity-50"
           >
             {loading ? "CREATING ACCOUNT..." : "REGISTER"}
           </button>
@@ -129,11 +129,11 @@ export default function RegisterPage() {
 
         {/* Navigasi Balik ke Login */}
         <div className="mt-12 text-center">
-          <p className="text-[16px] font-['Inter'] text-on-surface-variant uppercase">
+          <p className="text-[16px] text-on-surface-variant uppercase">
             ALREADY HAVE AN ACCOUNT?{" "}
             <Link
               href="/login"
-              className="text-[12px] leading-[16px] tracking-[0.1em] font-semibold font-['Inter'] underline text-primary hover:text-on-surface-variant transition-colors duration-300 ml-2 uppercase"
+              className="text-[12px] leading-[16px] tracking-[0.1em] font-semibold underline text-primary hover:text-on-surface-variant transition-colors duration-300 ml-2 uppercase"
             >
               SIGN IN
             </Link>

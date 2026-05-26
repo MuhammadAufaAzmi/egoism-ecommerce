@@ -46,18 +46,18 @@ export default async function KeranjangPage() {
   return (
     <div className="bg-background text-on-background min-h-screen">
       <main className="w-full max-w-[1440px] mx-auto px-5 md:px-16 py-12 md:py-24 pt-[120px]">
-        <h1 className="font-['Playfair_Display'] text-[32px] md:text-[80px] leading-[40px] md:leading-[90px] text-primary uppercase mb-16 tracking-tighter font-bold">
+        <h1 className="text-[32px] md:text-[80px] leading-[40px] md:leading-[90px] text-primary uppercase mb-16 tracking-tighter font-bold">
           SHOPPING BAG
         </h1>
 
         {items.length === 0 ? (
           <div className="text-center py-24">
-            <p className="text-[18px] font-['Inter'] text-secondary mb-8">
+            <p className="text-[18px] text-secondary mb-8">
               Your bag is empty.
             </p>
             <Link
               href="/koleksi"
-              className="inline-block border border-primary px-10 py-4 text-[14px] tracking-[0.05em] font-medium font-['Inter'] uppercase text-primary hover:bg-primary hover:text-on-primary transition-colors"
+              className="inline-block border border-primary px-10 py-4 text-[14px] tracking-[0.05em] font-medium uppercase text-primary hover:bg-primary hover:text-on-primary transition-colors"
             >
               EXPLORE COLLECTION
             </Link>
@@ -81,7 +81,7 @@ export default async function KeranjangPage() {
                   <div className="flex-grow flex flex-col justify-between">
                     <div>
                       <div className="flex justify-between items-start mb-2">
-                        <h3 className="font-['Playfair_Display'] text-[32px] leading-[40px] font-medium text-primary uppercase">
+                        <h3 className="text-[32px] leading-[40px] font-medium text-primary uppercase">
                           {item.name}
                         </h3>
 
@@ -102,10 +102,10 @@ export default async function KeranjangPage() {
                           </button>
                         </form>
                       </div>
-                      <p className="text-[12px] leading-[16px] tracking-[0.1em] font-semibold font-['Inter'] text-on-surface-variant mb-1">
+                      <p className="text-[12px] leading-[16px] tracking-[0.1em] font-semibold text-on-surface-variant mb-1">
                         COLOR: {item.color}
                       </p>
-                      <p className="text-[12px] leading-[16px] tracking-[0.1em] font-semibold font-['Inter'] text-on-surface-variant mb-6">
+                      <p className="text-[12px] leading-[16px] tracking-[0.1em] font-semibold text-on-surface-variant mb-6">
                         SIZE: {item.size}
                       </p>
                     </div>
@@ -131,7 +131,7 @@ export default async function KeranjangPage() {
                           </button>
                         </form>
 
-                        <span className="text-[16px] font-['Inter'] px-4 py-2 border-l border-r border-outline-variant">
+                        <span className="text-[16px] px-4 py-2 border-l border-r border-outline-variant">
                           {item.quantity}
                         </span>
 
@@ -154,7 +154,7 @@ export default async function KeranjangPage() {
                           </button>
                         </form>
                       </div>
-                      <p className="text-[18px] font-['Inter'] text-primary">
+                      <p className="text-[18px] text-primary">
                         {displayPrice(item.price * item.quantity)}
                       </p>
                     </div>
@@ -165,32 +165,32 @@ export default async function KeranjangPage() {
 
             <div className="lg:col-span-4 mt-12 lg:mt-0">
               <div className="sticky top-[120px] bg-surface-container-lowest p-8 border border-outline-variant">
-                <h2 className="font-['Playfair_Display'] text-[32px] leading-[40px] font-medium text-primary uppercase mb-8 border-b border-outline-variant pb-4">
+                <h2 className="text-[32px] leading-[40px] font-medium text-primary uppercase mb-8 border-b border-outline-variant pb-4">
                   ORDER SUMMARY
                 </h2>
                 <div className="flex flex-col gap-4 mb-8 border-b border-outline-variant pb-8">
                   <div className="flex justify-between items-center">
-                    <span className="text-[16px] font-['Inter'] text-on-surface-variant">
+                    <span className="text-[16px] text-on-surface-variant">
                       SUBTOTAL
                     </span>
-                    <span className="text-[16px] font-['Inter'] text-primary">
+                    <span className="text-[16px] text-primary">
                       {displayPrice(subtotal)}
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-[16px] font-['Inter'] text-on-surface-variant">
+                    <span className="text-[16px] text-on-surface-variant">
                       SHIPPING
                     </span>
-                    <span className="text-[16px] font-['Inter'] text-primary text-right text-sm">
+                    <span className="text-[16px] text-primary text-right text-sm">
                       CALCULATED AT CHECKOUT
                     </span>
                   </div>
                 </div>
                 <div className="flex justify-between items-end mb-8">
-                  <span className="font-['Playfair_Display'] text-[32px] leading-[40px] font-medium text-primary uppercase">
+                  <span className="text-[32px] leading-[40px] font-medium text-primary uppercase">
                     TOTAL
                   </span>
-                  <span className="font-['Playfair_Display'] text-[32px] leading-[40px] font-medium text-primary">
+                  <span className="text-[32px] leading-[40px] font-medium text-primary">
                     {displayPrice(subtotal)}
                   </span>
                 </div>
@@ -198,7 +198,7 @@ export default async function KeranjangPage() {
                 {/* PERBAIKAN: Mengubah <button> biasa menjadi <Link> yang mengarah ke "/checkout" */}
                 <Link
                   href="/checkout"
-                  className="block text-center w-full bg-primary text-on-primary font-['Inter'] text-[14px] tracking-[0.05em] font-bold uppercase py-4 hover:opacity-90 transition-opacity"
+                  className="block text-center w-full bg-primary text-on-primary text-[14px] tracking-[0.05em] font-bold uppercase py-4 hover:opacity-90 transition-opacity"
                 >
                   CHECKOUT
                 </Link>

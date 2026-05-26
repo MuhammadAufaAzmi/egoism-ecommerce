@@ -3,7 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { cookies } from "next/headers";
 
-async function getUserId() {
+export async function getUserId() {
   const cookieStore = await cookies();
   return cookieStore.get("user_id")?.value;
 }
@@ -108,5 +108,6 @@ export async function getUserOrders() {
       minimumFractionDigits: 0,
     }).format(o.total),
     status: o.status,
+    trackingNumber: o.trackingNumber,
   }));
 }

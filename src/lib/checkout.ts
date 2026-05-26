@@ -2,8 +2,15 @@
 
 import { prisma } from "@/lib/prisma";
 import { cookies } from "next/headers";
+import { sendOrderCreatedEmail } from "@/lib/email";
+import crypto from "crypto";
 
-export async function processCheckout() {
+interface CheckoutOptions {
+  shippingCost?: number;
+  shippingZone?: string;
+}
+
+export async function processCheckout(options?: CheckoutOptions) {
   try {
     const cookieStore = await cookies();
     const userId = cookieStore.get("user_id")?.value;
@@ -23,33 +30,55 @@ export async function processCheckout() {
     }
 
     // 2. Hitung total harga & buat catatan daftar barang
-    let totalAmount = 0;
+    let subtotal = 0;
     let itemsDescription = "";
 
     cartItems.forEach((item: any) => {
-      totalAmount += item.product.price * item.quantity;
+      subtotal += item.product.price * item.quantity;
       itemsDescription += `${item.product.name} (${item.color}, ${item.size}) x${item.quantity}\n`;
     });
 
-    // 3. Generate Nomor Resi/Order Unik bergaya EGOISM (Cth: EGO-827391)
-    const orderNumber =
-      "EGO-" + Math.floor(100000 + Math.random() * 900000).toString();
+    // 3. Hitung total dengan ongkir
+    const shippingCost = options?.shippingCost || 0;
+    const totalAmount = subtotal + shippingCost;
 
-    // 4. Buat pesanan baru di tabel Order MySQL
+    // 4. Generate Nomor Resi/Order Unik bergaya EGOISM (Cth: EGO-A7B2X)
+    const randomStr = crypto.randomBytes(3).toString("hex").toUpperCase();
+    const orderNumber = `EGO-${Date.now().toString().slice(-4)}-${randomStr}`;
+
+    // 5. Buat pesanan baru di tabel Order MySQL
     await (prisma as any).order.create({
       data: {
         orderNumber: orderNumber,
         userId: userId,
         items: itemsDescription.trim(),
         total: totalAmount,
+        shippingCost: shippingCost,
+        shippingZone: options?.shippingZone || null,
         status: "MENUNGGU PEMBAYARAN", // Status awal
       },
     });
 
-    // 5. Kosongkan keranjang belanja karena sudah dicheckout
+    // 6. Kosongkan keranjang belanja karena sudah dicheckout
     await (prisma as any).cart.deleteMany({
       where: { userId },
     });
+
+    // 7. Kirim email notifikasi ke customer
+    try {
+      const user = await prisma.user.findUnique({ where: { id: userId } });
+      if (user?.email) {
+        await sendOrderCreatedEmail(
+          user.email,
+          user.firstName || "Customer",
+          orderNumber,
+          totalAmount,
+          itemsDescription.trim()
+        );
+      }
+    } catch (emailErr) {
+      console.error("Email notification failed (non-blocking):", emailErr);
+    }
 
     return { success: true, orderId: orderNumber };
   } catch (error) {

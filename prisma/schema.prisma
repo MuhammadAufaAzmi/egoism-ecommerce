@@ -1,5 +1,5 @@
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -7,52 +7,61 @@ generator client {
   provider = "prisma-client-js"
 }
 
-// 1. TAMBAHKAN KOLOM PHONE DAN RELASI DI TABEL USER YANG SUDAH ADA
+// ==========================================
+// 1. USER
+// ==========================================
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String
-  firstName String?
-  lastName  String?
-  phone     String?   // <-- TAMBAHAN BARU
-  role      String   @default("USER")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id               String    @id @default(uuid())
+  email            String    @unique
+  password         String
+  firstName        String?
+  lastName         String?
+  phone            String?
+  role             String    @default("USER")
+  resetToken       String?
+  resetTokenExpiry DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 
   carts     Cart[]
-  addresses Address[] // <-- TAMBAHAN BARU
-  orders    Order[]   // <-- TAMBAHAN BARU
+  addresses Address[]
+  orders    Order[]
+  wishlists Wishlist[]
+  reviews   Review[]
 }
 
 // ==========================================
-// 2. MODEL PRODUCT
+// 2. PRODUCT
 // ==========================================
 model Product {
   id          String   @id @default(uuid())
   slug        String   @unique
   name        String
   price       Int
-  category    String   
-  image       String   
+  category    String
+  image       String
+  images      String   @default("[]") // JSON string array untuk galeri
   description String   @db.Text
-  sizes       String   // Disimpan dalam bentuk JSON string array
-  colors      String   @default("[]") // PERBAIKAN: Menyimpan pilihan warna dalam bentuk JSON string array
+  sizes       String   // JSON string array, contoh: ["S","M","L","XL"]
+  colors      String   @default("[]") // JSON string array, contoh: ["BLACK","WHITE"]
   isNew       Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   carts       Cart[]
+  wishlists   Wishlist[]
+  reviews     Review[]
 }
 
 // ==========================================
-// 3. MODEL CART
+// 3. CART
 // ==========================================
 model Cart {
   id        String   @id @default(uuid())
   userId    String
   productId String
   size      String
-  color     String   @default("BLACK") // PERBAIKAN: Kolom warna dinamis dari pilihan user
+  color     String   @default("BLACK")
   quantity  Int      @default(1)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -60,36 +69,87 @@ model Cart {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
 
-  // PERBAIKAN: Keunikan baris sekarang dihitung berdasarkan kombinasi produk, ukuran, DAN warna
   @@unique([userId, productId, size, color])
 }
 
-// 2. COPY-PASTE 2 TABEL BARU INI DI PALING BAWAH
+// ==========================================
+// 4. ADDRESS
+// ==========================================
 model Address {
-  id        String   @id @default(uuid())
-  userId    String
-  label     String
-  recipient String
-  phone     String
-  address   String
-  city      String
-  province  String
-  postal    String
-  isDefault Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         String   @id @default(uuid())
+  userId     String
+  label      String
+  recipient  String
+  phone      String
+  address    String
+  city       String
+  province   String
+  postal     String
+  isDefault  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+// ==========================================
+// 5. ORDER
+// ==========================================
 model Order {
-  id          String   @id @default(uuid())
-  orderNumber String   @unique
-  userId      String
-  items       String   @db.Text // Menyimpan ringkasan nama barang
-  total       Int
-  status      String   @default("DIPROSES") // DIPROSES, DIKIRIM, DITERIMA, DIBATALKAN
-  createdAt   DateTime @default(now())
+  id              String   @id @default(uuid())
+  orderNumber     String   @unique
+  userId          String
+  items           String   @db.Text
+  total           Int
+  shippingCost    Int      @default(0)
+  shippingZone    String?
+  trackingNumber  String?
+  status          String   @default("DIPROSES")
+  paymentProof    String?  @db.VarChar(255)
+  createdAt       DateTime @default(now())
 
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ==========================================
+// 6. WISHLIST
+// ==========================================
+model Wishlist {
+  id        String   @id @default(uuid())
+  userId    String
+  productId String
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+}
+
+// ==========================================
+// 7. REVIEW
+// ==========================================
+model Review {
+  id        String   @id @default(uuid())
+  userId    String
+  productId String
+  rating    Int      // 1-5
+  comment   String?  @db.Text
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+}
+
+// ==========================================
+// 6. SHIPPING ZONE
+// ==========================================
+model ShippingZone {
+  id        String @id @default(uuid())
+  zone      String   // JABODETABEK, JAWA, SUMATERA, dll
+  province  String @unique
+  cost      Int      // Dalam Rupiah
+  etd       String   // Contoh: "1-2 hari"
 }

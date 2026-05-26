@@ -1,79 +1,246 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { getCartItems } from "@/lib/products";
-import { getUserAddresses } from "@/lib/account";
+import { getUserId, getUserAddresses } from "@/lib/account";
 import { processCheckout } from "@/lib/checkout";
+import { useToast } from "@/components/ui/Toast";
+
+interface ShippingZone {
+  zone: string;
+  province: string;
+  cost: number;
+  etd: string;
+}
 
 export default function CheckoutPage() {
   const router = useRouter();
+  const { showToast } = useToast();
   const [cartItems, setCartItems] = useState<any[]>([]);
   const [address, setAddress] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("manual");
+  const [orderSuccess, setOrderSuccess] = useState(false);
+
+  // Shipping states
+  const [shippingZone, setShippingZone] = useState<ShippingZone | null>(null);
+  const [loadingShipping, setLoadingShipping] = useState(false);
+  const [shippingError, setShippingError] = useState("");
+
+  const totalQuantity = cartItems.reduce(
+    (sum, item) => sum + item.quantity,
+    0
+  );
+
+  // Fetch ongkir dari database lokal berdasarkan provinsi
+  const fetchShippingZone = useCallback(async (province: string) => {
+    setLoadingShipping(true);
+    setShippingError("");
+    setShippingZone(null);
+
+    try {
+      const res = await fetch(
+        `/api/shipping/zones?province=${encodeURIComponent(province)}`
+      );
+      const data = await res.json();
+
+      if (data.success && data.zone) {
+        setShippingZone(data.zone);
+      } else {
+        setShippingError(
+          "Tidak bisa menghitung ongkir untuk provinsi ini. Silakan update alamat Anda."
+        );
+      }
+    } catch {
+      setShippingError("Gagal mengambil data ongkir.");
+    } finally {
+      setLoadingShipping(false);
+    }
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
-      const cookies = document.cookie.split(";");
-      const userIdCookie = cookies.find((c) => c.trim().startsWith("user_id="));
+      try {
+        const userId = await getUserId();
 
-      if (!userIdCookie) {
-        router.push("/login");
-        return;
+        if (!userId) {
+          router.push("/login");
+          return;
+        }
+
+        // Fetch cart dan address secara parallel
+        const [items, addresses] = await Promise.all([
+          getCartItems(userId),
+          getUserAddresses(),
+        ]);
+
+        setCartItems(items || []);
+
+        const validAddresses = Array.isArray(addresses) ? addresses : [];
+        const defaultAddr =
+          validAddresses.find((a: any) => a.isDefault) || validAddresses[0];
+
+        setAddress(defaultAddr || null);
+
+        // Auto-fetch ongkir berdasarkan provinsi di alamat
+        if (defaultAddr?.province) {
+          fetchShippingZone(defaultAddr.province);
+        }
+      } catch (error) {
+        console.error("Error fetching checkout data:", error);
+        setFetchError(
+          "Gagal memuat data checkout. Silakan refresh halaman atau coba lagi nanti."
+        );
+      } finally {
+        setLoading(false);
       }
-
-      const userId = userIdCookie.split("=")[1];
-      const items = await getCartItems(userId);
-      const addresses = await getUserAddresses();
-
-      setCartItems(items);
-      setAddress(addresses.find((a: any) => a.isDefault) || addresses[0]);
-      setLoading(false);
     };
 
     fetchData();
-  }, [router]);
+  }, [router, fetchShippingZone]);
 
   const handlePlaceOrder = async () => {
     if (!address) {
-      alert(
+      showToast(
         "Silakan tambah alamat pengiriman di menu My Account terlebih dahulu.",
+        "warning"
       );
       router.push("/my-account");
       return;
     }
 
-    setIsProcessing(true);
-    const result = await processCheckout();
+    if (!shippingZone) {
+      showToast(
+        "Ongkir belum tersedia. Pastikan alamat sudah benar.",
+        "warning"
+      );
+      return;
+    }
 
-    if (result.success) {
-      router.push(`/payment/${result.orderId}`);
-    } else {
-      alert(result.message);
+    if (cartItems.length === 0) {
+      showToast("Keranjang belanja Anda kosong.", "warning");
+      return;
+    }
+
+    setIsProcessing(true);
+
+    try {
+      const result = await processCheckout({
+        shippingCost: shippingZone.cost,
+        shippingZone: shippingZone.zone,
+      });
+
+      if (result.success && result.orderId) {
+        setOrderSuccess(true);
+        showToast("Pesanan berhasil dibuat! Menuju halaman pembayaran...", "success");
+        window.location.href = `/payment/${result.orderId}`;
+      } else {
+        showToast(
+          result.message || "Gagal memproses pesanan. Silakan coba lagi.",
+          "error"
+        );
+        setIsProcessing(false);
+      }
+    } catch (error) {
+      console.error("Checkout error:", error);
+      showToast(
+        "Terjadi kesalahan saat memproses pesanan. Silakan coba lagi.",
+        "error"
+      );
       setIsProcessing(false);
     }
   };
 
-  const totalAmount = cartItems.reduce(
+  const subtotal = cartItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
-    0,
+    0
   );
+  const shippingCost = shippingZone?.cost || 0;
+  const grandTotal = subtotal + shippingCost;
 
+  const formatIDR = (amount: number) =>
+    new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
+      minimumFractionDigits: 0,
+    }).format(amount);
+
+  // ========================
+  // LOADING STATE
+  // ========================
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background text-primary tracking-widest text-[12px] uppercase">
-        LOADING CHECKOUT...
+      <div className="min-h-screen flex flex-col items-center justify-center bg-background text-primary">
+        <div className="inline-block w-6 h-6 border-2 border-primary/30 border-t-primary rounded-full animate-spin mb-4" />
+        <p className="tracking-widest text-[12px] uppercase">
+          Memuat data checkout...
+        </p>
       </div>
     );
   }
 
+  // ========================
+  // FETCH ERROR STATE
+  // ========================
+  if (fetchError) {
+    return (
+      <div className="min-h-screen pt-[120px] bg-background text-center flex flex-col items-center px-5">
+        <div className="w-16 h-16 bg-red-950/20 text-red-500 border border-red-500/30 flex items-center justify-center mx-auto mb-6">
+          <svg
+            className="w-8 h-8"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+        </div>
+        <p className="text-[14px] text-red-400 uppercase tracking-widest mb-2">
+          Terjadi Kesalahan
+        </p>
+        <p className="text-[13px] text-secondary mb-8 max-w-md">
+          {fetchError}
+        </p>
+        <button
+          onClick={() => window.location.reload()}
+          className="border border-primary px-8 py-3 text-[12px] tracking-widest uppercase hover:bg-primary hover:text-on-primary transition-colors"
+        >
+          COBA LAGI
+        </button>
+      </div>
+    );
+  }
+
+  // ========================
+  // SUCCESS / REDIRECTING STATE
+  // ========================
+  if (orderSuccess) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-background text-primary">
+        <div className="inline-block w-6 h-6 border-2 border-primary/30 border-t-primary rounded-full animate-spin mb-4" />
+        <p className="tracking-widest text-[12px] uppercase">
+          Mengalihkan ke Pembayaran...
+        </p>
+      </div>
+    );
+  }
+
+  // ========================
+  // EMPTY CART STATE
+  // ========================
   if (cartItems.length === 0) {
     return (
-      <div className="min-h-screen pt-[120px] bg-background text-center flex flex-col items-center">
-        <p className="text-[14px] font-['Inter'] text-secondary uppercase tracking-widest mb-6">
+      <div className="min-h-screen pt-[120px] bg-background text-center flex flex-col items-center px-5">
+        <p className="text-[14px] text-secondary uppercase tracking-widest mb-6">
           Keranjang Anda Kosong.
         </p>
         <Link
@@ -86,20 +253,47 @@ export default function CheckoutPage() {
     );
   }
 
+  // ========================
+  // Cek apakah checkout bisa dilakukan
+  // ========================
+  const canPlaceOrder = address && shippingZone && !isProcessing && !loadingShipping && cartItems.length > 0;
+
+  // ========================
+  // MAIN CHECKOUT UI
+  // ========================
   return (
-    <div className="pt-[120px] pb-24 min-h-screen bg-surface-container-lowest text-primary px-5 md:px-16 flex justify-center font-['Inter']">
+    <div className="pt-[120px] pb-24 min-h-screen bg-surface-container-lowest text-primary px-5 md:px-16 flex justify-center ">
       <div className="w-full max-w-6xl">
-        <h1 className="font-['Playfair_Display'] text-[32px] md:text-[40px] font-bold uppercase tracking-wide mb-10 border-b border-outline-variant/30 pb-4">
+        {/* Step Indicator */}
+        <div className="flex items-center justify-center gap-2 mb-8 text-[11px] uppercase tracking-widest text-secondary">
+          <span className="text-secondary/50">Keranjang</span>
+          <span className="text-secondary/30">→</span>
+          <span className="text-primary font-bold">Checkout</span>
+          <span className="text-secondary/30">→</span>
+          <span className="text-secondary/50">Pembayaran</span>
+        </div>
+
+        <h1 className="text-[32px] md:text-[40px] font-bold uppercase tracking-wide mb-10 border-b border-outline-variant/30 pb-4">
           Checkout
         </h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-12">
           {/* KOLOM KIRI: ALAMAT & BARANG */}
           <div className="lg:col-span-3 space-y-10">
+            {/* ===== SECTION 1: SHIPPING ADDRESS ===== */}
             <section>
-              <h2 className="text-[12px] font-semibold tracking-widest uppercase text-secondary mb-4">
-                SHIPPING ADDRESS
-              </h2>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-[12px] font-semibold tracking-widest uppercase text-secondary">
+                  SHIPPING ADDRESS
+                </h2>
+                <Link
+                  href="/my-account"
+                  className="text-[11px] tracking-widest uppercase text-primary/70 hover:text-primary transition-colors border-b border-primary/30 hover:border-primary"
+                >
+                  {address ? "UBAH ALAMAT" : "TAMBAH ALAMAT"}
+                </Link>
+              </div>
+
               {address ? (
                 <div className="border border-outline-variant/50 p-6 bg-surface-container/20">
                   <p className="font-bold uppercase text-[14px] mb-1">
@@ -116,12 +310,84 @@ export default function CheckoutPage() {
                   </p>
                 </div>
               ) : (
-                <div className="border border-red-500/50 p-6 text-red-400 text-[13px] uppercase tracking-wider">
-                  Belum ada alamat. Silakan atur di Profil Anda.
+                <div className="border border-red-500/50 p-6 bg-red-950/10">
+                  <p className="text-red-400 text-[13px] uppercase tracking-wider mb-3">
+                    Belum ada alamat pengiriman.
+                  </p>
+                  <Link
+                    href="/my-account"
+                    className="inline-block border border-red-500/50 px-6 py-2 text-[11px] tracking-widest uppercase text-red-400 hover:bg-red-500 hover:text-white transition-colors"
+                  >
+                    TAMBAH ALAMAT DI MY ACCOUNT →
+                  </Link>
                 </div>
               )}
             </section>
 
+            {/* ===== SECTION 2: SHIPPING / ONGKIR ===== */}
+            <section>
+              <h2 className="text-[12px] font-semibold tracking-widest uppercase text-secondary mb-4">
+                SHIPPING
+              </h2>
+
+              {loadingShipping ? (
+                <div className="border border-outline-variant/30 p-8 text-center">
+                  <div className="inline-block w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin mb-3" />
+                  <p className="text-[12px] text-secondary uppercase tracking-widest">
+                    Menghitung ongkos kirim...
+                  </p>
+                </div>
+              ) : shippingError ? (
+                <div className="border border-amber-500/30 bg-amber-50/10 p-6">
+                  <p className="text-[13px] text-amber-600 uppercase tracking-wider mb-3">
+                    {shippingError}
+                  </p>
+                  {address?.province && (
+                    <button
+                      onClick={() => fetchShippingZone(address.province)}
+                      className="text-[11px] tracking-widest uppercase text-amber-600 border border-amber-500/30 px-4 py-2 hover:bg-amber-500/10 transition-colors"
+                    >
+                      COBA HITUNG ULANG
+                    </button>
+                  )}
+                </div>
+              ) : shippingZone ? (
+                <div className="border border-primary/50 bg-surface-container/20 p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-[13px] font-bold uppercase tracking-wide">
+                        Zona {shippingZone.zone}
+                      </p>
+                      <p className="text-[11px] text-secondary mt-0.5">
+                        {shippingZone.province} • Estimasi{" "}
+                        {shippingZone.etd}
+                      </p>
+                    </div>
+                    <p className="text-[16px] font-bold text-primary whitespace-nowrap ml-4">
+                      {formatIDR(shippingZone.cost)}
+                    </p>
+                  </div>
+                </div>
+              ) : !address ? (
+                <div className="border border-outline-variant/30 p-6 text-[13px] text-secondary uppercase tracking-wider text-center">
+                  Tambah alamat Anda di My Account untuk menghitung ongkir.
+                </div>
+              ) : (
+                <div className="border border-outline-variant/30 p-6 text-center">
+                  <p className="text-[13px] text-secondary uppercase tracking-wider mb-3">
+                    Ongkir belum dihitung.
+                  </p>
+                  <button
+                    onClick={() => fetchShippingZone(address.province)}
+                    className="text-[11px] tracking-widest uppercase text-primary border border-primary/30 px-4 py-2 hover:bg-primary/5 transition-colors"
+                  >
+                    HITUNG ONGKIR
+                  </button>
+                </div>
+              )}
+            </section>
+
+            {/* ===== SECTION 3: ORDER SUMMARY ===== */}
             <section>
               <h2 className="text-[12px] font-semibold tracking-widest uppercase text-secondary mb-4">
                 ORDER SUMMARY
@@ -151,11 +417,7 @@ export default function CheckoutPage() {
                         Qty: {item.quantity}
                       </p>
                       <p className="text-[13px] font-semibold mt-2 text-primary">
-                        {new Intl.NumberFormat("id-ID", {
-                          style: "currency",
-                          currency: "IDR",
-                          minimumFractionDigits: 0,
-                        }).format(item.price * item.quantity)}
+                        {formatIDR(item.price * item.quantity)}
                       </p>
                     </div>
                   </div>
@@ -167,35 +429,37 @@ export default function CheckoutPage() {
           {/* KOLOM KANAN: PAYMENT & TOMBOL */}
           <div className="lg:col-span-2">
             <div className="border border-outline-variant/50 p-6 lg:sticky lg:top-32 bg-surface-container-lowest">
-              <div className="flex justify-between text-[13px] mb-4 text-secondary">
-                <span>SUBTOTAL</span>
+              <div className="flex justify-between text-[13px] mb-3 text-secondary">
+                <span>SUBTOTAL ({totalQuantity} item)</span>
+                <span>{formatIDR(subtotal)}</span>
+              </div>
+              <div className="flex justify-between text-[13px] mb-3 text-secondary">
+                <span>SHIPPING</span>
                 <span>
-                  {new Intl.NumberFormat("id-ID", {
-                    style: "currency",
-                    currency: "IDR",
-                    minimumFractionDigits: 0,
-                  }).format(totalAmount)}
+                  {loadingShipping
+                    ? "Menghitung..."
+                    : shippingZone
+                      ? formatIDR(shippingCost)
+                      : !address
+                        ? "Butuh alamat"
+                        : "Belum tersedia"}
                 </span>
               </div>
-              <div className="flex justify-between text-[13px] mb-6 text-secondary border-b border-outline-variant/30 pb-4">
-                <span>SHIPPING</span>
-                <span>FREE</span>
-              </div>
+              {shippingZone && (
+                <div className="text-[10px] text-secondary/70 mb-4 uppercase tracking-wider">
+                  Zona {shippingZone.zone} • Est. {shippingZone.etd}
+                </div>
+              )}
+              <div className="border-t border-outline-variant/30 pt-4 mb-6" />
 
               <div className="flex justify-between text-[16px] font-bold mb-8 text-primary">
                 <span>TOTAL</span>
-                <span>
-                  {new Intl.NumberFormat("id-ID", {
-                    style: "currency",
-                    currency: "IDR",
-                    minimumFractionDigits: 0,
-                  }).format(totalAmount)}
-                </span>
+                <span>{formatIDR(grandTotal)}</span>
               </div>
 
-              {/* PAYMENT SECTION (Sesuai Gambar) */}
+              {/* PAYMENT SECTION */}
               <div className="border-t border-outline-variant/30 pt-6 mb-8">
-                <h2 className="text-[18px] font-medium mb-6 font-['Playfair_Display'] tracking-wide">
+                <h2 className="text-[18px] font-medium mb-6 tracking-wide">
                   Payment
                 </h2>
 
@@ -241,12 +505,32 @@ export default function CheckoutPage() {
                 </div>
               </div>
 
+              {/* Pesan info jika belum bisa checkout */}
+              {!canPlaceOrder && !isProcessing && (
+                <div className="text-[11px] text-amber-600 bg-amber-50/10 border border-amber-500/20 p-3 mb-4 uppercase tracking-wider text-center">
+                  {!address
+                    ? "Tambah alamat pengiriman terlebih dahulu"
+                    : !shippingZone && loadingShipping
+                      ? "Menunggu kalkulasi ongkir..."
+                      : !shippingZone
+                        ? "Ongkir belum tersedia"
+                        : ""}
+                </div>
+              )}
+
               <button
                 onClick={handlePlaceOrder}
-                disabled={isProcessing || !address}
-                className="w-full bg-primary text-on-primary font-bold uppercase tracking-[0.15em] py-4 border border-primary hover:bg-transparent hover:text-primary transition-colors duration-300 disabled:opacity-50"
+                disabled={!canPlaceOrder}
+                className="w-full bg-primary text-on-primary font-bold uppercase tracking-[0.15em] py-4 border border-primary hover:bg-transparent hover:text-primary transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isProcessing ? "PROCESSING..." : "PLACE ORDER"}
+                {isProcessing ? (
+                  <span className="flex items-center justify-center gap-3">
+                    <span className="inline-block w-4 h-4 border-2 border-on-primary/30 border-t-on-primary rounded-full animate-spin" />
+                    MEMPROSES PESANAN...
+                  </span>
+                ) : (
+                  "PLACE ORDER"
+                )}
               </button>
             </div>
           </div>

@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { updateOrderStatus } from "@/lib/admin";
 import { useRouter } from "next/navigation";
+import { useToast } from "@/components/ui/Toast";
 
 interface AdminOrdersClientProps {
   initialOrders: any[];
@@ -12,6 +13,7 @@ export default function AdminOrdersClient({
   initialOrders,
 }: AdminOrdersClientProps) {
   const router = useRouter();
+  const { showToast } = useToast();
   const [orders, setOrders] = useState(initialOrders);
   const [loadingId, setLoadingId] = useState<string | null>(null);
 
@@ -25,7 +27,7 @@ export default function AdminOrdersClient({
         prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o)),
       );
     } else {
-      alert("Gagal merubah status pesanan.");
+      showToast("Gagal merubah status pesanan.", "error");
     }
     setLoadingId(null);
     router.refresh();
@@ -51,10 +53,10 @@ export default function AdminOrdersClient({
       <div className="w-full max-w-[1440px] bg-surface border border-outline-variant/30 p-8 md:p-12 shadow-md">
         <div className="mb-10 border-b border-outline-variant/30 pb-4 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div>
-            <h1 className="font-['Playfair_Display'] text-[28px] md:text-[36px] font-bold uppercase tracking-wide">
+            <h1 className="text-[28px] md:text-[36px] font-bold uppercase tracking-wide">
               Order Management
             </h1>
-            <p className="font-['Inter'] text-[12px] text-secondary uppercase tracking-widest mt-1">
+            <p className="text-[12px] text-secondary uppercase tracking-widest mt-1">
               Control Panel & Fulfillment Center
             </p>
           </div>
@@ -64,7 +66,7 @@ export default function AdminOrdersClient({
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left font-['Inter'] text-[13px] border-collapse min-w-[900px]">
+          <table className="w-full text-left text-[13px] border-collapse min-w-[900px]">
             <thead>
               <tr className="border-b border-outline-variant/50 uppercase tracking-widest text-[11px] text-secondary">
                 <th className="p-4 font-semibold">Order ID & Date</th>

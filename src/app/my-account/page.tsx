@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useToast } from "@/components/ui/Toast";
 import {
   getUserProfile,
   updateUserProfile,
@@ -26,22 +27,24 @@ export default function MyAccountPage() {
   });
 
   useEffect(() => {
-    const cookies = document.cookie.split(";");
-    const hasRole = cookies.some((c) => c.trim().startsWith("user_role="));
-    if (!hasRole) {
-      router.push("/login");
-    } else {
-      getUserProfile().then((data) => {
-        if (data) setSidebarUser(data);
+    fetch("/api/auth/me")
+      .then((res) => res.json())
+      .then((data) => {
+        if (!data.authenticated) {
+          router.push("/login");
+        } else {
+          getUserProfile().then((profileData) => {
+            if (profileData) setSidebarUser(profileData);
+          });
+        }
+      })
+      .catch(() => {
+        router.push("/login");
       });
-    }
   }, [router]);
 
-  const handleSignOut = () => {
-    document.cookie =
-      "user_role=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-    document.cookie =
-      "user_id=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+  const handleSignOut = async () => {
+    await fetch("/api/auth/logout", { method: "POST" });
     router.push("/");
     router.refresh();
   };
@@ -53,7 +56,7 @@ export default function MyAccountPage() {
   ];
 
   return (
-    <div className="flex min-h-screen bg-surface-container-lowest text-on-surface font-['Inter']">
+    <div className="flex min-h-screen bg-surface-container-lowest text-on-surface ">
       {/* ── SIDEBAR ── */}
       <aside
         className={`fixed left-0 top-0 h-full flex flex-col w-72 lg:w-80 bg-surface-container-lowest border-r border-stone-100 z-[60] transition-transform duration-300 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0`}
@@ -61,11 +64,11 @@ export default function MyAccountPage() {
         <div className="px-10 pt-12 pb-8 border-b border-stone-100">
           <Link
             href="/"
-            className="font-['Playfair_Display'] text-[24px] font-bold uppercase tracking-[0.2em] text-primary block"
+            className="text-[24px] font-bold uppercase tracking-[0.2em] text-primary block"
           >
             EGOISM
           </Link>
-          <p className="text-[13px] font-['Inter'] text-secondary mt-3">
+          <p className="text-[13px] text-secondary mt-3">
             {sidebarUser.firstName} {sidebarUser.lastName}
           </p>
           <p className="text-[11px] tracking-[0.08em] font-semibold text-secondary/60 mt-0.5 uppercase">
@@ -154,11 +157,11 @@ export default function MyAccountPage() {
 
         <footer className="border-t border-stone-100 px-5 md:px-16 py-10 flex flex-col md:flex-row justify-between items-start gap-6">
           <div>
-            <span className="font-['Playfair_Display'] text-[20px] font-bold uppercase tracking-wider text-primary block mb-1">
+            <span className="text-[20px] font-bold uppercase tracking-wider text-primary block mb-1">
               EGOISM
             </span>
             <p className="text-[11px] tracking-[0.1em] font-semibold text-secondary uppercase">
-              © 2024 EGOISM STUDIOS. ALL RIGHTS RESERVED.
+              © 2026 EGOISM STUDIOS. ALL RIGHTS RESERVED.
             </p>
           </div>
           <div className="flex gap-8">
@@ -223,7 +226,7 @@ function ProfileTab() {
     <div>
       <div className="flex items-start justify-between mb-14">
         <div>
-          <h2 className="font-['Playfair_Display'] text-[40px] md:text-[48px] leading-tight font-semibold text-primary uppercase mb-4">
+          <h2 className="text-[40px] md:text-[48px] leading-tight font-semibold text-primary uppercase mb-4">
             Profil Saya
           </h2>
           <div className="h-px w-20 bg-stone-200" />
@@ -242,12 +245,12 @@ function ProfileTab() {
       <div className="space-y-10 max-w-2xl">
         <div className="flex items-center gap-6 pb-10 border-b border-stone-100">
           <div className="w-20 h-20 bg-surface-container border border-stone-200 flex items-center justify-center flex-shrink-0">
-            <span className="font-['Playfair_Display'] text-[32px] font-bold text-secondary">
+            <span className="text-[32px] font-bold text-secondary">
               {form.firstName ? form.firstName[0] : "E"}
             </span>
           </div>
           <div>
-            <p className="font-['Playfair_Display'] text-[22px] font-medium text-primary uppercase">
+            <p className="text-[22px] font-medium text-primary uppercase">
               {form.firstName} {form.lastName}
             </p>
             <p className="text-[12px] tracking-[0.08em] text-secondary mt-1">
@@ -271,10 +274,10 @@ function ProfileTab() {
                   value={form[key]}
                   disabled={key === "email"}
                   onChange={(e) => setForm({ ...form, [key]: e.target.value })}
-                  className="w-full bg-transparent border-b border-primary focus:ring-0 py-3 text-[16px] font-['Inter'] text-primary transition-colors outline-none disabled:opacity-50"
+                  className="w-full bg-transparent border-b border-primary focus:ring-0 py-3 text-[16px] text-primary transition-colors outline-none disabled:opacity-50"
                 />
               ) : (
-                <p className="py-3 text-[16px] font-['Inter'] text-primary border-b border-stone-100">
+                <p className="py-3 text-[16px] text-primary border-b border-stone-100">
                   {form[key] || "-"}
                 </p>
               )}
@@ -310,9 +313,12 @@ function ProfileTab() {
    TAB 2 — ALAMAT PENGIRIMAN
 ───────────────────────────────────────── */
 function AddressTab() {
+  const { showToast } = useToast();
   const [addresses, setAddresses] = useState<any[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
+  const [provinceList, setProvinceList] = useState<string[]>([]);
+  const [loadingProvinces, setLoadingProvinces] = useState(false);
   const [form, setForm] = useState({
     label: "",
     recipient: "",
@@ -329,6 +335,20 @@ function AddressTab() {
 
   useEffect(() => {
     loadAddresses();
+  }, []);
+
+  // Ambil daftar provinsi dari tabel ShippingZone di database lokal
+  useEffect(() => {
+    setLoadingProvinces(true);
+    fetch("/api/shipping/zones")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.success) {
+          const names = data.zones.map((z: any) => z.province);
+          setProvinceList(names);
+        }
+      })
+      .finally(() => setLoadingProvinces(false));
   }, []);
 
   const openAdd = () => {
@@ -360,6 +380,35 @@ function AddressTab() {
   };
 
   const saveForm = async () => {
+    if (!form.label.trim()) {
+      showToast("Label alamat wajib diisi.", "warning");
+      return;
+    }
+    if (!form.recipient.trim()) {
+      showToast("Nama penerima wajib diisi.", "warning");
+      return;
+    }
+    if (!form.phone.trim()) {
+      showToast("No. telepon wajib diisi.", "warning");
+      return;
+    }
+    if (!form.address.trim()) {
+      showToast("Alamat lengkap wajib diisi.", "warning");
+      return;
+    }
+    if (!form.city.trim()) {
+      showToast("Kota wajib diisi.", "warning");
+      return;
+    }
+    if (!form.province) {
+      showToast("Silakan pilih provinsi.", "warning");
+      return;
+    }
+    if (!form.postal.trim()) {
+      showToast("Kode pos wajib diisi.", "warning");
+      return;
+    }
+
     await saveUserAddress(form, editId || undefined);
     setShowForm(false);
     loadAddresses();
@@ -375,7 +424,7 @@ function AddressTab() {
     loadAddresses();
   };
 
-  const fields = [
+  const textFields = [
     {
       label: "Label Alamat (cth: Rumah, Kantor)",
       key: "label" as const,
@@ -388,20 +437,17 @@ function AddressTab() {
       key: "address" as const,
       colSpan: "md:col-span-2",
     },
-    { label: "Kota", key: "city" as const },
-    { label: "Provinsi", key: "province" as const },
-    { label: "Kode Pos", key: "postal" as const },
   ];
 
   return (
     <div>
       <div className="flex items-start justify-between mb-14">
         <div>
-          <h2 className="font-['Playfair_Display'] text-[40px] md:text-[48px] leading-tight font-semibold text-primary uppercase mb-4">
+          <h2 className="text-[40px] md:text-[48px] leading-tight font-semibold text-primary uppercase mb-4">
             Alamat Pengiriman
           </h2>
           <div className="h-px w-20 bg-stone-200" />
-          <p className="text-[14px] font-['Inter'] text-secondary mt-4">
+          <p className="text-[14px] text-secondary mt-4">
             Alamat ini akan otomatis terisi saat checkout.
           </p>
         </div>
@@ -422,7 +468,7 @@ function AddressTab() {
             {editId !== null ? "EDIT ALAMAT" : "TAMBAH ALAMAT BARU"}
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {fields.map(({ label, key, colSpan }) => (
+            {textFields.map(({ label, key, colSpan }) => (
               <div key={key} className={`space-y-2 ${colSpan ?? ""}`}>
                 <label className="text-[11px] tracking-[0.15em] font-semibold text-secondary block uppercase">
                   {label}
@@ -431,11 +477,59 @@ function AddressTab() {
                   type="text"
                   value={form[key]}
                   onChange={(e) => setForm({ ...form, [key]: e.target.value })}
-                  className="w-full bg-transparent border-b border-primary focus:ring-0 py-3 text-[15px] font-['Inter'] text-primary outline-none"
+                  className="w-full bg-transparent border-b border-primary focus:ring-0 py-3 text-[15px] text-primary outline-none"
                   placeholder={label}
                 />
               </div>
             ))}
+          </div>
+          {/* Provinsi, Kota, Kode Pos */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8">
+            <div className="space-y-2">
+              <label className="text-[11px] tracking-[0.15em] font-semibold text-secondary block uppercase">
+                Provinsi
+              </label>
+              <select
+                value={form.province}
+                onChange={(e) => {
+                  setForm({ ...form, province: e.target.value });
+                }}
+                className="w-full bg-transparent border-b border-primary focus:ring-0 py-3 text-[15px] text-primary outline-none cursor-pointer"
+              >
+                <option value="">
+                  {loadingProvinces ? "Memuat..." : "Pilih Provinsi"}
+                </option>
+                {provinceList.map((prov) => (
+                  <option key={prov} value={prov}>
+                    {prov}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-[11px] tracking-[0.15em] font-semibold text-secondary block uppercase">
+                Kota / Kabupaten
+              </label>
+              <input
+                type="text"
+                value={form.city}
+                onChange={(e) => setForm({ ...form, city: e.target.value })}
+                className="w-full bg-transparent border-b border-primary focus:ring-0 py-3 text-[15px] text-primary outline-none"
+                placeholder="Contoh: Tangerang Selatan"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-[11px] tracking-[0.15em] font-semibold text-secondary block uppercase">
+                Kode Pos
+              </label>
+              <input
+                type="text"
+                value={form.postal}
+                onChange={(e) => setForm({ ...form, postal: e.target.value })}
+                className="w-full bg-transparent border-b border-primary focus:ring-0 py-3 text-[15px] text-primary outline-none"
+                placeholder="Kode Pos"
+              />
+            </div>
           </div>
           <div className="flex gap-4 mt-8">
             <button
@@ -459,7 +553,7 @@ function AddressTab() {
           <span className="material-symbols-outlined text-[48px] text-stone-300 block mb-4">
             location_off
           </span>
-          <p className="text-[14px] font-['Inter'] text-secondary mb-6">
+          <p className="text-[14px] text-secondary mb-6">
             Belum ada alamat tersimpan.
           </p>
           <button
@@ -509,16 +603,12 @@ function AddressTab() {
                 </div>
               </div>
 
-              <p className="text-[15px] font-['Inter'] font-semibold text-primary mb-1">
+              <p className="text-[15px] font-semibold text-primary mb-1">
                 {addr.recipient}
               </p>
-              <p className="text-[14px] font-['Inter'] text-secondary mb-1">
-                {addr.phone}
-              </p>
-              <p className="text-[14px] font-['Inter'] text-secondary">
-                {addr.address}
-              </p>
-              <p className="text-[14px] font-['Inter'] text-secondary">
+              <p className="text-[14px] text-secondary mb-1">{addr.phone}</p>
+              <p className="text-[14px] text-secondary">{addr.address}</p>
+              <p className="text-[14px] text-secondary">
                 {addr.city}, {addr.province} {addr.postal}
               </p>
 
@@ -558,7 +648,7 @@ function OrdersTab() {
   return (
     <div>
       <header className="mb-14">
-        <h2 className="font-['Playfair_Display'] text-[40px] md:text-[48px] leading-tight font-semibold text-primary uppercase mb-4">
+        <h2 className="text-[40px] md:text-[48px] leading-tight font-semibold text-primary uppercase mb-4">
           Riwayat Pesanan
         </h2>
         <div className="h-px w-20 bg-stone-200" />
@@ -569,9 +659,7 @@ function OrdersTab() {
           <span className="material-symbols-outlined text-[48px] text-stone-300 block mb-4">
             shopping_bag
           </span>
-          <p className="text-[14px] font-['Inter'] text-secondary mb-6">
-            Belum ada pesanan.
-          </p>
+          <p className="text-[14px] text-secondary mb-6">Belum ada pesanan.</p>
           <Link
             href="/koleksi"
             className="bg-primary text-on-primary px-10 py-4 text-[13px] tracking-[0.12em] font-semibold uppercase hover:opacity-80 transition-opacity inline-block"
@@ -587,18 +675,21 @@ function OrdersTab() {
               className="py-8 flex flex-col md:flex-row md:items-center justify-between gap-4"
             >
               <div>
-                <p className="font-['Playfair_Display'] text-[22px] font-medium text-primary uppercase mb-1">
+                <p className="text-[22px] font-medium text-primary uppercase mb-1">
                   {order.id}
                 </p>
                 <p className="text-[12px] tracking-[0.1em] font-semibold text-secondary uppercase mb-1">
                   {order.date}
                 </p>
-                <p className="text-[14px] font-['Inter'] text-secondary">
-                  {order.items}
-                </p>
+                <p className="text-[14px] text-secondary mb-2">{order.items}</p>
+                {order.trackingNumber && (order.status === "DIKIRIM" || order.status === "DITERIMA") && (
+                  <p className="text-[11px] tracking-widest font-semibold text-blue-600 bg-blue-50 px-2 py-1 inline-block border border-blue-200 uppercase">
+                    NO. RESI: {order.trackingNumber}
+                  </p>
+                )}
               </div>
               <div className="flex flex-row md:flex-col items-center md:items-end gap-4 md:gap-2">
-                <p className="text-[16px] font-['Inter'] font-semibold text-primary">
+                <p className="text-[16px] font-semibold text-primary">
                   {order.total}
                 </p>
                 <span

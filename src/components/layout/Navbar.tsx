@@ -13,8 +13,12 @@ export default function Navbar() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [cartCount, setCartCount] = useState(0);
+  const [isScrolled, setIsScrolled] = useState(false);
 
   const getCookie = (name: string) => {
+    // Fungsi ini tidak lagi dipakai untuk membaca cookie auth (user_role, user_id)
+    // karena cookie tersebut sekarang httpOnly: true. 
+    // Dipertahankan jika dibutuhkan untuk hal lain.
     if (typeof document === "undefined") return null;
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
@@ -23,15 +27,15 @@ export default function Navbar() {
   };
 
   const checkAuthAndCart = async () => {
-    if (typeof window !== "undefined") {
-      const role = getCookie("user_role");
-      const userId = getCookie("user_id");
+    try {
+      const authRes = await fetch("/api/auth/me");
+      const authData = await authRes.json();
+      
+      setIsLoggedIn(authData.authenticated);
 
-      setIsLoggedIn(!!role);
-
-      if (userId) {
+      if (authData.authenticated && authData.user?.id) {
         try {
-          const items = await getCartItems(userId);
+          const items = await getCartItems(authData.user.id);
           const total = items.reduce(
             (sum: number, item: any) => sum + item.quantity,
             0,
@@ -44,6 +48,10 @@ export default function Navbar() {
       } else {
         setCartCount(0);
       }
+    } catch (err) {
+      console.error("Gagal verifikasi auth", err);
+      setIsLoggedIn(false);
+      setCartCount(0);
     }
   };
 
@@ -52,17 +60,25 @@ export default function Navbar() {
     setIsSearchOpen(false); // Tutup search bar setiap kali pindah halaman
   }, [pathname]);
 
-  const handleSignOut = () => {
-    if (typeof window !== "undefined") {
-      document.cookie =
-        "user_role=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-      document.cookie =
-        "user_id=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+  // Scroll-triggered navbar enhancement
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const handleSignOut = async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
       setIsLoggedIn(false);
       setIsOpen(false);
       setCartCount(0);
       router.push("/");
       router.refresh();
+    } catch (error) {
+      console.error("Logout gagal", error);
     }
   };
 
@@ -84,12 +100,12 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className="fixed top-0 left-0 w-full z-50 bg-background/80 backdrop-blur-md border-b border-outline-variant/30 font-['Inter']">
+      <nav className={`sticky top-0 left-0 w-full z-50 backdrop-blur-md border-b transition-all duration-300 ${isScrolled ? "bg-background/95 border-outline-variant/30 shadow-sm" : "bg-background/80 border-transparent"}`}>
         <div className="max-w-[1440px] mx-auto px-5 md:px-16 h-[90px] flex items-center justify-between">
           <div className="flex-1 md:flex-none">
             <Link
               href="/"
-              className="font-['Playfair_Display'] text-[24px] md:text-[28px] font-bold uppercase tracking-[0.2em] text-primary hover:opacity-80 transition-opacity"
+              className="text-[24px] md:text-[28px] font-bold uppercase tracking-[0.2em] text-primary hover:opacity-80 transition-opacity"
             >
               EGOISM
             </Link>
@@ -138,10 +154,29 @@ export default function Navbar() {
             </button>
 
             <Link
-              href="/keranjang"
-              className="text-[13px] font-medium tracking-[0.15em] text-secondary hover:text-primary transition-colors uppercase"
+              href="/wishlist"
+              className="text-secondary hover:text-primary transition-colors"
+              title="Saved Items"
+              aria-label="Wishlist"
             >
-              CART ({cartCount})
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+              </svg>
+            </Link>
+
+            <Link
+              href="/keranjang"
+              className="relative text-secondary hover:text-primary transition-colors"
+              aria-label="Shopping bag"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+              </svg>
+              {cartCount > 0 && (
+                <span className="absolute -top-2 -right-2 w-5 h-5 bg-primary text-on-primary text-[10px] font-bold flex items-center justify-center rounded-full">
+                  {cartCount}
+                </span>
+              )}
             </Link>
 
             {isLoggedIn ? (
@@ -238,7 +273,7 @@ export default function Navbar() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="SEARCH GARMENT..."
-                className="w-full bg-transparent border-b border-primary focus:outline-none py-3 text-[14px] font-['Inter'] text-primary uppercase placeholder:text-secondary tracking-widest"
+                className="w-full bg-transparent border-b border-primary focus:outline-none py-3 text-[14px] text-primary uppercase placeholder:text-secondary tracking-widest"
                 autoFocus
               />
               <button
@@ -265,6 +300,13 @@ export default function Navbar() {
               </Link>
             ))}
             <div className="border-t border-outline-variant/30 pt-4 flex flex-col space-y-3">
+              <Link
+                href="/wishlist"
+                onClick={() => setIsOpen(false)}
+                className="text-[14px] font-medium tracking-[0.1em] text-secondary hover:text-primary transition-colors uppercase py-2"
+              >
+                WISHLIST
+              </Link>
               <Link
                 href="/keranjang"
                 onClick={() => setIsOpen(false)}

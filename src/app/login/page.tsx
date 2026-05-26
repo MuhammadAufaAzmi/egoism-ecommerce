@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { loginUser } from "@/lib/products";
+import { loginUser } from "@/lib/auth";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -21,16 +21,21 @@ export default function LoginPage() {
     setLoading(true);
     setMessage({ type: "", text: "" });
 
-    // Memanggil fungsi pencocokan password bcrypt di database MySQL
     const res = await loginUser(formData);
 
     if (res.success) {
       setMessage({ type: "success", text: res.message });
 
-      // Berikan jeda 1 detik agar user bisa melihat pesan sukses, lalu lempar ke beranda utama
       setTimeout(() => {
-        router.push("/");
-        router.refresh();
+        // FIX: role ada di dalam res.user.role, bukan res.role langsung
+        const role = res.user?.role;
+
+        if (role === "ADMIN" || role === "admin") {
+          router.push("/admin");
+        } else {
+          router.push("/");
+        }
+        router.refresh(); // Penting: biar server component baca ulang cookie
       }, 1000);
     } else {
       setMessage({ type: "error", text: res.message });
@@ -39,9 +44,9 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="bg-surface-container-lowest text-primary min-h-screen flex flex-col md:flex-row">
+    <div className="bg-surface-container-lowest text-primary min-h-screen flex flex-col md:flex-row animate-fade-in">
       {/* Left: Image */}
-      <section className="hidden md:block md:w-1/2 relative bg-surface min-h-screen">
+      <section className="hidden md:block md:w-1/2 relative bg-surface min-h-screen animate-fade-in">
         <Image
           src="https://lh3.googleusercontent.com/aida/ADBb0uhPIIa2a5nE7-lSzvtYjosuJpeYb7uGScYyc_NCsbwUTAiW40Xz2N-73IPeG8Wm2U_5_n1iox3fO20naK35wNyaGoHu5cPHegF0H37H49AIoqJlfsGAZns-haI2xw5PZR7vHIY_bFeBOVM3nlOXrBIbtp8sHX7gphXPMwv3TseYU8xfNc6mYZCQDdPMlvDo17eDkOuHiuSSOYzPjXL6m2fne1Xo98-VEyKn1oS9H7aZ3-rbzjH5xEIQTA"
           alt="EGOISM Campaign"
@@ -52,21 +57,20 @@ export default function LoginPage() {
       </section>
 
       {/* Right: Form */}
-      <section className="w-full md:w-1/2 flex items-center justify-center px-6 md:px-16 py-12">
+      <section className="w-full md:w-1/2 flex items-center justify-center px-6 md:px-16 py-12 animate-fade-in-up delay-200">
         <div className="w-full max-w-md">
           <div className="mb-12">
-            <p className="text-[12px] leading-[16px] tracking-[0.1em] font-semibold font-['Inter'] text-on-surface-variant uppercase mb-2">
+            <p className="text-[12px] leading-[16px] tracking-[0.1em] font-semibold text-on-surface-variant uppercase mb-2">
               WELCOME BACK
             </p>
-            <h1 className="font-['Playfair_Display'] text-[40px] leading-[48px] md:text-[48px] md:leading-[56px] font-semibold uppercase tracking-wide">
+            <h1 className="text-[40px] leading-[48px] md:text-[48px] md:leading-[56px] font-semibold uppercase tracking-wide">
               SIGN IN
             </h1>
           </div>
 
-          {/* Kotak Info Status Autentikasi */}
           {message.text && (
             <div
-              className={`p-4 mb-6 text-[12px] font-['Inter'] font-semibold uppercase tracking-wider border rounded-none ${
+              className={`p-4 mb-6 text-[12px] font-semibold uppercase tracking-wider border rounded-none ${
                 message.type === "success"
                   ? "bg-green-500/10 border-green-500/30 text-green-600"
                   : "bg-red-500/10 border-red-500/30 text-red-600"
@@ -80,7 +84,7 @@ export default function LoginPage() {
             <div className="flex flex-col space-y-2">
               <label
                 htmlFor="email"
-                className="text-[12px] leading-[16px] tracking-[0.1em] font-semibold font-['Inter'] text-on-surface-variant uppercase"
+                className="text-[12px] leading-[16px] tracking-[0.1em] font-semibold text-on-surface-variant uppercase"
               >
                 EMAIL ADDRESS
               </label>
@@ -91,7 +95,7 @@ export default function LoginPage() {
                 required
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full bg-transparent border-b border-primary/30 font-['Inter'] text-[15px] py-3 focus:outline-none focus:border-primary transition-colors duration-300 rounded-none text-primary"
+                className="w-full bg-transparent border-b border-primary/30 text-[15px] py-3 focus:outline-none focus:border-primary transition-colors duration-300 rounded-none text-primary"
                 placeholder="Enter your email"
               />
             </div>
@@ -99,7 +103,7 @@ export default function LoginPage() {
             <div className="flex flex-col space-y-2">
               <label
                 htmlFor="password"
-                className="text-[12px] leading-[16px] tracking-[0.1em] font-semibold font-['Inter'] text-on-surface-variant uppercase"
+                className="text-[12px] leading-[16px] tracking-[0.1em] font-semibold text-on-surface-variant uppercase"
               >
                 PASSWORD
               </label>
@@ -110,7 +114,7 @@ export default function LoginPage() {
                 required
                 value={formData.password}
                 onChange={handleChange}
-                className="w-full bg-transparent border-b border-primary/30 font-['Inter'] text-[15px] py-3 focus:outline-none focus:border-primary transition-colors duration-300 rounded-none text-primary"
+                className="w-full bg-transparent border-b border-primary/30 text-[15px] py-3 focus:outline-none focus:border-primary transition-colors duration-300 rounded-none text-primary"
                 placeholder="Enter your password"
               />
             </div>
@@ -123,35 +127,35 @@ export default function LoginPage() {
                   className="w-4 h-4 accent-primary border-primary/30 rounded-none cursor-pointer focus:ring-0 focus:ring-offset-0"
                 />
                 <label
-                  className="text-[12px] leading-[16px] tracking-[0.1em] font-semibold font-['Inter'] text-on-surface-variant cursor-pointer uppercase"
+                  className="text-[12px] leading-[16px] tracking-[0.1em] font-semibold text-on-surface-variant cursor-pointer uppercase"
                   htmlFor="remember"
                 >
                   REMEMBER ME
                 </label>
               </div>
-              <a
-                href="#"
-                className="text-[12px] leading-[16px] tracking-[0.1em] font-semibold font-['Inter'] underline hover:text-on-surface-variant transition-colors duration-300 uppercase"
+              <Link
+                href="/forgot-password"
+                className="text-[12px] leading-[16px] tracking-[0.1em] font-semibold underline hover:text-on-surface-variant transition-colors duration-300 uppercase"
               >
                 FORGOT PASSWORD?
-              </a>
+              </Link>
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-primary text-on-primary font-['Inter'] text-[14px] tracking-[0.05em] font-medium py-4 mt-8 uppercase tracking-widest hover:opacity-80 transition-opacity duration-300 disabled:opacity-50"
+              className="w-full bg-primary text-on-primary text-[14px] tracking-[0.05em] font-medium py-4 mt-8 uppercase tracking-widest hover:opacity-80 transition-opacity duration-300 disabled:opacity-50"
             >
               {loading ? "AUTHENTICATING..." : "SIGN IN"}
             </button>
           </form>
 
           <div className="mt-12 text-center">
-            <p className="text-[16px] font-['Inter'] text-on-surface-variant">
-              DON&apos;T HAVE AN ACCOUNT?{" "}
+            <p className="text-[16px] text-on-surface-variant">
+              DON'T HAVE AN ACCOUNT?{" "}
               <Link
                 href="/register"
-                className="text-[12px] leading-[16px] tracking-[0.1em] font-semibold font-['Inter'] underline text-primary hover:text-on-surface-variant transition-colors duration-300 ml-2 uppercase"
+                className="text-[12px] leading-[16px] tracking-[0.1em] font-semibold underline text-primary hover:text-on-surface-variant transition-colors duration-300 ml-2 uppercase"
               >
                 REGISTER
               </Link>

@@ -7,6 +7,7 @@ import { createProduct } from "@/lib/products";
 export default function FormTambahProdukClient() {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -20,10 +21,12 @@ export default function FormTambahProdukClient() {
   const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>("");
+  const [galleryFiles, setGalleryFiles] = useState<File[]>([]);
+  const [galleryPreviews, setGalleryPreviews] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
 
-  const availableSizes = ["S", "M", "L", "XL", "XXL"];
+  const availableSizes = ["S", "M", "L", "XL", "XXL", "3XL", "4XL", "5XL"];
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -46,6 +49,20 @@ export default function FormTambahProdukClient() {
       setImageFile(file);
       setImagePreview(URL.createObjectURL(file));
     }
+  };
+
+  const handleGalleryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length > 0) {
+      setGalleryFiles((prev) => [...prev, ...files]);
+      const newPreviews = files.map(f => URL.createObjectURL(f));
+      setGalleryPreviews((prev) => [...prev, ...newPreviews]);
+    }
+  };
+
+  const removeGalleryImage = (index: number) => {
+    setGalleryFiles(prev => prev.filter((_, i) => i !== index));
+    setGalleryPreviews(prev => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -90,6 +107,15 @@ export default function FormTambahProdukClient() {
 
       const savedImagePath = uploadData.imagePath;
 
+      const savedGalleryPaths: string[] = [];
+      for (const file of galleryFiles) {
+        const galFormData = new FormData();
+        galFormData.append("file", file);
+        const galRes = await fetch("/api/upload", { method: "POST", body: galFormData });
+        const galData = await galRes.json();
+        if (galData.success) savedGalleryPaths.push(galData.imagePath);
+      }
+
       const cleanColorsArray = formData.colors
         .split(",")
         .map((c) => c.trim().toUpperCase())
@@ -101,6 +127,7 @@ export default function FormTambahProdukClient() {
         price: Number(formData.price),
         category: String(formData.category),
         image: savedImagePath,
+        images: savedGalleryPaths,
         description: String(formData.description).trim(),
         sizes: [...selectedSizes],
         colors: cleanColorsArray.length > 0 ? cleanColorsArray : ["BLACK"],
@@ -122,7 +149,10 @@ export default function FormTambahProdukClient() {
         setSelectedSizes([]);
         setImageFile(null);
         setImagePreview("");
+        setGalleryFiles([]);
+        setGalleryPreviews([]);
         if (fileInputRef.current) fileInputRef.current.value = "";
+        if (galleryInputRef.current) galleryInputRef.current.value = "";
         router.refresh();
       } else {
         setMessage({ type: "error", text: result.message });
@@ -142,17 +172,17 @@ export default function FormTambahProdukClient() {
     <div className="pt-[120px] pb-24 min-h-screen bg-background text-primary px-5 md:px-16 flex justify-center">
       <div className="w-full max-w-2xl bg-surface border border-outline-variant/30 p-8 md:p-12 shadow-md">
         <div className="mb-10 border-b border-outline-variant/30 pb-4">
-          <h1 className="font-['Playfair_Display'] text-[28px] md:text-[36px] font-bold uppercase tracking-wide">
+          <h1 className="text-[28px] md:text-[36px] font-bold uppercase tracking-wide">
             Control Panel
           </h1>
-          <p className="font-['Inter'] text-[12px] text-secondary uppercase tracking-widest mt-1">
+          <p className="text-[12px] text-secondary uppercase tracking-widest mt-1">
             Add New Garment to Database (Color Control Integrated)
           </p>
         </div>
 
         {message.text && (
           <div
-            className={`p-4 mb-6 text-[14px] font-['Inter'] font-medium uppercase tracking-wider border ${
+            className={`p-4 mb-6 text-[14px] font-medium uppercase tracking-wider border ${
               message.type === "success"
                 ? "bg-green-950/20 border-green-500/50 text-green-400"
                 : "bg-red-950/20 border-red-500/50 text-red-400"
@@ -164,7 +194,7 @@ export default function FormTambahProdukClient() {
 
         <form
           onSubmit={handleSubmit}
-          className="space-y-6 font-['Inter'] text-[14px]"
+          className="space-y-6 text-[14px]"
         >
           <div className="flex flex-col space-y-2">
             <label
@@ -305,6 +335,52 @@ export default function FormTambahProdukClient() {
                 </div>
               )}
             </div>
+          </div>
+
+          <div className="flex flex-col space-y-2 mt-4">
+            <span className="font-semibold uppercase tracking-wider text-secondary text-[12px]">
+              Product Gallery Images (Multiple)
+            </span>
+            <div
+              onClick={() => galleryInputRef.current?.click()}
+              className="w-full bg-background border border-dashed border-outline-variant/50 p-6 flex flex-col items-center justify-center cursor-pointer hover:border-primary transition-colors min-h-[120px]"
+            >
+              <input
+                id="gallery-upload-input"
+                type="file"
+                multiple
+                ref={galleryInputRef}
+                onChange={handleGalleryChange}
+                accept="image/*"
+                className="sr-only"
+                title="Upload Gallery Images"
+              />
+              <div className="text-center">
+                <p className="text-[13px] text-primary/70 font-medium">
+                  CLICK TO ADD GALLERY IMAGES
+                </p>
+                <p className="text-[11px] text-secondary uppercase tracking-widest mt-1">
+                  Upload multiple photos for product gallery
+                </p>
+              </div>
+            </div>
+            
+            {galleryPreviews.length > 0 && (
+              <div className="flex flex-wrap gap-4 mt-4">
+                {galleryPreviews.map((preview, idx) => (
+                  <div key={idx} className="relative w-24 h-32 border border-outline-variant/30">
+                    <img src={preview} alt={`Gallery ${idx}`} className="w-full h-full object-cover" />
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); removeGalleryImage(idx); }}
+                      className="absolute -top-2 -right-2 bg-red-500 text-white w-6 h-6 flex items-center justify-center rounded-full text-xs shadow-md"
+                    >
+                      X
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="flex flex-col space-y-2">
