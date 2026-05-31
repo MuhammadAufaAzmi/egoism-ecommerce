@@ -150,9 +150,24 @@ export default function AdminProdukPage() {
                       <td className="p-4 font-bold text-primary">{formatIDR(product.price)}</td>
                       <td className="p-4">
                         <div className="flex gap-1 flex-wrap">
-                          {product.sizes?.map((s: string) => (
-                            <span key={s} className="text-[10px] px-1.5 py-0.5 border border-outline-variant/30 text-secondary">{s}</span>
-                          ))}
+                          {product.sizes && typeof product.sizes === 'object' && !Array.isArray(product.sizes) ? (
+                            Object.entries(product.sizes).map(([fit, sizes]: [string, any]) => (
+                              <div key={fit} className="flex flex-col gap-1 w-full text-[10px]">
+                                <span className="font-semibold text-secondary uppercase border-b border-outline-variant/30 pb-0.5">{fit}</span>
+                                <div className="flex gap-1 flex-wrap">
+                                  {Array.isArray(sizes) && sizes.map((s: string) => (
+                                    <span key={`${fit}-${s}`} className="px-1.5 py-0.5 border border-outline-variant/30 text-secondary">{s}</span>
+                                  ))}
+                                </div>
+                              </div>
+                            ))
+                          ) : product.sizes && Array.isArray(product.sizes) ? (
+                            product.sizes.map((s: string) => (
+                              <span key={s} className="text-[10px] px-1.5 py-0.5 border border-outline-variant/30 text-secondary">{s}</span>
+                            ))
+                          ) : (
+                            <span className="text-[10px] text-secondary">N/A</span>
+                          )}
                         </div>
                       </td>
                       <td className="p-4 text-right">
