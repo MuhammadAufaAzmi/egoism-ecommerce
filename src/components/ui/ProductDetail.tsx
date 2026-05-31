@@ -57,7 +57,7 @@ interface ProductDetailProps {
     price: number;
     image: string;
     description: string;
-    sizes: string[];
+    sizes: Record<string, string[]>;
     colors: string[];
     fitType?: string[];
     images?: string[];
@@ -118,18 +118,19 @@ export default function ProductDetail({
       return;
     }
 
-    if (product.sizes && product.sizes.length > 0 && !selectedSize) {
+    if (product.fitType && product.fitType.length > 1 && !selectedFitType) {
       setMessage({
         type: "error",
-        text: "Please select a size before adding to bag.",
+        text: "Please select a fit type/model before adding to bag.",
       });
       return;
     }
 
-    if (product.fitType && product.fitType.length > 0 && !selectedFitType) {
+    const availableSizes = selectedFitType && product.sizes ? product.sizes[selectedFitType] || [] : [];
+    if (availableSizes.length > 0 && !selectedSize) {
       setMessage({
         type: "error",
-        text: "Please select a fit type/model before adding to bag.",
+        text: "Please select a size before adding to bag.",
       });
       return;
     }
@@ -344,6 +345,7 @@ export default function ProductDetail({
                     key={fit}
                     onClick={() => {
                       setSelectedFitType(fit);
+                      setSelectedSize("");
                       setMessage({ type: "", text: "" });
                     }}
                     className={`border text-[13px] font-medium py-3 px-6 transition-colors duration-300 min-w-[60px] tracking-wider uppercase ${
@@ -371,8 +373,12 @@ export default function ProductDetail({
               <SizeGuide />
             </div>
             <div className="flex flex-wrap gap-3">
-              {product.sizes && product.sizes.length > 0 ? (
-                product.sizes.map((size) => (
+              {product.fitType && product.fitType.length > 1 && !selectedFitType ? (
+                <span className="text-[12px] text-secondary tracking-widest uppercase font-medium border border-outline-variant/30 p-3 w-full text-center">
+                  PLEASE SELECT FIT TYPE / MODEL FIRST
+                </span>
+              ) : selectedFitType && product.sizes && product.sizes[selectedFitType] && product.sizes[selectedFitType].length > 0 ? (
+                product.sizes[selectedFitType].map((size) => (
                   <button
                     key={size}
                     onClick={() => {

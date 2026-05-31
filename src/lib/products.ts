@@ -8,13 +8,8 @@ import { cookies } from "next/headers";
 export type { Product };
 
 // === HELPER ===
-const parseProduct = (p: any) => ({
-  ...p,
-  sizes: p.sizes ? (JSON.parse(p.sizes) as string[]) : [],
-  colors: p.colors ? (JSON.parse(p.colors) as string[]) : [],
-  images: p.images ? (JSON.parse(p.images) as string[]) : [],
-  activity: p.activity ? (JSON.parse(p.activity) as string[]) : [],
-  fitType: (function () {
+const parseProduct = (p: any) => {
+  const parsedFitType = (function () {
     try {
       const parsed = p.fitType ? JSON.parse(p.fitType) : ["regular"];
       return Array.isArray(parsed) ? parsed : [p.fitType];
@@ -22,8 +17,35 @@ const parseProduct = (p: any) => ({
       // Legacy fallback jika di DB tersimpan sebagai string biasa "regular"
       return [p.fitType || "regular"];
     }
-  })(),
-});
+  })();
+
+  const parsedSizes = (function() {
+    try {
+      if (!p.sizes) return {};
+      const parsed = JSON.parse(p.sizes);
+      if (Array.isArray(parsed)) {
+        // Legacy fallback: map the array to all available fit types
+        const fallbackObj: Record<string, string[]> = {};
+        parsedFitType.forEach((fit: string) => {
+          fallbackObj[fit] = parsed;
+        });
+        return fallbackObj;
+      }
+      return parsed as Record<string, string[]>;
+    } catch {
+      return {};
+    }
+  })();
+
+  return {
+    ...p,
+    sizes: parsedSizes,
+    colors: p.colors ? (JSON.parse(p.colors) as string[]) : [],
+    images: p.images ? (JSON.parse(p.images) as string[]) : [],
+    activity: p.activity ? (JSON.parse(p.activity) as string[]) : [],
+    fitType: parsedFitType,
+  };
+};
 
 // === LOGIKA PRODUK ===
 export const getProducts = async () => {

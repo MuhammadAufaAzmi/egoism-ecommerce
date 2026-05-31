@@ -30,7 +30,7 @@ export default function FormTambahProdukClient() {
     { value: "women-tank", label: "WOMEN TANK" },
   ];
 
-  const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
+  const [selectedSizes, setSelectedSizes] = useState<Record<string, string[]>>({});
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>("");
   const [galleryFiles, setGalleryFiles] = useState<File[]>([]);
@@ -49,16 +49,29 @@ export default function FormTambahProdukClient() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSizeChange = (size: string) => {
-    setSelectedSizes((prev) =>
-      prev.includes(size) ? prev.filter((s) => s !== size) : [...prev, size],
-    );
+  const handleSizeChange = (fit: string, size: string) => {
+    setSelectedSizes((prev) => {
+      const current = prev[fit] || [];
+      const updated = current.includes(size)
+        ? current.filter((s) => s !== size)
+        : [...current, size];
+      return { ...prev, [fit]: updated };
+    });
   };
 
   const handleFitTypeChange = (fit: string) => {
-    setSelectedFitTypes((prev) =>
-      prev.includes(fit) ? prev.filter((f) => f !== fit) : [...prev, fit],
-    );
+    setSelectedFitTypes((prev) => {
+      const isRemoving = prev.includes(fit);
+      if (isRemoving) {
+        setSelectedSizes((prevSizes) => {
+          const newSizes = { ...prevSizes };
+          delete newSizes[fit];
+          return newSizes;
+        });
+        return prev.filter((f) => f !== fit);
+      }
+      return [...prev, fit];
+    });
   };
 
   const handleActivityChange = (activity: string) => {
@@ -94,8 +107,9 @@ export default function FormTambahProdukClient() {
     setLoading(true);
     setMessage({ type: "", text: "" });
 
-    if (selectedSizes.length === 0) {
-      setMessage({ type: "error", text: "Pilih minimal satu ukuran produk!" });
+    const hasSizes = Object.values(selectedSizes).some((sizes) => sizes.length > 0);
+    if (!hasSizes) {
+      setMessage({ type: "error", text: "Pilih minimal satu ukuran produk untuk Fit Type yang dipilih!" });
       setLoading(false);
       return;
     }
@@ -155,7 +169,7 @@ export default function FormTambahProdukClient() {
         image: savedImagePath,
         images: savedGalleryPaths,
         description: String(formData.description).trim(),
-        sizes: [...selectedSizes],
+        sizes: selectedSizes,
         colors: cleanColorsArray.length > 0 ? cleanColorsArray : ["BLACK"],
         isNew: true,
       };
@@ -174,7 +188,7 @@ export default function FormTambahProdukClient() {
         });
         setSelectedFitTypes(["regular"]);
         setSelectedActivities([]);
-        setSelectedSizes([]);
+        setSelectedSizes({});
         setImageFile(null);
         setImagePreview("");
         setGalleryFiles([]);
@@ -473,28 +487,42 @@ export default function FormTambahProdukClient() {
             )}
           </div>
 
-          <div className="flex flex-col space-y-2">
-            <span className="font-semibold uppercase tracking-wider text-secondary text-[12px]">
-              Available Sizes
-            </span>
-            <div className="flex flex-wrap gap-4 pt-2">
-              {availableSizes.map((size) => (
-                <label
-                  key={size}
-                  className={`flex items-center justify-center border px-5 py-2 cursor-pointer transition-colors text-[13px] font-medium tracking-wide ${selectedSizes.includes(size) ? "bg-primary text-on-primary border-primary" : "bg-background text-primary border-outline-variant/50 hover:border-primary"}`}
-                >
-                  <input
-                    type="checkbox"
-                    checked={selectedSizes.includes(size)}
-                    onChange={() => handleSizeChange(size)}
-                    className="sr-only"
-                    title={`Size ${size}`}
-                  />
-                  {size}
-                </label>
-              ))}
+          {/* Sizes per Fit Type */}
+          {selectedFitTypes.length > 0 && (
+            <div className="flex flex-col space-y-4">
+              <span className="font-semibold uppercase tracking-wider text-secondary text-[12px]">
+                Available Sizes
+              </span>
+              {selectedFitTypes.map((fit) => {
+                const fitLabel = availableFitTypes.find(f => f.value === fit)?.label || fit;
+                return (
+                  <div key={fit} className="flex flex-col space-y-2 border border-outline-variant/30 p-4">
+                    <span className="text-[11px] font-semibold text-primary uppercase">{fitLabel} Sizes</span>
+                    <div className="flex flex-wrap gap-4 pt-2">
+                      {availableSizes.map((size) => {
+                        const isSelected = selectedSizes[fit]?.includes(size) || false;
+                        return (
+                          <label
+                            key={`${fit}-${size}`}
+                            className={`flex items-center justify-center border px-5 py-2 cursor-pointer transition-colors text-[13px] font-medium tracking-wide ${isSelected ? "bg-primary text-on-primary border-primary" : "bg-background text-primary border-outline-variant/50 hover:border-primary"}`}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={isSelected}
+                              onChange={() => handleSizeChange(fit, size)}
+                              className="sr-only"
+                              title={`Size ${size} for ${fitLabel}`}
+                            />
+                            {size}
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
-          </div>
+          )}
 
           <div className="flex flex-col space-y-2">
             <label
