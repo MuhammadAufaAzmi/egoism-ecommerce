@@ -370,7 +370,7 @@ export default function ProductDetail({
               <span className="block text-[11px] font-bold uppercase tracking-widest text-secondary">
                 SELECT SIZE
               </span>
-              <SizeGuide />
+              <SizeGuide fitType={selectedFitType} />
             </div>
             <div className="flex flex-wrap gap-3">
               {product.fitType && product.fitType.length > 1 && !selectedFitType ? (
