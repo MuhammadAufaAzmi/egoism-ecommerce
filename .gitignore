@@ -5,3 +5,6 @@ node_modules
 .env
 
 /src/generated/prisma
+
+# Ignore large webp files in public/webp
+/public/webp/
