@@ -4,12 +4,13 @@ import ProductCard from "@/components/ui/ProductCard";
 import MarqueeStrip from "@/components/ui/MarqueeStrip";
 import StatsCounter from "@/components/ui/StatsCounter";
 import ScrollReveal from "@/components/ui/ScrollReveal";
+import ParallaxHero from "@/components/home/ParallaxHero";
+import TrainCategorySection from "@/components/home/TrainCategorySection";
 import { getProducts } from "@/lib/products";
 import { cookies } from "next/headers";
-import { cancelExpiredOrders } from "@/lib/admin";
 
 export default async function HomePage() {
-  // 1. Ambil data pakaian secara realtime dari database MySQL XAMPP
+  // 1. Ambil data pakaian secara realtime dari database
   const products = await getProducts();
   const featuredProducts = products.slice(0, 3);
 
@@ -20,11 +21,11 @@ export default async function HomePage() {
   return (
     <div className="pt-[90px]">
       {/* ========================================
-          HERO SECTION — Cinematic + Text Reveal + Grain + Scroll Indicator
+          HERO SECTION — Cinematic Parallax + Text Reveal
           ======================================== */}
       <section className="relative w-full h-[85vh] flex items-center justify-center overflow-hidden grain-overlay">
-        <div className="absolute inset-0 w-full h-full">
-          {/* Hero Background — pastikan file ini ada di public/hero-main.jpg dan sudah di-commit ke git */}
+        {/* ParallaxHero wraps the background so it scrolls at a different speed */}
+        <ParallaxHero>
           <Image
             src="/hero-main.png"
             alt="EGOISM Campaign"
@@ -33,7 +34,8 @@ export default async function HomePage() {
             priority
           />
           <div className="absolute inset-0 bg-primary/30 mix-blend-multiply" />
-        </div>
+        </ParallaxHero>
+
         <div className="relative z-10 flex flex-col items-center text-center px-4">
           {/* Staggered Text Reveal */}
           <div className="overflow-hidden mb-3">
@@ -140,6 +142,13 @@ export default async function HomePage() {
       </section>
 
       {/* ========================================
+          HOW DO YOU TRAIN? — Parallax Activity Cards
+          ======================================== */}
+      <ScrollReveal>
+        <TrainCategorySection />
+      </ScrollReveal>
+
+      {/* ========================================
           BRAND STORY — Stats Counter
           ======================================== */}
       <StatsCounter />
@@ -159,88 +168,6 @@ export default async function HomePage() {
           </div>
         </ScrollReveal>
       </section>
-
-      {/* ========================================
-          CATEGORY SPLIT — Men / Women
-          ======================================== */}
-      <section className="grid grid-cols-1 md:grid-cols-2 max-w-[1440px] mx-auto px-5 md:px-16 py-20 md:py-24 gap-6">
-        <ScrollReveal>
-          <Link
-            href="/men"
-            className="group relative overflow-hidden aspect-[0.9] block"
-          >
-            <Image
-              src="/uploads/Screenshot 2026-05-16 231205.png"
-              alt="Men's Collection"
-              fill
-              className="object-cover transition-transform duration-700 group-hover:scale-105"
-            />
-            <div className="absolute inset-0 bg-primary/20 group-hover:bg-primary/35 transition-colors duration-500" />
-            <div className="absolute bottom-8 left-8 translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
-              <p className="text-[12px] leading-[16px] tracking-[0.2em] font-semibold text-on-primary uppercase mb-2 opacity-80">
-                MEN
-              </p>
-              <h3 className="font-heading text-[36px] md:text-[42px] leading-[1.05] text-on-primary uppercase tracking-tight font-bold">
-                Shop Men
-              </h3>
-            </div>
-            <div className="absolute bottom-8 right-8 opacity-0 group-hover:opacity-100 translate-x-4 group-hover:translate-x-0 transition-all duration-500">
-              <svg
-                className="w-6 h-6 text-on-primary"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="1.5"
-                  d="M17 8l4 4m0 0l-4 4m4-4H3"
-                />
-              </svg>
-            </div>
-          </Link>
-        </ScrollReveal>
-        <ScrollReveal delay={200}>
-          <Link
-            href="/women"
-            className="group relative overflow-hidden aspect-[0.9] block"
-          >
-            <Image
-              src="/uploads/Screenshot 2026-05-16 231846.png"
-              alt="Women's Collection"
-              fill
-              className="object-cover transition-transform duration-700 group-hover:scale-105"
-            />
-            <div className="absolute inset-0 bg-primary/20 group-hover:bg-primary/35 transition-colors duration-500" />
-            <div className="absolute bottom-8 left-8 translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
-              <p className="text-[12px] leading-[16px] tracking-[0.2em] font-semibold text-on-primary uppercase mb-2 opacity-80">
-                WOMEN
-              </p>
-              <h3 className="font-heading text-[36px] md:text-[42px] leading-[1.05] text-on-primary uppercase tracking-tight font-bold">
-                Shop Women
-              </h3>
-            </div>
-            <div className="absolute bottom-8 right-8 opacity-0 group-hover:opacity-100 translate-x-4 group-hover:translate-x-0 transition-all duration-500">
-              <svg
-                className="w-6 h-6 text-on-primary"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="1.5"
-                  d="M17 8l4 4m0 0l-4 4m4-4H3"
-                />
-              </svg>
-            </div>
-          </Link>
-        </ScrollReveal>
-      </section>
-
-
     </div>
   );
 }

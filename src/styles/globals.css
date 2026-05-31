@@ -116,6 +116,18 @@
   }
 }
 
+/* Grid fade in for activity toggle */
+@keyframes fadeInGrid {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* Slide in from right */
 @keyframes slideInRight {
   from {
