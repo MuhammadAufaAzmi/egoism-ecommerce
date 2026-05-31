@@ -14,6 +14,15 @@ const parseProduct = (p: any) => ({
   colors: p.colors ? (JSON.parse(p.colors) as string[]) : [],
   images: p.images ? (JSON.parse(p.images) as string[]) : [],
   activity: p.activity ? (JSON.parse(p.activity) as string[]) : [],
+  fitType: (function () {
+    try {
+      const parsed = p.fitType ? JSON.parse(p.fitType) : ["regular"];
+      return Array.isArray(parsed) ? parsed : [p.fitType];
+    } catch {
+      // Legacy fallback jika di DB tersimpan sebagai string biasa "regular"
+      return [p.fitType || "regular"];
+    }
+  })(),
 });
 
 // === LOGIKA PRODUK ===
@@ -81,7 +90,7 @@ export async function createProduct(input: any) {
         sizes: JSON.stringify(input.sizes),
         colors: JSON.stringify(input.colors),
         images: JSON.stringify(input.images || []),
-        fitType: input.fitType || "regular",
+        fitType: JSON.stringify(input.fitType || ["regular"]),
         activity: JSON.stringify(input.activity || []),
         isNew: input.isNew ?? true,
       },
@@ -114,6 +123,7 @@ export async function getCartItems(userId: string) {
       name: item.product.name,
       color: item.color,
       size: item.size,
+      fitType: item.fitType,
       price: item.product.price,
       quantity: item.quantity,
       image: item.product.image,
@@ -163,6 +173,7 @@ export async function handleAddToCart(
   productId: string,
   size: string,
   color: string,
+  fitType: string = "regular",
 ) {
   try {
     const cookieStore = await cookies();
@@ -178,6 +189,7 @@ export async function handleAddToCart(
         productId: productId,
         size: size,
         color: color,
+        fitType: fitType,
       },
     });
 
@@ -193,6 +205,7 @@ export async function handleAddToCart(
           productId: productId,
           size: size,
           color: color,
+          fitType: fitType,
           quantity: 1,
         },
       });

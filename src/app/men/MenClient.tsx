@@ -54,7 +54,7 @@ export default function MenClient({ initialProducts }: MenClientProps) {
 
     // 2. Filter Fit Type
     if (filterFitType !== "ALL") {
-      result = result.filter((p) => p.fitType === filterFitType);
+      result = result.filter((p) => p.fitType && Array.isArray(p.fitType) && p.fitType.includes(filterFitType));
     }
 
     // 3. Eksekusi Filter Ukuran

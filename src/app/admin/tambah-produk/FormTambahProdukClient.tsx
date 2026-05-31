@@ -14,10 +14,11 @@ export default function FormTambahProdukClient() {
     slug: "",
     price: "",
     category: "men",
-    fitType: "regular",
     description: "",
     colors: "",
   });
+
+  const [selectedFitTypes, setSelectedFitTypes] = useState<string[]>(["regular"]);
 
   const [selectedActivities, setSelectedActivities] = useState<string[]>([]);
   const availableActivities = ["hyrox", "crossfit", "running", "powerlifting", "pilates", "yoga", "gym"];
@@ -51,6 +52,12 @@ export default function FormTambahProdukClient() {
   const handleSizeChange = (size: string) => {
     setSelectedSizes((prev) =>
       prev.includes(size) ? prev.filter((s) => s !== size) : [...prev, size],
+    );
+  };
+
+  const handleFitTypeChange = (fit: string) => {
+    setSelectedFitTypes((prev) =>
+      prev.includes(fit) ? prev.filter((f) => f !== fit) : [...prev, fit],
     );
   };
 
@@ -143,7 +150,7 @@ export default function FormTambahProdukClient() {
         slug: String(formData.slug).toLowerCase().replace(/\s+/g, "-").trim(),
         price: Number(formData.price),
         category: String(formData.category),
-        fitType: String(formData.fitType),
+        fitType: selectedFitTypes.length > 0 ? selectedFitTypes : ["regular"],
         activity: [...selectedActivities],
         image: savedImagePath,
         images: savedGalleryPaths,
@@ -162,10 +169,10 @@ export default function FormTambahProdukClient() {
           slug: "",
           price: "",
           category: "men",
-          fitType: "regular",
           description: "",
           colors: "",
         });
+        setSelectedFitTypes(["regular"]);
         setSelectedActivities([]);
         setSelectedSizes([]);
         setImageFile(null);
@@ -298,25 +305,26 @@ export default function FormTambahProdukClient() {
 
           {/* Fit Type */}
           <div className="flex flex-col space-y-2">
-            <label
-              htmlFor="prod-fittype"
-              className="font-semibold uppercase tracking-wider text-secondary text-[12px]"
-            >
-              Fit Type
-            </label>
-            <select
-              id="prod-fittype"
-              name="fitType"
-              value={formData.fitType}
-              onChange={handleChange}
-              className="w-full bg-background border border-outline-variant/50 p-3 text-primary focus:outline-none focus:border-primary transition-colors appearance-none"
-            >
+            <span className="font-semibold uppercase tracking-wider text-secondary text-[12px]">
+              Fit Type / Model
+            </span>
+            <div className="flex flex-wrap gap-4 pt-2">
               {availableFitTypes.map((fit) => (
-                <option key={fit.value} value={fit.value}>
+                <label
+                  key={fit.value}
+                  className={`flex items-center justify-center border px-5 py-2 cursor-pointer transition-colors text-[13px] font-medium tracking-wide ${selectedFitTypes.includes(fit.value) ? "bg-primary text-on-primary border-primary" : "bg-background text-primary border-outline-variant/50 hover:border-primary"}`}
+                >
+                  <input
+                    type="checkbox"
+                    checked={selectedFitTypes.includes(fit.value)}
+                    onChange={() => handleFitTypeChange(fit.value)}
+                    className="sr-only"
+                    title={`Fit Type ${fit.label}`}
+                  />
                   {fit.label}
-                </option>
+                </label>
               ))}
-            </select>
+            </div>
           </div>
 
           {/* Activity Tags */}

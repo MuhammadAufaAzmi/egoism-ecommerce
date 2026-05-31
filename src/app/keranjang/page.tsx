@@ -15,6 +15,7 @@ interface CartItem {
   name: string;
   color: string;
   size: string;
+  fitType: string;
   price: number;
   quantity: number;
   image: string;
@@ -102,11 +103,8 @@ export default async function KeranjangPage() {
                           </button>
                         </form>
                       </div>
-                      <p className="text-[12px] leading-[16px] tracking-[0.1em] font-semibold text-on-surface-variant mb-1">
-                        COLOR: {item.color}
-                      </p>
-                      <p className="text-[12px] leading-[16px] tracking-[0.1em] font-semibold text-on-surface-variant mb-6">
-                        SIZE: {item.size}
+                      <p className="text-[12px] leading-[16px] tracking-[0.1em] font-semibold text-on-surface-variant mb-6 uppercase">
+                        COLOR: {item.color} | SIZE: {item.size} | FIT: {item.fitType}
                       </p>
                     </div>
 

@@ -22,10 +22,10 @@ export default function EditProductPage() {
     slug: "",
     price: "",
     category: "men",
-    fitType: "regular",
     description: "",
     colors: "",
   });
+  const [selectedFitTypes, setSelectedFitTypes] = useState<string[]>([]);
   const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
   const [selectedActivities, setSelectedActivities] = useState<string[]>([]);
   const availableActivities = ["hyrox", "crossfit", "running", "powerlifting", "pilates", "yoga", "gym"];
@@ -57,10 +57,10 @@ export default function EditProductPage() {
         slug: product.slug,
         price: String(product.price),
         category: product.category,
-        fitType: product.fitType || "regular",
         description: product.description || "",
         colors: product.colors?.join(", ") || "",
       });
+      setSelectedFitTypes(Array.isArray(product.fitType) ? product.fitType : [product.fitType || "regular"]);
       setSelectedSizes(product.sizes || []);
       setSelectedActivities(product.activity || []);
       setCurrentImage(product.image);
@@ -77,6 +77,12 @@ export default function EditProductPage() {
   const handleSizeChange = (size: string) => {
     setSelectedSizes((prev) =>
       prev.includes(size) ? prev.filter((s) => s !== size) : [...prev, size]
+    );
+  };
+
+  const handleFitTypeChange = (fit: string) => {
+    setSelectedFitTypes((prev) =>
+      prev.includes(fit) ? prev.filter((f) => f !== fit) : [...prev, fit]
     );
   };
 
@@ -160,7 +166,7 @@ export default function EditProductPage() {
         slug: formData.slug.toLowerCase().replace(/\s+/g, "-").trim(),
         price: Number(formData.price),
         category: formData.category,
-        fitType: formData.fitType,
+        fitType: selectedFitTypes.length > 0 ? selectedFitTypes : ["regular"],
         activity: [...selectedActivities],
         image: imagePath,
         images: finalGallery,
@@ -242,13 +248,18 @@ export default function EditProductPage() {
 
           {/* Fit Type */}
           <div className="flex flex-col space-y-2">
-            <label className="font-semibold uppercase tracking-wider text-secondary text-[12px]">Fit Type</label>
-            <select name="fitType" value={formData.fitType} onChange={handleChange}
-              className="w-full bg-background border border-outline-variant/50 p-3 text-primary focus:outline-none focus:border-primary transition-colors appearance-none">
+            <span className="font-semibold uppercase tracking-wider text-secondary text-[12px]">Fit Type / Model</span>
+            <div className="flex flex-wrap gap-4 pt-2">
               {availableFitTypes.map((fit) => (
-                <option key={fit.value} value={fit.value}>{fit.label}</option>
+                <label
+                  key={fit.value}
+                  className={`flex items-center justify-center border px-5 py-2 cursor-pointer transition-colors text-[13px] font-medium tracking-wide ${selectedFitTypes.includes(fit.value) ? "bg-primary text-on-primary border-primary" : "bg-background text-primary border-outline-variant/50 hover:border-primary"}`}
+                >
+                  <input type="checkbox" checked={selectedFitTypes.includes(fit.value)} onChange={() => handleFitTypeChange(fit.value)} className="sr-only" />
+                  {fit.label}
+                </label>
               ))}
-            </select>
+            </div>
           </div>
 
           {/* Activity Tags */}

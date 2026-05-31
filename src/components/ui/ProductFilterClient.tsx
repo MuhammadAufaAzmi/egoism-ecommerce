@@ -65,7 +65,7 @@ export default function ProductFilterClient({
 
     // 3. Filter Fit Type
     if (filterFitType !== "ALL") {
-      result = result.filter((p) => p.fitType === filterFitType);
+      result = result.filter((p) => p.fitType && Array.isArray(p.fitType) && p.fitType.includes(filterFitType));
     }
 
     // 4. Filter berdasarkan ukuran

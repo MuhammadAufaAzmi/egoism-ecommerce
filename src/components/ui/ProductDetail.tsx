@@ -59,6 +59,7 @@ interface ProductDetailProps {
     description: string;
     sizes: string[];
     colors: string[];
+    fitType?: string[];
     images?: string[];
   };
   initialWishlisted?: boolean;
@@ -75,6 +76,9 @@ export default function ProductDetail({
   const router = useRouter();
   const [selectedSize, setSelectedSize] = useState<string>("");
   const [selectedColor, setSelectedColor] = useState<string>("");
+  const [selectedFitType, setSelectedFitType] = useState<string>(
+    product.fitType && product.fitType.length === 1 ? product.fitType[0] : ""
+  );
   const [quantity, setQuantity] = useState<number>(1);
   const [activeIndex, setActiveIndex] = useState(0);
   const [zoomPosition, setZoomPosition] = useState({ x: 50, y: 50 });
@@ -122,8 +126,17 @@ export default function ProductDetail({
       return;
     }
 
+    if (product.fitType && product.fitType.length > 0 && !selectedFitType) {
+      setMessage({
+        type: "error",
+        text: "Please select a fit type/model before adding to bag.",
+      });
+      return;
+    }
+
     const finalSize = selectedSize || "ALL SIZE";
     const finalColor = selectedColor || "BLACK";
+    const finalFitType = selectedFitType || "regular";
 
     startTransition(async () => {
       setMessage({ type: "", text: "" });
@@ -131,7 +144,7 @@ export default function ProductDetail({
       // Panggil handleAddToCart sebanyak quantity yang dipilih
       let result = { success: false, message: "" };
       for (let i = 0; i < quantity; i++) {
-        result = await handleAddToCart(product.id, finalSize, finalColor);
+        result = await handleAddToCart(product.id, finalSize, finalColor, finalFitType);
         if (!result.success) break;
       }
 
@@ -314,6 +327,38 @@ export default function ProductDetail({
                 })
               ) : (
                 <span className="text-[12px] text-secondary">No colors available</span>
+              )}
+            </div>
+          </div>
+
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <span className="block text-[11px] font-bold uppercase tracking-widest text-secondary">
+                SELECT FIT TYPE
+              </span>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              {product.fitType && product.fitType.length > 0 ? (
+                product.fitType.map((fit) => (
+                  <button
+                    key={fit}
+                    onClick={() => {
+                      setSelectedFitType(fit);
+                      setMessage({ type: "", text: "" });
+                    }}
+                    className={`border text-[13px] font-medium py-3 px-6 transition-colors duration-300 min-w-[60px] tracking-wider uppercase ${
+                      selectedFitType === fit
+                        ? "bg-primary text-on-primary border-primary"
+                        : "bg-transparent text-primary border-outline-variant/50 hover:border-primary"
+                    }`}
+                  >
+                    {fit}
+                  </button>
+                ))
+              ) : (
+                <span className="text-[12px] text-secondary">
+                  Regular Fit
+                </span>
               )}
             </div>
           </div>
