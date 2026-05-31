@@ -19,6 +19,7 @@ const ACTIVITIES = [
   { key: "pilates", label: "PILATES" },
   { key: "yoga", label: "YOGA" },
   { key: "gym", label: "GYM" },
+  { key: "basketball", label: "BASKETBALL" },
 ];
 
 const ALL_FIT_TYPES = [
@@ -104,6 +105,34 @@ export default function ProductFilterClient({
   // Cek apakah ada active filter/reset
   const hasActiveFilters = filterSize !== "ALL" || filterFitType !== "ALL" || filterActivity !== "ALL" || filterCategory !== "ALL";
 
+  // Dynamic Collection Description
+  const getCollectionDescription = () => {
+    switch (filterActivity) {
+      case "gym":
+        return { title: "Gym Collection", desc: "Built for everyday training — from heavy sessions to daily wear. Clean, versatile pieces made for people who live in gym mode." };
+      case "hyrox":
+        return { title: "HYROX Collection", desc: "Performance-driven apparel inspired by endurance, speed, and hybrid training culture. Made to move through every station." };
+      case "crossfit":
+        return { title: "CrossFit Collection", desc: "High-intensity pieces for functional athletes who thrive on hard work, sweat, and competition." };
+      case "powerlifting":
+        return { title: "Powerlifting Club", desc: "Strength-first essentials inspired by the powerlifting community. Heavy lifts, disciplined mindset, no shortcuts." };
+      case "pilates":
+        return { title: "Pilates Collection", desc: "Soft, minimal, and comfortable pieces designed for controlled movement, balance, and everyday studio wear." };
+      case "yoga":
+        return { title: "Yoga Collection", desc: "Comfort-focused essentials created for flow, stretch, and mindful movement on and off the mat." };
+      case "basketball":
+        return { title: "Basketball Edition", desc: "Sport-inspired streetwear influenced by basketball culture, movement, and off-court energy." };
+      default:
+        // Handle defaults based on category/gender Context when no activity is selected
+        if (genderContext === "women" || (showCategoryFilter && filterCategory === "WOMEN")) {
+          return { title: "Girl Collection", desc: "Feminine, confident, and strong. Designed for girls who love lifting, movement, and looking good while doing it." };
+        }
+        return { title: "Minimalist Essentials", desc: "Clean silhouettes and timeless basics made for effortless everyday wear — simple, versatile, and easy to style." };
+    }
+  };
+
+  const collectionInfo = getCollectionDescription();
+
   return (
     <>
       {/* Activity Tag Bar — Gymshark Style */}
@@ -124,6 +153,18 @@ export default function ProductFilterClient({
               </button>
             ))}
           </div>
+        </div>
+      </ScrollReveal>
+
+      {/* Dynamic Collection Info Section */}
+      <ScrollReveal>
+        <div className="w-full px-5 md:px-16 max-w-[1440px] mx-auto py-8 mb-4">
+          <h2 className="text-[24px] md:text-[32px] font-bold text-primary uppercase tracking-wider mb-3">
+            {collectionInfo.title}
+          </h2>
+          <p className="text-[14px] md:text-[16px] text-secondary max-w-3xl leading-relaxed">
+            {collectionInfo.desc}
+          </p>
         </div>
       </ScrollReveal>
 
