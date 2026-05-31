@@ -33,6 +33,21 @@ const COLOR_MAP: Record<string, string> = {
   CAMEL: "#c19a6b",
   SAND: "#c2b280",
   TAN: "#d2b48c",
+  // Indonesian Colors
+  HITAM: "#1a1a1a",
+  PUTIH: "#f5f5f5",
+  MERAH: "#c0392b",
+  HIJAU: "#16a34a",
+  KHAKY: "#c3b091",
+  "DEEP BLUE": "#1b2a4a",
+  "LIGHT BLUE": "#60a5fa",
+  "DUSTY PINK": "#d4a5a5",
+  "DARK BROWN": "#5c4033",
+  PINK: "#f472b6",
+  COKELAT: "#78350f",
+  "BLUE BENHUR": "#2563eb",
+  "DARK BLUE": "#1e3a8a",
+  "BIRU MUDA": "#60a5fa",
 };
 
 interface ProductDetailProps {

@@ -33,6 +33,21 @@ const COLOR_MAP: Record<string, string> = {
   CAMEL: "#c19a6b",
   SAND: "#c2b280",
   TAN: "#d2b48c",
+  // Indonesian Colors
+  HITAM: "#1a1a1a",
+  PUTIH: "#f5f5f5",
+  MERAH: "#c0392b",
+  HIJAU: "#16a34a",
+  KHAKY: "#c3b091",
+  "DEEP BLUE": "#1b2a4a",
+  "LIGHT BLUE": "#60a5fa",
+  "DUSTY PINK": "#d4a5a5",
+  "DARK BROWN": "#5c4033",
+  PINK: "#f472b6",
+  COKELAT: "#78350f",
+  "BLUE BENHUR": "#2563eb",
+  "DARK BLUE": "#1e3a8a",
+  "BIRU MUDA": "#60a5fa",
 };
 
 interface ProductCardProps {
@@ -84,23 +99,25 @@ export default function ProductCard({ product }: ProductCardProps) {
     <div className="group cursor-pointer block">
       {/* Image Container */}
       <div className="w-full aspect-[0.73] overflow-hidden mb-4 bg-surface-container relative shadow-none group-hover:shadow-xl transition-shadow duration-500">
-        {/* Main image */}
-        <Image
-          src={product.image}
-          alt={product.name}
-          fill
-          className={`object-cover transition-all duration-700 group-hover:scale-105 ${hoverImage ? "group-hover:opacity-0" : ""}`}
-        />
-
-        {/* Hover image (swap on hover) */}
-        {hoverImage && (
+        <Link href={`/produk/${product.slug}`} className="absolute inset-0 z-0">
+          {/* Main image */}
           <Image
-            src={hoverImage}
-            alt={`${product.name} alternate`}
+            src={product.image}
+            alt={product.name}
             fill
-            className="object-cover transition-all duration-700 opacity-0 group-hover:opacity-100 scale-105 group-hover:scale-100"
+            className={`object-cover transition-all duration-700 group-hover:scale-105 ${hoverImage ? "group-hover:opacity-0" : ""}`}
           />
-        )}
+
+          {/* Hover image (swap on hover) */}
+          {hoverImage && (
+            <Image
+              src={hoverImage}
+              alt={`${product.name} alternate`}
+              fill
+              className="object-cover transition-all duration-700 opacity-0 group-hover:opacity-100 scale-105 group-hover:scale-100"
+            />
+          )}
+        </Link>
 
         {/* Badges */}
         <div className="absolute top-4 left-4 flex flex-col gap-1.5 z-10">
