@@ -23,14 +23,11 @@ export default function FormTambahProdukClient() {
   const [selectedActivities, setSelectedActivities] = useState<string[]>([]);
   const availableActivities = ["hyrox", "crossfit", "running", "powerlifting", "pilates", "yoga", "gym"];
   const availableFitTypes = [
-    { value: "oversized", label: "OVERSIZED T-SHIRT" },
-    { value: "regular", label: "REGULAR T-SHIRT" },
-    { value: "long-sleeve", label: "LONG SLEEVE TSHIRT" },
-    { value: "crop", label: "CROP FIT T-SHIRT" },
-    { value: "crop-tank", label: "CROP TANK" },
-    { value: "crop-muscle-tank", label: "CROP MUSCLE TANK" },
-    { value: "muscle-tank", label: "MUSCLE TANK" },
-    { value: "women-tank", label: "WOMEN TANK" },
+    { value: "regular", label: "REGULAR" },
+    { value: "oversized", label: "OVERSIZED" },
+    { value: "crop", label: "CROP REGULAR FIT" },
+    { value: "crop-oversize", label: "CROP OVERSIZE" },
+    { value: "long-sleeve", label: "LONG SLEEVE" },
   ];
 
   const [selectedSizes, setSelectedSizes] = useState<Record<string, string[]>>({});

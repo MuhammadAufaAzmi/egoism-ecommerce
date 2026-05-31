@@ -56,13 +56,22 @@ const sizeChartsData: Record<string, { label: string, columns: string[], data: R
     ]
   },
   "crop": {
-    label: "CROP FIT T-SHIRT",
+    label: "CROP REGULAR FIT",
     columns: ["SIZE", "LEBAR", "PANJANG"],
     data: [
       { size: "M", lebar: "42", panjang: "84" },
       { size: "L", lebar: "44", panjang: "88" },
       { size: "XL", lebar: "48", panjang: "92" },
       { size: "XXL", lebar: "50", panjang: "94" },
+    ]
+  },
+  "crop-oversize": {
+    label: "CROP OVERSIZE",
+    columns: ["SIZE", "LEBAR", "PANJANG"],
+    data: [
+      { size: "M", lebar: "90", panjang: "43" },
+      { size: "L", lebar: "96", panjang: "47" },
+      { size: "XL", lebar: "100", panjang: "52" },
     ]
   },
   "long-sleeve": {
@@ -87,6 +96,7 @@ export default function SizeGuide({ fitType }: { fitType?: string | null }) {
     const ft = fitType.toLowerCase();
     if (ft === "oversized") activeChart = sizeChartsData["oversized"];
     else if (ft === "crop") activeChart = sizeChartsData["crop"];
+    else if (ft === "crop-oversize") activeChart = sizeChartsData["crop-oversize"];
     else if (ft === "crop-tank") activeChart = sizeChartsData["crop-muscle-tank"];
     else if (ft === "crop-muscle-tank") activeChart = sizeChartsData["crop-muscle-tank"];
     else if (ft === "muscle-tank") activeChart = sizeChartsData["muscle-tank"];

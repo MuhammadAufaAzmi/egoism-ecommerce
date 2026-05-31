@@ -25,9 +25,9 @@ const ALL_FIT_TYPES = [
   { key: "ALL", label: "ALL" },
   { key: "oversized", label: "OVERSIZED" },
   { key: "regular", label: "REGULAR" },
-  { key: "crop", label: "CROP" },
-  { key: "crop-tank", label: "CROP TANK" },
-  { key: "women-tank", label: "WOMEN TANK" },
+  { key: "crop", label: "CROP REGULAR FIT" },
+  { key: "crop-oversize", label: "CROP OVERSIZE" },
+  { key: "long-sleeve", label: "LONG SLEEVE" },
 ];
 
 export default function ProductFilterClient({

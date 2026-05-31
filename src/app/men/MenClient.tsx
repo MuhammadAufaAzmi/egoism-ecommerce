@@ -23,9 +23,11 @@ const FIT_TYPES = [
   { key: "ALL", label: "ALL" },
   { key: "oversized", label: "OVERSIZED" },
   { key: "regular", label: "REGULAR" },
-  { key: "crop", label: "CROP" },
-  { key: "crop-tank", label: "CROP TANK" },
-  { key: "women-tank", label: "WOMEN TANK" },
+  { key: "crop", label: "CROP REGULAR FIT" },
+  { key: "crop-oversize", label: "CROP OVERSIZE" },
+  { key: "muscle-tank", label: "MUSCLE TANK" },
+  { key: "crop-muscle-tank", label: "CROP MUSCLE TANK" },
+  { key: "long-sleeve", label: "LONG SLEEVE" },
 ];
 
 export default function MenClient({ initialProducts }: MenClientProps) {
