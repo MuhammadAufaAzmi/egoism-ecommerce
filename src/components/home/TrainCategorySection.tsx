@@ -17,10 +17,10 @@ const WOMEN_ACTIVITIES: ActivityCard[] = [
 ];
 
 const MEN_ACTIVITIES: ActivityCard[] = [
-  { label: "HYROX", activity: "hyrox", image: "/activity-hiit.png" },
-  { label: "CROSSFIT", activity: "crossfit", image: "/activity-lifting.png" },
-  { label: "RUNNING", activity: "running", image: "/activity-running.png" },
-  { label: "GYM", activity: "gym", image: "/activity-pilates.png" },
+  { label: "HYROX", activity: "hyrox", image: "/activity-men-hyrox.png" },
+  { label: "CROSSFIT", activity: "crossfit", image: "/activity-men-crossfit.png" },
+  { label: "RUNNING", activity: "running", image: "/activity-men-running.png" },
+  { label: "GYM", activity: "gym", image: "/activity-men-gym.png" },
 ];
 
 function ParallaxCard({
