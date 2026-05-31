@@ -32,8 +32,11 @@ export default function EditProductPage() {
   const availableFitTypes = [
     { value: "oversized", label: "OVERSIZED" },
     { value: "regular", label: "REGULAR" },
+    { value: "long-sleeve", label: "LONG SLEEVE" },
     { value: "crop", label: "CROP" },
     { value: "crop-tank", label: "CROP TANK" },
+    { value: "crop-muscle-tank", label: "CROP MUSCLE TANK" },
+    { value: "muscle-tank", label: "MUSCLE TANK" },
     { value: "women-tank", label: "WOMEN TANK" },
   ];
   const [currentImage, setCurrentImage] = useState("");
