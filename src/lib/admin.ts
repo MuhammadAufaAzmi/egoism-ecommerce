@@ -3,7 +3,19 @@
 import { prisma } from "@/lib/prisma";
 import { cookies } from "next/headers";
 import { sendOrderStatusEmail } from "@/lib/email";
+import { v2 as cloudinary } from "cloudinary";
 
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+function extractPublicId(url: string) {
+  if (!url) return null;
+  const match = url.match(/\/upload\/(?:v\d+\/)?(.+?)\.[a-zA-Z0-9]+$/);
+  return match ? match[1] : null;
+}
 // Fungsi keamanan untuk memastikan hanya ADMIN yang bisa mengeksekusi
 async function verifyAdmin() {
   const cookieStore = await cookies();
@@ -186,3 +198,39 @@ export async function cancelExpiredOrders() {
   }
 }
 
+export async function deleteOrder(orderId: string) {
+  if (!(await verifyAdmin())) {
+    return { success: false, message: "Unauthorized" };
+  }
+
+  try {
+    const order = await (prisma as any).order.findUnique({
+      where: { id: orderId }
+    });
+
+    if (!order) {
+      return { success: false, message: "Pesanan tidak ditemukan." };
+    }
+
+    // Ekstrak public_id dari gambar bukti pembayaran (jika ada)
+    const publicId = extractPublicId(order.paymentProof);
+    
+    if (publicId) {
+      try {
+        await cloudinary.uploader.destroy(publicId);
+      } catch (err) {
+        console.error(`Gagal menghapus gambar ${publicId} dari Cloudinary:`, err);
+      }
+    }
+
+    // Hapus pesanan dari database
+    await (prisma as any).order.delete({
+      where: { id: orderId }
+    });
+
+    return { success: true, message: "Pesanan berhasil dihapus!" };
+  } catch (error) {
+    console.error(error);
+    return { success: false, message: "Gagal menghapus pesanan." };
+  }
+}

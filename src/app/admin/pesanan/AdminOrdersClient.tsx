@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { updateOrderStatus } from "@/lib/admin";
+import { updateOrderStatus, deleteOrder } from "@/lib/admin";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useToast } from "@/components/ui/Toast";
@@ -43,6 +43,7 @@ export default function AdminOrdersClient({
   const { showToast } = useToast();
   const [orders, setOrders] = useState<Order[]>(initialOrders);
   const [loadingId, setLoadingId] = useState<string | null>(null);
+  const [isDeletingId, setIsDeletingId] = useState<string | null>(null);
   const [selectedFilter, setSelectedFilter] = useState("SEMUA");
   const [searchQuery, setSearchQuery] = useState("");
   const [proofModal, setProofModal] = useState<{
@@ -101,6 +102,22 @@ export default function AdminOrdersClient({
     }
     setLoadingId(null);
     router.refresh();
+  };
+
+  const handleDeleteOrder = async (orderId: string, orderNumber: string) => {
+    if (!window.confirm(`Apakah Anda yakin ingin menghapus pesanan ${orderNumber} secara permanen? Data dan bukti transfer akan ikut terhapus.`)) return;
+
+    setIsDeletingId(orderId);
+    const result = await deleteOrder(orderId);
+
+    if (result.success) {
+      setOrders((prev) => prev.filter((o) => o.id !== orderId));
+      showToast("Pesanan berhasil dihapus.", "success");
+      router.refresh();
+    } else {
+      showToast(result.message || "Gagal menghapus pesanan.", "error");
+    }
+    setIsDeletingId(null);
   };
 
   const getStatusColor = (status: string) => {
@@ -468,6 +485,22 @@ export default function AdminOrdersClient({
                             >
                               <span className="material-symbols-outlined text-[18px]">
                                 visibility
+                              </span>
+                            </button>
+
+                            {/* Delete button */}
+                            <button
+                              onClick={() => handleDeleteOrder(order.id, order.orderNumber)}
+                              disabled={isDeletingId === order.id}
+                              className={`p-2 border border-outline-variant/30 transition-colors ${
+                                isDeletingId === order.id
+                                  ? "opacity-50 cursor-not-allowed"
+                                  : "hover:border-red-500 text-secondary hover:text-red-500"
+                              }`}
+                              title="Hapus Pesanan"
+                            >
+                              <span className="material-symbols-outlined text-[18px]">
+                                {isDeletingId === order.id ? "hourglass_empty" : "delete"}
                               </span>
                             </button>
 
