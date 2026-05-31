@@ -2,6 +2,20 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { v2 as cloudinary } from "cloudinary";
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+// Helper untuk mengekstrak public_id dari URL Cloudinary
+function extractPublicId(url: string) {
+  if (!url) return null;
+  const match = url.match(/\/upload\/(?:v\d+\/)?(.+?)\.[a-zA-Z0-9]+$/);
+  return match ? match[1] : null;
+}
 
 // === ADMIN: UPDATE PRODUK ===
 export async function updateProduct(slug: string, input: any) {
@@ -56,6 +70,33 @@ export async function deleteProduct(slug: string) {
     const product = await prisma.product.findUnique({ where: { slug } });
     if (!product) {
       return { success: false, message: "Produk tidak ditemukan." };
+    }
+
+    // 1. Ekstrak public_id dari gambar utama
+    const publicIdsToDelete: string[] = [];
+    const mainImageId = extractPublicId(product.image);
+    if (mainImageId) publicIdsToDelete.push(mainImageId);
+
+    // 2. Ekstrak public_id dari gambar galeri
+    try {
+      const gallery = JSON.parse(product.images);
+      if (Array.isArray(gallery)) {
+        gallery.forEach((url: string) => {
+          const id = extractPublicId(url);
+          if (id) publicIdsToDelete.push(id);
+        });
+      }
+    } catch (e) {
+      console.error("Gagal parse gambar galeri:", e);
+    }
+
+    // 3. Hapus gambar dari Cloudinary
+    for (const publicId of publicIdsToDelete) {
+      try {
+        await cloudinary.uploader.destroy(publicId);
+      } catch (err) {
+        console.error(`Gagal menghapus gambar ${publicId} dari Cloudinary:`, err);
+      }
     }
 
     await prisma.cart.deleteMany({ where: { productId: product.id } });
