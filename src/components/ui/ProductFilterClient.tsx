@@ -126,7 +126,7 @@ export default function ProductFilterClient({
       </ScrollReveal>
 
       {/* Filters Bar */}
-      <ScrollReveal>
+      <ScrollReveal className="relative z-50">
         <div className="w-full px-5 md:px-16 max-w-[1440px] mx-auto border-t border-outline-variant py-6 flex justify-between items-center mb-12">
           <p className="text-[12px] leading-[16px] tracking-[0.1em] font-semibold text-secondary uppercase">
             {processedProducts.length} PIECES
