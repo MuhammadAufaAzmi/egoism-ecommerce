@@ -295,11 +295,29 @@ export default function EditProductPage() {
             >
               <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" className="sr-only" />
               {imagePreview || currentImage ? (
-                <div className="flex flex-col items-center space-y-3 w-full">
+                <div className="flex flex-col items-center space-y-3 w-full relative">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={imagePreview || currentImage} alt="Preview" className="h-32 object-contain border border-outline-variant/30" />
-                  <p className="text-[11px] text-secondary uppercase tracking-widest">
-                    {imagePreview ? "Gambar baru dipilih — klik untuk ganti" : "Gambar saat ini — klik untuk ganti"}
+                  
+                  {/* Tombol Cancel hanya muncul jika mengupload gambar baru */}
+                  {imagePreview && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setImageFile(null);
+                        setImagePreview("");
+                        if (fileInputRef.current) fileInputRef.current.value = "";
+                      }}
+                      className="absolute -top-4 right-1/2 translate-x-[4rem] bg-red-500 text-white w-7 h-7 flex items-center justify-center rounded-full text-[14px] shadow-md hover:bg-red-600 transition-colors"
+                      title="Batal upload gambar baru"
+                    >
+                      ✕
+                    </button>
+                  )}
+                  
+                  <p className="text-[11px] text-secondary uppercase tracking-widest mt-2">
+                    {imagePreview ? "Gambar baru dipilih — klik area untuk ganti" : "Gambar saat ini — klik area untuk ganti"}
                   </p>
                 </div>
               ) : (
