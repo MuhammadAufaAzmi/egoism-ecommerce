@@ -23,11 +23,13 @@ const ACTIVITIES = [
 
 const ALL_FIT_TYPES = [
   { key: "ALL", label: "ALL" },
-  { key: "oversized", label: "OVERSIZED" },
-  { key: "regular", label: "REGULAR" },
-  { key: "crop", label: "CROP REGULAR FIT" },
-  { key: "crop-oversize", label: "CROP OVERSIZE" },
-  { key: "long-sleeve", label: "LONG SLEEVE" },
+  { key: "oversized", label: "Oversized" },
+  { key: "regular", label: "Regular" },
+  { key: "muscle-tank", label: "Muscle tank" },
+  { key: "crop-tank", label: "Crop tank" },
+  { key: "crop", label: "Crop regular fit" },
+  { key: "crop-oversize", label: "Crop Oversize" },
+  { key: "long-sleeve", label: "Long sleeve" },
 ];
 
 export default function ProductFilterClient({

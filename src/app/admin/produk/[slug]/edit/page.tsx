@@ -30,11 +30,13 @@ export default function EditProductPage() {
   const [selectedActivities, setSelectedActivities] = useState<string[]>([]);
   const availableActivities = ["hyrox", "crossfit", "running", "powerlifting", "pilates", "yoga", "gym"];
   const availableFitTypes = [
-    { value: "regular", label: "REGULAR" },
-    { value: "oversized", label: "OVERSIZED" },
-    { value: "crop", label: "CROP REGULAR FIT" },
-    { value: "crop-oversize", label: "CROP OVERSIZE" },
-    { value: "long-sleeve", label: "LONG SLEEVE" },
+    { value: "regular", label: "Regular" },
+    { value: "oversized", label: "Oversized" },
+    { value: "long-sleeve", label: "Long sleeve" },
+    { value: "muscle-tank", label: "Muscle tank" },
+    { value: "crop-tank", label: "Crop tank" },
+    { value: "crop", label: "Crop regular fit" },
+    { value: "crop-oversize", label: "Crop Oversize" },
   ];
   const [currentImage, setCurrentImage] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
