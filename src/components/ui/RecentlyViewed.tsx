@@ -15,6 +15,8 @@ interface RecentProduct {
 const STORAGE_KEY = "egoism_recently_viewed";
 const MAX_ITEMS = 5;
 
+import { getValidRecentProducts } from "@/lib/products";
+
 /**
  * Menyimpan produk ke localStorage sebagai "Recently Viewed"
  * Dipanggil dari halaman produk saat produk di-render
@@ -54,7 +56,24 @@ export default function RecentlyViewed({
       const filtered = currentProductId
         ? stored.filter((p) => p.id !== currentProductId)
         : stored;
-      setProducts(filtered.slice(0, 4));
+      
+      const initialProducts = filtered.slice(0, 4);
+      setProducts(initialProducts);
+
+      if (initialProducts.length > 0) {
+        const ids = initialProducts.map(p => p.id);
+        getValidRecentProducts(ids).then(validDbProducts => {
+          const validIds = new Set(validDbProducts.map(p => p.id));
+          const validatedProducts = initialProducts.filter(p => validIds.has(p.id));
+          
+          if (validatedProducts.length !== initialProducts.length) {
+            setProducts(validatedProducts);
+            const allStored: RecentProduct[] = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+            const cleanedStored = allStored.filter(p => validIds.has(p.id) || p.id === currentProductId);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(cleanedStored));
+          }
+        }).catch(() => {});
+      }
     } catch {
       setProducts([]);
     }

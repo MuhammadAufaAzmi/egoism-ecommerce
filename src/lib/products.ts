@@ -82,6 +82,18 @@ export const getProductsByCategory = async (category: "men" | "women") => {
   return dbProducts.map(parseProduct);
 };
 
+export const getValidRecentProducts = async (ids: string[]) => {
+  try {
+    const valid = await prisma.product.findMany({
+      where: { id: { in: ids } },
+      select: { id: true, slug: true, name: true, price: true, image: true }
+    });
+    return valid;
+  } catch {
+    return [];
+  }
+};
+
 export const formatPrice = async (price: number) => {
   return new Intl.NumberFormat("id-ID", {
     style: "currency",
