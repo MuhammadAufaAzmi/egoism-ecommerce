@@ -156,8 +156,7 @@ export default async function HomePage() {
           <div className="max-w-3xl text-center">
             <div className="w-16 h-[1px] bg-secondary/30 mx-auto mb-10" />
             <p className="font-heading text-[28px] md:text-[44px] leading-[1.2] text-primary tracking-tight font-medium italic">
-              &ldquo;Dressed for the architecture of solitude. Worn for the
-              theatre of the self.&rdquo;
+              &ldquo;Only You Matter.&rdquo;
             </p>
             <div className="w-16 h-[1px] bg-secondary/30 mx-auto mt-10" />
           </div>
