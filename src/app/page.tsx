@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import ProductCard from "@/components/ui/ProductCard";
-import MarqueeStrip from "@/components/ui/MarqueeStrip";
 import StatsCounter from "@/components/ui/StatsCounter";
 import ScrollReveal from "@/components/ui/ScrollReveal";
 import ParallaxHero from "@/components/home/ParallaxHero";
@@ -100,10 +99,6 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ========================================
-          MARQUEE STRIP — Animated Running Text
-          ======================================== */}
-      <MarqueeStrip />
 
       {/* ========================================
           NEW ARRIVALS — Selected Pieces
