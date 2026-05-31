@@ -21,23 +21,64 @@ async function verifyAdmin() {
 export async function getAdminAnalytics() {
   if (!(await verifyAdmin())) return null;
 
-  const orders = await (prisma as any).order.findMany();
-  
+  const now = new Date();
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+  const [orders, totalProducts, totalUsers, monthlyOrders] = await Promise.all([
+    (prisma as any).order.findMany({ orderBy: { createdAt: "desc" } }),
+    prisma.product.count(),
+    prisma.user.count({ where: { role: "USER" } }),
+    (prisma as any).order.findMany({
+      where: { createdAt: { gte: startOfMonth } },
+    }),
+  ]);
+
   const totalOrders = orders.length;
-  
-  // Hitung total revenue hanya dari pesanan yang tidak dibatalkan
+
+  // Revenue total (exclude cancelled)
   const totalRevenue = orders
     .filter((o: any) => o.status !== "DIBATALKAN")
     .reduce((sum: number, o: any) => sum + o.total, 0);
 
-  const formattedRevenue = new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    minimumFractionDigits: 0,
-  }).format(totalRevenue);
+  // Revenue bulan ini
+  const monthlyRevenue = monthlyOrders
+    .filter((o: any) => o.status !== "DIBATALKAN")
+    .reduce((sum: number, o: any) => sum + o.total, 0);
 
-  return { totalOrders, formattedRevenue };
+  const formatIDR = (n: number) =>
+    new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
+      minimumFractionDigits: 0,
+    }).format(n);
+
+  // 5 recent orders
+  const recentOrders = await (prisma as any).order.findMany({
+    take: 5,
+    orderBy: { createdAt: "desc" },
+    include: { user: { select: { firstName: true, lastName: true, email: true } } },
+  });
+
+  return {
+    totalOrders,
+    totalProducts,
+    totalUsers,
+    totalRevenue,
+    formattedRevenue: formatIDR(totalRevenue),
+    monthlyOrdersCount: monthlyOrders.length,
+    monthlyRevenue,
+    formattedMonthlyRevenue: formatIDR(monthlyRevenue),
+    recentOrders: recentOrders.map((o: any) => ({
+      id: o.id,
+      orderNumber: o.orderNumber,
+      status: o.status,
+      total: formatIDR(o.total),
+      date: new Date(o.createdAt).toLocaleDateString("id-ID", { day: "2-digit", month: "short" }),
+      customer: `${o.user?.firstName || ""} ${o.user?.lastName || ""}`.trim() || o.user?.email || "—",
+    })),
+  };
 }
+
 
 export async function getAllOrders() {
   if (!(await verifyAdmin())) return [];

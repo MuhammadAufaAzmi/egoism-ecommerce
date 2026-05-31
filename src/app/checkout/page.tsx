@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { getCartItems } from "@/lib/products";
-import { getUserId, getUserAddresses } from "@/lib/account";
+import { getUserId, getUserAddresses, saveUserAddress } from "@/lib/account";
 import { processCheckout } from "@/lib/checkout";
 import { useToast } from "@/components/ui/Toast";
 
@@ -20,16 +20,38 @@ export default function CheckoutPage() {
   const { showToast } = useToast();
   const [cartItems, setCartItems] = useState<any[]>([]);
   const [address, setAddress] = useState<any>(null);
+  const [addresses, setAddresses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("manual");
   const [orderSuccess, setOrderSuccess] = useState(false);
 
+  // Inline address form
+  const [showAddressForm, setShowAddressForm] = useState(false);
+  const [savingAddress, setSavingAddress] = useState(false);
+  const [provinceList, setProvinceList] = useState<string[]>([]);
+  const [addressForm, setAddressForm] = useState({
+    label: "Rumah",
+    recipient: "",
+    phone: "",
+    address: "",
+    city: "",
+    province: "",
+    postal: "",
+  });
+
+  // Promo code states
+  const [promoCode, setPromoCode] = useState("");
+  const [promoApplied, setPromoApplied] = useState<any>(null);
+  const [promoLoading, setPromoLoading] = useState(false);
+  const [promoError, setPromoError] = useState("");
+
   // Shipping states
   const [shippingZone, setShippingZone] = useState<ShippingZone | null>(null);
   const [loadingShipping, setLoadingShipping] = useState(false);
   const [shippingError, setShippingError] = useState("");
+
 
   const totalQuantity = cartItems.reduce(
     (sum, item) => sum + item.quantity,
@@ -73,14 +95,15 @@ export default function CheckoutPage() {
         }
 
         // Fetch cart dan address secara parallel
-        const [items, addresses] = await Promise.all([
+        const [items, addrs] = await Promise.all([
           getCartItems(userId),
           getUserAddresses(),
         ]);
 
         setCartItems(items || []);
 
-        const validAddresses = Array.isArray(addresses) ? addresses : [];
+        const validAddresses = Array.isArray(addrs) ? addrs : [];
+        setAddresses(validAddresses);
         const defaultAddr =
           validAddresses.find((a: any) => a.isDefault) || validAddresses[0];
 
@@ -89,6 +112,13 @@ export default function CheckoutPage() {
         // Auto-fetch ongkir berdasarkan provinsi di alamat
         if (defaultAddr?.province) {
           fetchShippingZone(defaultAddr.province);
+        }
+
+        // Fetch province list untuk inline form
+        const res = await fetch("/api/shipping/zones");
+        const data = await res.json();
+        if (data.success) {
+          setProvinceList(data.zones.map((z: any) => z.province));
         }
       } catch (error) {
         console.error("Error fetching checkout data:", error);
@@ -103,13 +133,14 @@ export default function CheckoutPage() {
     fetchData();
   }, [router, fetchShippingZone]);
 
+
   const handlePlaceOrder = async () => {
     if (!address) {
       showToast(
-        "Silakan tambah alamat pengiriman di menu My Account terlebih dahulu.",
+        "Silakan tambah alamat pengiriman terlebih dahulu.",
         "warning"
       );
-      router.push("/my-account");
+      setShowAddressForm(true);
       return;
     }
 
@@ -155,12 +186,64 @@ export default function CheckoutPage() {
     }
   };
 
+  // Simpan alamat baru langsung dari checkout
+  const handleSaveAddress = async () => {
+    if (!addressForm.recipient || !addressForm.phone || !addressForm.address ||
+        !addressForm.city || !addressForm.province || !addressForm.postal) {
+      showToast("Lengkapi semua field alamat.", "warning");
+      return;
+    }
+    setSavingAddress(true);
+    try {
+      await saveUserAddress(addressForm);
+      const addrs = await getUserAddresses();
+      const validAddresses = Array.isArray(addrs) ? addrs : [];
+      setAddresses(validAddresses);
+      const newAddr = validAddresses[validAddresses.length - 1];
+      setAddress(newAddr);
+      if (newAddr?.province) fetchShippingZone(newAddr.province);
+      setShowAddressForm(false);
+      showToast("Alamat berhasil disimpan!", "success");
+    } catch {
+      showToast("Gagal menyimpan alamat.", "error");
+    } finally {
+      setSavingAddress(false);
+    }
+  };
+
+  // Apply promo code
+  const handleApplyPromo = async () => {
+    if (!promoCode.trim()) return;
+    setPromoLoading(true);
+    setPromoError("");
+    setPromoApplied(null);
+    try {
+      const res = await fetch("/api/promo/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: promoCode, orderTotal: subtotal }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setPromoApplied(data.promo);
+        showToast(data.message, "success");
+      } else {
+        setPromoError(data.message);
+      }
+    } catch {
+      setPromoError("Gagal memvalidasi kode promo.");
+    } finally {
+      setPromoLoading(false);
+    }
+  };
+
   const subtotal = cartItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0
   );
   const shippingCost = shippingZone?.cost || 0;
-  const grandTotal = subtotal + shippingCost;
+  const discountAmount = promoApplied?.discountAmount || 0;
+  const grandTotal = subtotal + shippingCost - discountAmount;
 
   const formatIDR = (amount: number) =>
     new Intl.NumberFormat("id-ID", {
@@ -286,15 +369,37 @@ export default function CheckoutPage() {
                 <h2 className="text-[12px] font-semibold tracking-widest uppercase text-secondary">
                   SHIPPING ADDRESS
                 </h2>
-                <Link
-                  href="/my-account"
+                <button
+                  onClick={() => setShowAddressForm(!showAddressForm)}
                   className="text-[11px] tracking-widest uppercase text-primary/70 hover:text-primary transition-colors border-b border-primary/30 hover:border-primary"
                 >
-                  {address ? "UBAH ALAMAT" : "TAMBAH ALAMAT"}
-                </Link>
+                  {address ? (showAddressForm ? "BATAL" : "UBAH / TAMBAH") : "TAMBAH ALAMAT"}
+                </button>
               </div>
 
-              {address ? (
+              {/* Pilih dari alamat yang sudah ada */}
+              {addresses.length > 1 && !showAddressForm && (
+                <div className="flex flex-wrap gap-2 mb-3">
+                  {addresses.map((addr: any) => (
+                    <button
+                      key={addr.id}
+                      onClick={() => {
+                        setAddress(addr);
+                        if (addr.province) fetchShippingZone(addr.province);
+                      }}
+                      className={`text-[11px] uppercase tracking-widest px-3 py-1.5 border transition-colors ${
+                        address?.id === addr.id
+                          ? "border-primary bg-primary text-on-primary"
+                          : "border-outline-variant/40 hover:border-primary"
+                      }`}
+                    >
+                      {addr.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {address && !showAddressForm ? (
                 <div className="border border-outline-variant/50 p-6 bg-surface-container/20">
                   <p className="font-bold uppercase text-[14px] mb-1">
                     {address.recipient} ({address.label})
@@ -309,17 +414,96 @@ export default function CheckoutPage() {
                     {address.city}, {address.province} {address.postal}
                   </p>
                 </div>
-              ) : (
+              ) : !showAddressForm ? (
                 <div className="border border-red-500/50 p-6 bg-red-950/10">
                   <p className="text-red-400 text-[13px] uppercase tracking-wider mb-3">
                     Belum ada alamat pengiriman.
                   </p>
-                  <Link
-                    href="/my-account"
-                    className="inline-block border border-red-500/50 px-6 py-2 text-[11px] tracking-widest uppercase text-red-400 hover:bg-red-500 hover:text-white transition-colors"
-                  >
-                    TAMBAH ALAMAT DI MY ACCOUNT →
-                  </Link>
+                </div>
+              ) : null}
+
+              {/* Inline Address Form */}
+              {showAddressForm && (
+                <div className="border border-outline-variant/50 p-6 bg-surface-container/10 space-y-4">
+                  <h3 className="text-[11px] font-semibold uppercase tracking-widest text-secondary mb-2">
+                    TAMBAH ALAMAT BARU
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {([
+                      { label: "Label (cth: Rumah)", key: "label" },
+                      { label: "Nama Penerima", key: "recipient" },
+                      { label: "No. Telepon", key: "phone" },
+                    ] as { label: string; key: keyof typeof addressForm }[]).map(({ label, key }) => (
+                      <div key={key}>
+                        <label className="text-[10px] uppercase tracking-widest text-secondary block mb-1">{label}</label>
+                        <input
+                          type="text"
+                          value={addressForm[key]}
+                          onChange={(e) => setAddressForm({ ...addressForm, [key]: e.target.value })}
+                          placeholder={label}
+                          className="w-full bg-transparent border-b border-primary/50 focus:border-primary focus:outline-none py-2 text-[13px] text-primary"
+                        />
+                      </div>
+                    ))}
+                    <div className="sm:col-span-2">
+                      <label className="text-[10px] uppercase tracking-widest text-secondary block mb-1">Alamat Lengkap</label>
+                      <input
+                        type="text"
+                        value={addressForm.address}
+                        onChange={(e) => setAddressForm({ ...addressForm, address: e.target.value })}
+                        placeholder="Jl. ..."
+                        className="w-full bg-transparent border-b border-primary/50 focus:border-primary focus:outline-none py-2 text-[13px] text-primary"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] uppercase tracking-widest text-secondary block mb-1">Kota</label>
+                      <input
+                        type="text"
+                        value={addressForm.city}
+                        onChange={(e) => setAddressForm({ ...addressForm, city: e.target.value })}
+                        placeholder="Kota / Kabupaten"
+                        className="w-full bg-transparent border-b border-primary/50 focus:border-primary focus:outline-none py-2 text-[13px] text-primary"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] uppercase tracking-widest text-secondary block mb-1">Provinsi</label>
+                      <select
+                        value={addressForm.province}
+                        onChange={(e) => setAddressForm({ ...addressForm, province: e.target.value })}
+                        className="w-full bg-transparent border-b border-primary/50 focus:border-primary focus:outline-none py-2 text-[13px] text-primary cursor-pointer"
+                      >
+                        <option value="">Pilih Provinsi</option>
+                        {provinceList.map((prov) => (
+                          <option key={prov} value={prov}>{prov}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-[10px] uppercase tracking-widest text-secondary block mb-1">Kode Pos</label>
+                      <input
+                        type="text"
+                        value={addressForm.postal}
+                        onChange={(e) => setAddressForm({ ...addressForm, postal: e.target.value })}
+                        placeholder="Kode Pos"
+                        className="w-full bg-transparent border-b border-primary/50 focus:border-primary focus:outline-none py-2 text-[13px] text-primary"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex gap-3 pt-2">
+                    <button
+                      onClick={handleSaveAddress}
+                      disabled={savingAddress}
+                      className="bg-primary text-on-primary px-6 py-2.5 text-[11px] font-semibold uppercase tracking-widest hover:opacity-80 transition-opacity disabled:opacity-50"
+                    >
+                      {savingAddress ? "MENYIMPAN..." : "SIMPAN ALAMAT"}
+                    </button>
+                    <button
+                      onClick={() => setShowAddressForm(false)}
+                      className="border border-outline-variant/50 text-secondary px-4 py-2.5 text-[11px] uppercase tracking-widest hover:border-primary hover:text-primary transition-colors"
+                    >
+                      BATAL
+                    </button>
+                  </div>
                 </div>
               )}
             </section>
@@ -446,10 +630,58 @@ export default function CheckoutPage() {
                 </span>
               </div>
               {shippingZone && (
-                <div className="text-[10px] text-secondary/70 mb-4 uppercase tracking-wider">
+                <div className="text-[10px] text-secondary/70 mb-3 uppercase tracking-wider">
                   Zona {shippingZone.zone} • Est. {shippingZone.etd}
                 </div>
               )}
+
+              {/* Promo Code / Voucher */}
+              <div className="border-t border-outline-variant/30 pt-4 mb-4">
+                <p className="text-[11px] font-semibold uppercase tracking-widest text-secondary mb-3">PROMO CODE</p>
+                {promoApplied ? (
+                  <div className="flex items-center justify-between bg-green-950/10 border border-green-500/30 px-3 py-2">
+                    <div>
+                      <p className="text-[11px] font-bold text-green-600 uppercase tracking-widest">{promoApplied.code}</p>
+                      <p className="text-[10px] text-green-600/80 mt-0.5">-{formatIDR(promoApplied.discountAmount)}</p>
+                    </div>
+                    <button
+                      onClick={() => { setPromoApplied(null); setPromoCode(""); setPromoError(""); }}
+                      className="text-[10px] text-secondary hover:text-red-400 uppercase tracking-widest"
+                    >
+                      HAPUS
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={promoCode}
+                      onChange={(e) => { setPromoCode(e.target.value.toUpperCase()); setPromoError(""); }}
+                      onKeyDown={(e) => e.key === "Enter" && handleApplyPromo()}
+                      placeholder="MASUKKAN KODE"
+                      className="flex-1 bg-transparent border border-outline-variant/50 focus:border-primary focus:outline-none px-3 py-2 text-[12px] text-primary uppercase tracking-widest"
+                    />
+                    <button
+                      onClick={handleApplyPromo}
+                      disabled={promoLoading || !promoCode.trim()}
+                      className="bg-primary text-on-primary px-3 py-2 text-[10px] font-semibold uppercase tracking-widest hover:opacity-80 disabled:opacity-50 transition-opacity flex-shrink-0"
+                    >
+                      {promoLoading ? "..." : "PAKAI"}
+                    </button>
+                  </div>
+                )}
+                {promoError && (
+                  <p className="text-[10px] text-red-400 mt-1.5 uppercase tracking-wider">{promoError}</p>
+                )}
+              </div>
+
+              {discountAmount > 0 && (
+                <div className="flex justify-between text-[13px] mb-3 text-green-600">
+                  <span>DISKON</span>
+                  <span>-{formatIDR(discountAmount)}</span>
+                </div>
+              )}
+
               <div className="border-t border-outline-variant/30 pt-4 mb-6" />
 
               <div className="flex justify-between text-[16px] font-bold mb-8 text-primary">

@@ -3,6 +3,7 @@ import { Montserrat } from "next/font/google";
 import "@/styles/globals.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import MobileBottomNav from "@/components/layout/MobileBottomNav";
 import { ToastProvider } from "@/components/ui/Toast";
 import AnnouncementBar from "@/components/ui/AnnouncementBar";
 import BackToTop from "@/components/ui/BackToTop";
@@ -18,7 +19,6 @@ export const metadata: Metadata = {
   title: "EGOISM — Luxury Minimalist Fashion",
   description: "Brand fashion premium dengan desain minimalis dan elegan.",
   manifest: "/manifest.json",
-  themeColor: "#1a1a18",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
@@ -30,6 +30,11 @@ export const metadata: Metadata = {
     type: "website",
   },
 };
+
+export const viewport = {
+  themeColor: "#1a1a18",
+};
+
 
 export default function RootLayout({
   children,
@@ -47,12 +52,13 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
         />
       </head>
-      <body className="bg-surface-container-lowest text-on-surface antialiased min-h-screen flex flex-col font-sans">
+      <body className="bg-surface-container-lowest text-on-surface antialiased min-h-screen flex flex-col font-sans pb-16 md:pb-0">
         <ToastProvider>
           <AnnouncementBar />
           <Navbar />
           <main className="flex-grow">{children}</main>
           <Footer />
+          <MobileBottomNav />
           <BackToTop />
         </ToastProvider>
         {/* Service Worker Registration */}

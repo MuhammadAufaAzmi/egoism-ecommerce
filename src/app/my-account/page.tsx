@@ -629,20 +629,29 @@ function AddressTab() {
 }
 
 /* ─────────────────────────────────────────
-   TAB 3 — RIWAYAT PESANAN
+   TAB 3 — RIWAYAT PESANAN (with Timeline)
 ───────────────────────────────────────── */
 function OrdersTab() {
   const [orders, setOrders] = useState<any[]>([]);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   useEffect(() => {
     getUserOrders().then(setOrders);
   }, []);
 
+  // Step order: 0=DIPROSES, 1=DIKIRIM, 2=DITERIMA
+  const STATUS_STEPS = ["DIPROSES", "DIKIRIM", "DITERIMA"];
+
+  const getStepIndex = (status: string) => {
+    if (status === "DIBATALKAN") return -1;
+    return STATUS_STEPS.indexOf(status);
+  };
+
   const statusColor: Record<string, string> = {
-    DITERIMA: "text-green-600 border-green-200",
-    DIKIRIM: "text-blue-500 border-blue-200",
-    DIPROSES: "text-amber-500 border-amber-200",
-    DIBATALKAN: "text-red-400 border-red-200",
+    DITERIMA: "text-green-600 border-green-200 bg-green-50",
+    DIKIRIM: "text-blue-500 border-blue-200 bg-blue-50",
+    DIPROSES: "text-amber-500 border-amber-200 bg-amber-50",
+    DIBATALKAN: "text-red-400 border-red-200 bg-red-50",
   };
 
   return (
@@ -668,38 +677,142 @@ function OrdersTab() {
           </Link>
         </div>
       ) : (
-        <div className="flex flex-col divide-y divide-stone-100">
-          {orders.map((order) => (
-            <div
-              key={order.id}
-              className="py-8 flex flex-col md:flex-row md:items-center justify-between gap-4"
-            >
-              <div>
-                <p className="text-[22px] font-medium text-primary uppercase mb-1">
-                  {order.id}
-                </p>
-                <p className="text-[12px] tracking-[0.1em] font-semibold text-secondary uppercase mb-1">
-                  {order.date}
-                </p>
-                <p className="text-[14px] text-secondary mb-2">{order.items}</p>
-                {order.trackingNumber && (order.status === "DIKIRIM" || order.status === "DITERIMA") && (
-                  <p className="text-[11px] tracking-widest font-semibold text-blue-600 bg-blue-50 px-2 py-1 inline-block border border-blue-200 uppercase">
-                    NO. RESI: {order.trackingNumber}
-                  </p>
+        <div className="flex flex-col gap-6">
+          {orders.map((order) => {
+            const stepIndex = getStepIndex(order.status);
+            const isCancelled = order.status === "DIBATALKAN";
+            const isExpanded = expandedId === order.id;
+
+            return (
+              <div
+                key={order.id}
+                className="border border-stone-100 overflow-hidden"
+              >
+                {/* Order Header */}
+                <button
+                  onClick={() => setExpandedId(isExpanded ? null : order.id)}
+                  className="w-full text-left px-8 py-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-stone-50/50 transition-colors"
+                >
+                  <div>
+                    <p className="text-[13px] tracking-[0.1em] font-bold text-primary uppercase">
+                      {order.orderNumber || order.id.slice(0, 8).toUpperCase()}
+                    </p>
+                    <p className="text-[12px] tracking-[0.08em] font-semibold text-secondary uppercase mt-0.5">
+                      {order.date}
+                    </p>
+                    <p className="text-[13px] text-secondary mt-1 line-clamp-1">
+                      {order.items}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-4 flex-shrink-0">
+                    <p className="text-[16px] font-semibold text-primary">
+                      {order.total}
+                    </p>
+                    <span
+                      className={`text-[11px] tracking-[0.1em] font-semibold border px-3 py-1 uppercase ${statusColor[order.status] ?? "text-secondary border-stone-200"}`}
+                    >
+                      {order.status}
+                    </span>
+                    <span className="material-symbols-outlined text-[20px] text-secondary">
+                      {isExpanded ? "expand_less" : "expand_more"}
+                    </span>
+                  </div>
+                </button>
+
+                {/* Expanded: Timeline + Tracking */}
+                {isExpanded && (
+                  <div className="border-t border-stone-100 px-8 py-8 bg-surface/50">
+                    {/* Status Timeline */}
+                    {!isCancelled ? (
+                      <div className="mb-8">
+                        <p className="text-[10px] uppercase tracking-widest text-secondary font-semibold mb-5">
+                          Status Pesanan
+                        </p>
+                        <div className="flex items-start gap-0">
+                          {STATUS_STEPS.map((step, idx) => {
+                            const isDone = idx <= stepIndex;
+                            const isCurrent = idx === stepIndex;
+                            return (
+                              <div key={step} className="flex flex-1 items-start">
+                                <div className="flex flex-col items-center">
+                                  <div
+                                    className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all ${
+                                      isDone
+                                        ? "bg-primary border-primary"
+                                        : "bg-transparent border-stone-200"
+                                    } ${isCurrent ? "ring-2 ring-primary/30 ring-offset-1" : ""}`}
+                                  >
+                                    {isDone && (
+                                      <svg
+                                        viewBox="0 0 24 24"
+                                        className="w-4 h-4"
+                                        fill="none"
+                                        stroke="white"
+                                        strokeWidth={2.5}
+                                      >
+                                        <path
+                                          strokeLinecap="round"
+                                          strokeLinejoin="round"
+                                          d="M5 13l4 4L19 7"
+                                        />
+                                      </svg>
+                                    )}
+                                  </div>
+                                  <p
+                                    className={`text-[10px] font-semibold uppercase tracking-widest mt-2 text-center ${
+                                      isDone ? "text-primary" : "text-stone-300"
+                                    }`}
+                                  >
+                                    {step}
+                                  </p>
+                                </div>
+                                {idx < STATUS_STEPS.length - 1 && (
+                                  <div
+                                    className={`flex-1 h-0.5 mt-4 mx-1 transition-colors ${
+                                      idx < stepIndex ? "bg-primary" : "bg-stone-200"
+                                    }`}
+                                  />
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="mb-6 flex items-center gap-3 p-4 bg-red-50 border border-red-200">
+                        <span className="material-symbols-outlined text-red-400">cancel</span>
+                        <p className="text-[13px] text-red-500 font-medium">
+                          Pesanan ini telah dibatalkan.
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Tracking Number */}
+                    {order.trackingNumber && (order.status === "DIKIRIM" || order.status === "DITERIMA") && (
+                      <div className="bg-blue-50 border border-blue-200 px-6 py-4 flex items-center justify-between">
+                        <div>
+                          <p className="text-[10px] uppercase tracking-widest text-blue-500 font-semibold mb-0.5">
+                            Nomor Resi
+                          </p>
+                          <p className="text-[16px] font-bold text-blue-700 tracking-wider">
+                            {order.trackingNumber}
+                          </p>
+                        </div>
+                        <button
+                          onClick={() => {
+                            navigator.clipboard?.writeText(order.trackingNumber);
+                          }}
+                          className="text-[11px] text-blue-500 border border-blue-300 px-3 py-1.5 hover:bg-blue-100 transition-colors uppercase tracking-widest"
+                        >
+                          SALIN
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 )}
               </div>
-              <div className="flex flex-row md:flex-col items-center md:items-end gap-4 md:gap-2">
-                <p className="text-[16px] font-semibold text-primary">
-                  {order.total}
-                </p>
-                <span
-                  className={`text-[11px] tracking-[0.12em] font-semibold border px-3 py-1 uppercase ${statusColor[order.status] ?? "text-secondary border-stone-200"}`}
-                >
-                  {order.status}
-                </span>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

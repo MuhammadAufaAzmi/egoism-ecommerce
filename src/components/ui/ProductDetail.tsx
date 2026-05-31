@@ -7,6 +7,34 @@ import { handleAddToCart } from "@/lib/products";
 import SizeGuide from "@/components/ui/SizeGuide";
 import WishlistButton from "@/components/ui/WishlistButton";
 
+// Peta warna nama → hex CSS untuk color swatches
+const COLOR_MAP: Record<string, string> = {
+  BLACK: "#1a1a1a",
+  WHITE: "#f5f5f5",
+  GREY: "#888888",
+  GRAY: "#888888",
+  NAVY: "#1b2a4a",
+  RED: "#c0392b",
+  BLUE: "#2563eb",
+  GREEN: "#16a34a",
+  BROWN: "#78350f",
+  CREAM: "#f5f0e8",
+  BEIGE: "#d4b896",
+  OLIVE: "#6b7c3e",
+  CHARCOAL: "#3d3d3d",
+  "ASH GREY": "#b0b0b0",
+  "LIGHT GREY": "#d0d0d0",
+  "DARK GREEN": "#145a32",
+  KHAKI: "#c3b091",
+  ORANGE: "#ea580c",
+  PURPLE: "#7c3aed",
+  MAROON: "#6b2737",
+  "FOREST GREEN": "#228b22",
+  CAMEL: "#c19a6b",
+  SAND: "#c2b280",
+  TAN: "#d2b48c",
+};
+
 interface ProductDetailProps {
   product: {
     id: string;
@@ -222,34 +250,7 @@ export default function ProductDetail({
                 )}
 
                 {canReview && (
-                  <div className="mt-8 bg-surface-container-lowest p-6 border border-outline-variant/30">
-                    <h4 className="text-[11px] font-semibold uppercase tracking-widest mb-4">Tulis Ulasan Anda</h4>
-                    <form onSubmit={handleAddReview} className="space-y-4">
-                      <div>
-                        <label className="text-[10px] uppercase tracking-widest text-secondary block mb-2">Rating</label>
-                        <select name="rating" required className="w-full border border-outline-variant/50 px-3 py-2 text-[12px] bg-background">
-                          <option value="5">5 Bintang (Sangat Bagus)</option>
-                          <option value="4">4 Bintang (Bagus)</option>
-                          <option value="3">3 Bintang (Cukup)</option>
-                          <option value="2">2 Bintang (Kurang)</option>
-                          <option value="1">1 Bintang (Sangat Kurang)</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label className="text-[10px] uppercase tracking-widest text-secondary block mb-2">Komentar</label>
-                        <textarea 
-                          name="comment" 
-                          required 
-                          rows={3} 
-                          className="w-full border border-outline-variant/50 px-3 py-2 text-[12px] bg-background focus:outline-none focus:border-primary resize-none"
-                          placeholder="Bagaimana pendapat Anda tentang produk ini?"
-                        />
-                      </div>
-                      <button type="submit" className="bg-primary text-on-primary px-6 py-3 text-[10px] font-semibold uppercase tracking-widest hover:opacity-80 transition-opacity">
-                        Kirim Ulasan
-                      </button>
-                    </form>
-                  </div>
+                  <ReviewForm productId={product.id} onSubmit={handleAddReview} />
                 )}
               </div>
             )}
@@ -259,24 +260,43 @@ export default function ProductDetail({
         {/* Sizes, Colors and Actions */}
         <div className="space-y-8">
           <div>
-            <span className="block text-[11px] font-bold uppercase tracking-widest text-secondary mb-4">
-              SELECT COLOR
-            </span>
+            <div className="flex items-center gap-3 mb-4">
+              <span className="block text-[11px] font-bold uppercase tracking-widest text-secondary">
+                SELECT COLOR
+              </span>
+              {selectedColor && (
+                <span className="text-[11px] tracking-widest text-primary uppercase">
+                  — {selectedColor}
+                </span>
+              )}
+            </div>
             <div className="flex flex-wrap gap-3">
               {product.colors && product.colors.length > 0 ? (
-                product.colors.map((color) => (
-                  <button
-                    key={color}
-                    onClick={() => { setSelectedColor(color); setMessage({ type: "", text: "" }); }}
-                    className={`border text-[12px] font-medium py-2.5 px-5 transition-all duration-300 tracking-wider ${
-                      selectedColor === color
-                        ? "bg-primary text-on-primary border-primary"
-                        : "bg-transparent text-primary border-outline-variant/50 hover:border-primary"
-                    }`}
-                  >
-                    {color}
-                  </button>
-                ))
+                product.colors.map((color) => {
+                  const hexColor = COLOR_MAP[color.toUpperCase()] ?? "#888";
+                  const isSelected = selectedColor === color;
+                  const isLight = ["WHITE", "CREAM", "BEIGE", "SAND", "TAN", "KHAKI", "LIGHT GREY"].includes(color.toUpperCase());
+                  return (
+                    <button
+                      key={color}
+                      title={color}
+                      onClick={() => { setSelectedColor(color); setMessage({ type: "", text: "" }); }}
+                      className={`w-9 h-9 rounded-full transition-all duration-200 flex items-center justify-center ${
+                        isSelected ? "ring-2 ring-offset-2 ring-primary scale-110" : "hover:scale-110"
+                      } ${isLight ? "border border-outline-variant/30" : ""}`}
+                      style={{ backgroundColor: hexColor }}
+                    >
+                      {isSelected && (
+                        <span
+                          className="text-[14px] font-bold"
+                          style={{ color: isLight ? "#1a1a1a" : "#ffffff" }}
+                        >
+                          ✓
+                        </span>
+                      )}
+                    </button>
+                  );
+                })
               ) : (
                 <span className="text-[12px] text-secondary">No colors available</span>
               )}
@@ -357,6 +377,99 @@ export default function ProductDetail({
           </button>
         </div>
       </div>
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────
+   ReviewForm — Interactive Star Rating
+───────────────────────────────────────── */
+function ReviewForm({
+  productId,
+  onSubmit,
+}: {
+  productId: string;
+  onSubmit: (e: React.FormEvent<HTMLFormElement>) => Promise<void>;
+}) {
+  const [hoverRating, setHoverRating] = useState(0);
+  const [selectedRating, setSelectedRating] = useState(0);
+
+  return (
+    <div className="mt-8 bg-surface-container-lowest p-6 border border-outline-variant/30">
+      <h4 className="text-[11px] font-semibold uppercase tracking-widest mb-6">
+        Tulis Ulasan Anda
+      </h4>
+      <form onSubmit={onSubmit} className="space-y-5">
+        {/* Hidden input untuk rating */}
+        <input type="hidden" name="rating" value={selectedRating || 5} />
+
+        {/* Interactive Star Rating */}
+        <div>
+          <label className="text-[10px] uppercase tracking-widest text-secondary block mb-3">
+            Rating
+          </label>
+          <div className="flex gap-1">
+            {[1, 2, 3, 4, 5].map((star) => (
+              <button
+                key={star}
+                type="button"
+                onMouseEnter={() => setHoverRating(star)}
+                onMouseLeave={() => setHoverRating(0)}
+                onClick={() => setSelectedRating(star)}
+                className="transition-transform duration-100 hover:scale-110"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  className="w-7 h-7 transition-colors duration-150"
+                  fill={star <= (hoverRating || selectedRating) ? "currentColor" : "none"}
+                  stroke="currentColor"
+                  strokeWidth={1.5}
+                  style={{
+                    color:
+                      star <= (hoverRating || selectedRating)
+                        ? "#1a1a1a"
+                        : "#999",
+                  }}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"
+                  />
+                </svg>
+              </button>
+            ))}
+            {(hoverRating > 0 || selectedRating > 0) && (
+              <span className="ml-2 text-[11px] text-secondary self-center uppercase tracking-wider">
+                {["", "Sangat Kurang", "Kurang", "Cukup", "Bagus", "Sangat Bagus"][
+                  hoverRating || selectedRating
+                ]}
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Komentar */}
+        <div>
+          <label className="text-[10px] uppercase tracking-widest text-secondary block mb-2">
+            Komentar
+          </label>
+          <textarea
+            name="comment"
+            required
+            rows={3}
+            className="w-full border border-outline-variant/50 px-3 py-2 text-[12px] bg-background focus:outline-none focus:border-primary resize-none"
+            placeholder="Bagaimana pendapat Anda tentang produk ini?"
+          />
+        </div>
+
+        <button
+          type="submit"
+          className="bg-primary text-on-primary px-6 py-3 text-[10px] font-semibold uppercase tracking-widest hover:opacity-80 transition-opacity"
+        >
+          Kirim Ulasan
+        </button>
+      </form>
     </div>
   );
 }

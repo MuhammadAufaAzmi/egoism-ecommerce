@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { getCartItems } from "@/lib/products";
@@ -14,6 +15,11 @@ export default function Navbar() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [cartCount, setCartCount] = useState(0);
   const [isScrolled, setIsScrolled] = useState(false);
+  // Search autocomplete
+  const [suggestions, setSuggestions] = useState<any[]>([]);
+  const [loadingSuggestions, setLoadingSuggestions] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
 
   const getCookie = (name: string) => {
     // Fungsi ini tidak lagi dipakai untuk membaca cookie auth (user_role, user_id)
@@ -91,6 +97,40 @@ export default function Navbar() {
       setSearchQuery("");
     }
   };
+
+  // Fetch autocomplete suggestions dengan debounce
+  useEffect(() => {
+    if (searchQuery.trim().length < 2) {
+      setSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+    const timer = setTimeout(async () => {
+      setLoadingSuggestions(true);
+      try {
+        const res = await fetch(`/api/search/suggestions?q=${encodeURIComponent(searchQuery)}`);
+        const data = await res.json();
+        setSuggestions(data.suggestions || []);
+        setShowSuggestions(true);
+      } catch {
+        setSuggestions([]);
+      } finally {
+        setLoadingSuggestions(false);
+      }
+    }, 280);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  // Tutup dropdown saat klik di luar
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const navLinks = [
     { label: "COLLECTION", href: "/koleksi" },
@@ -263,7 +303,10 @@ export default function Navbar() {
 
         {/* SEARCH BAR DROPDOWN OVERLAY */}
         {isSearchOpen && (
-          <div className="absolute top-[90px] left-0 w-full bg-surface border-b border-outline-variant/30 px-5 py-6 flex justify-center animate-in slide-in-from-top-2 duration-300">
+          <div
+            ref={searchRef}
+            className="absolute top-[90px] left-0 w-full bg-surface border-b border-outline-variant/30 px-5 py-6 flex flex-col items-center animate-in slide-in-from-top-2 duration-300 z-50"
+          >
             <form
               onSubmit={handleSearchSubmit}
               className="relative w-full max-w-2xl flex items-center"
@@ -271,18 +314,91 @@ export default function Navbar() {
               <input
                 type="text"
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Escape") {
+                    setShowSuggestions(false);
+                    setIsSearchOpen(false);
+                  }
+                }}
                 placeholder="SEARCH GARMENT..."
                 className="w-full bg-transparent border-b border-primary focus:outline-none py-3 text-[14px] text-primary uppercase placeholder:text-secondary tracking-widest"
                 autoFocus
               />
-              <button
-                type="submit"
-                className="absolute right-0 text-[12px] font-bold text-primary uppercase tracking-widest hover:opacity-70"
-              >
-                ENTER
-              </button>
+              {loadingSuggestions ? (
+                <span className="absolute right-0 w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+              ) : (
+                <button
+                  type="submit"
+                  className="absolute right-0 text-[12px] font-bold text-primary uppercase tracking-widest hover:opacity-70"
+                >
+                  ENTER
+                </button>
+              )}
             </form>
+
+            {/* Autocomplete Suggestions Dropdown */}
+            {showSuggestions && suggestions.length > 0 && (
+              <div className="w-full max-w-2xl mt-3 border border-outline-variant/30 bg-surface shadow-lg">
+                {suggestions.map((product) => (
+                  <Link
+                    key={product.id}
+                    href={`/produk/${product.slug}`}
+                    onClick={() => {
+                      setIsSearchOpen(false);
+                      setSearchQuery("");
+                      setShowSuggestions(false);
+                    }}
+                    className="flex items-center gap-4 px-4 py-3 hover:bg-surface-container transition-colors border-b border-outline-variant/20 last:border-none"
+                  >
+                    <div className="relative w-12 h-14 flex-shrink-0 bg-surface-container overflow-hidden">
+                      {product.image && (
+                        <Image
+                          src={product.image}
+                          alt={product.name}
+                          fill
+                          className="object-cover"
+                        />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[13px] font-medium uppercase tracking-wide text-primary truncate">
+                        {product.name}
+                      </p>
+                      <p className="text-[11px] text-secondary uppercase tracking-widest mt-0.5">
+                        {product.category}
+                      </p>
+                    </div>
+                    <p className="text-[12px] font-semibold text-primary flex-shrink-0">
+                      {new Intl.NumberFormat("id-ID", {
+                        style: "currency",
+                        currency: "IDR",
+                        minimumFractionDigits: 0,
+                      }).format(product.price)}
+                    </p>
+                  </Link>
+                ))}
+                <Link
+                  href={`/search?q=${encodeURIComponent(searchQuery)}`}
+                  onClick={() => {
+                    setIsSearchOpen(false);
+                    setSearchQuery("");
+                    setShowSuggestions(false);
+                  }}
+                  className="block text-center text-[11px] uppercase tracking-widest text-secondary hover:text-primary py-3 transition-colors"
+                >
+                  SEE ALL RESULTS FOR &ldquo;{searchQuery}&rdquo; →
+                </Link>
+              </div>
+            )}
+
+            {showSuggestions && suggestions.length === 0 && searchQuery.length >= 2 && !loadingSuggestions && (
+              <div className="w-full max-w-2xl mt-2 text-center text-[11px] text-secondary uppercase tracking-widest py-3">
+                No results for &ldquo;{searchQuery}&rdquo;
+              </div>
+            )}
           </div>
         )}
 

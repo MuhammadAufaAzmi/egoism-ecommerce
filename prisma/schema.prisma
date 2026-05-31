@@ -155,3 +155,19 @@ model ShippingZone {
   cost      Int      // Dalam Rupiah
   etd       String   // Contoh: "1-2 hari"
 }
+
+// ==========================================
+// 8. PROMO CODE / VOUCHER
+// ==========================================
+model PromoCode {
+  id            String   @id @default(uuid())
+  code          String   @unique
+  discountType  String   // "percent" | "fixed"
+  discountValue Int      // Persen (10) atau nominal (50000)
+  minOrder      Int      @default(0)
+  maxUses       Int      @default(0) // 0 = unlimited
+  usedCount     Int      @default(0)
+  expiresAt     DateTime?
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+}
