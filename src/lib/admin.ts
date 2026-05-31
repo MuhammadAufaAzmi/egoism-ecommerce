@@ -234,3 +234,40 @@ export async function deleteOrder(orderId: string) {
     return { success: false, message: "Gagal menghapus pesanan." };
   }
 }
+
+export async function deleteAllOrders() {
+  if (!(await verifyAdmin())) {
+    return { success: false, message: "Unauthorized" };
+  }
+
+  try {
+    // Cari semua pesanan yang punya paymentProof untuk dihapus dari Cloudinary
+    const ordersWithProof = await (prisma as any).order.findMany({
+      where: {
+        paymentProof: { not: null }
+      },
+      select: { paymentProof: true }
+    });
+
+    for (const order of ordersWithProof) {
+      if (order.paymentProof) {
+        const publicId = extractPublicId(order.paymentProof);
+        if (publicId) {
+          try {
+            await cloudinary.uploader.destroy(publicId);
+          } catch (err) {
+            console.error(`Gagal menghapus gambar ${publicId} dari Cloudinary:`, err);
+          }
+        }
+      }
+    }
+
+    // Hapus semua pesanan dari database
+    const deleted = await (prisma as any).order.deleteMany({});
+
+    return { success: true, message: `Berhasil menghapus ${deleted.count} pesanan secara permanen.` };
+  } catch (error) {
+    console.error(error);
+    return { success: false, message: "Gagal menghapus semua pesanan." };
+  }
+}

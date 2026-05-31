@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { updateOrderStatus, deleteOrder } from "@/lib/admin";
+import { updateOrderStatus, deleteOrder, deleteAllOrders } from "@/lib/admin";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useToast } from "@/components/ui/Toast";
@@ -44,6 +44,7 @@ export default function AdminOrdersClient({
   const [orders, setOrders] = useState<Order[]>(initialOrders);
   const [loadingId, setLoadingId] = useState<string | null>(null);
   const [isDeletingId, setIsDeletingId] = useState<string | null>(null);
+  const [isDeletingAll, setIsDeletingAll] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState("SEMUA");
   const [searchQuery, setSearchQuery] = useState("");
   const [proofModal, setProofModal] = useState<{
@@ -118,6 +119,31 @@ export default function AdminOrdersClient({
       showToast(result.message || "Gagal menghapus pesanan.", "error");
     }
     setIsDeletingId(null);
+  };
+
+  const handleDeleteAll = async () => {
+    if (orders.length === 0) {
+      showToast("Tidak ada pesanan untuk dihapus.", "error");
+      return;
+    }
+    
+    const confirmText = window.prompt('PERINGATAN BAHAYA!\n\nTindakan ini akan menghapus SELURUH pesanan secara permanen beserta bukti transfernya.\n\nKetik "HAPUS SEMUA" untuk melanjutkan:');
+    if (confirmText !== "HAPUS SEMUA") {
+      if (confirmText !== null) showToast("Dibatalkan: Konfirmasi tidak cocok.", "error");
+      return;
+    }
+
+    setIsDeletingAll(true);
+    const result = await deleteAllOrders();
+
+    if (result.success) {
+      setOrders([]);
+      showToast(result.message, "success");
+      router.refresh();
+    } else {
+      showToast(result.message || "Gagal menghapus semua pesanan.", "error");
+    }
+    setIsDeletingAll(false);
   };
 
   const getStatusColor = (status: string) => {
@@ -200,6 +226,22 @@ export default function AdminOrdersClient({
                 Order Management & Fulfillment Center
               </p>
             </div>
+
+            {orders.length > 0 && (
+              <button
+                onClick={handleDeleteAll}
+                disabled={isDeletingAll}
+                className={`inline-flex items-center gap-2 px-5 py-2.5 border border-red-500 text-red-500 text-[11px] font-bold uppercase tracking-widest transition-colors mb-2 sm:mb-0 ${
+                  isDeletingAll ? "opacity-50 cursor-not-allowed" : "hover:bg-red-500 hover:text-white"
+                }`}
+                title="Hapus Semua Pesanan (Sapu Bersih)"
+              >
+                <span className="material-symbols-outlined text-[16px]">
+                  {isDeletingAll ? "hourglass_empty" : "delete_sweep"}
+                </span>
+                {isDeletingAll ? "MEMPROSES..." : "SAPU BERSIH"}
+              </button>
+            )}
           </div>
 
           {/* Stats Cards */}
