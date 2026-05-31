@@ -30,6 +30,8 @@ export async function updateProduct(slug: string, input: any) {
         sizes: JSON.stringify(input.sizes),
         colors: JSON.stringify(input.colors),
         images: input.images ? JSON.stringify(input.images) : existing.images,
+        fitType: input.fitType || existing.fitType,
+        activity: input.activity ? JSON.stringify(input.activity) : existing.activity,
         isNew: input.isNew ?? existing.isNew,
       },
     });

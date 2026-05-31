@@ -7,15 +7,39 @@ import ScrollReveal from "@/components/ui/ScrollReveal";
 interface ProductFilterClientProps {
   initialProducts: any[];
   showCategoryFilter?: boolean; // Tampilkan filter ALL/MEN/WOMEN (untuk halaman Collection)
+  genderContext?: "men" | "women" | "all"; // Konteks gender untuk menentukan fit types yang relevan
 }
+
+const ACTIVITIES = [
+  { key: "ALL", label: "ALL" },
+  { key: "hyrox", label: "HYROX" },
+  { key: "crossfit", label: "CROSSFIT" },
+  { key: "running", label: "RUNNING" },
+  { key: "powerlifting", label: "POWERLIFTING" },
+  { key: "pilates", label: "PILATES" },
+  { key: "yoga", label: "YOGA" },
+  { key: "gym", label: "GYM" },
+];
+
+const ALL_FIT_TYPES = [
+  { key: "ALL", label: "ALL" },
+  { key: "oversized", label: "OVERSIZED" },
+  { key: "regular", label: "REGULAR" },
+  { key: "crop", label: "CROP" },
+  { key: "crop-tank", label: "CROP TANK" },
+  { key: "women-tank", label: "WOMEN TANK" },
+];
 
 export default function ProductFilterClient({
   initialProducts,
   showCategoryFilter = false,
+  genderContext = "all",
 }: ProductFilterClientProps) {
   const [sortBy, setSortBy] = useState("newest");
   const [filterSize, setFilterSize] = useState("ALL");
   const [filterCategory, setFilterCategory] = useState("ALL");
+  const [filterFitType, setFilterFitType] = useState("ALL");
+  const [filterActivity, setFilterActivity] = useState("ALL");
 
   const [isSortOpen, setIsSortOpen] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -32,12 +56,24 @@ export default function ProductFilterClient({
       );
     }
 
-    // 2. Filter berdasarkan ukuran
+    // 2. Filter Aktivitas
+    if (filterActivity !== "ALL") {
+      result = result.filter(
+        (p) => p.activity && Array.isArray(p.activity) && p.activity.includes(filterActivity)
+      );
+    }
+
+    // 3. Filter Fit Type
+    if (filterFitType !== "ALL") {
+      result = result.filter((p) => p.fitType === filterFitType);
+    }
+
+    // 4. Filter berdasarkan ukuran
     if (filterSize !== "ALL") {
       result = result.filter((p) => p.sizes && p.sizes.includes(filterSize));
     }
 
-    // 3. Pengurutan (Sort)
+    // 5. Pengurutan (Sort)
     if (sortBy === "price_asc") {
       result.sort((a, b) => a.price - b.price);
     } else if (sortBy === "price_desc") {
@@ -52,19 +88,43 @@ export default function ProductFilterClient({
     }
 
     return result;
-  }, [initialProducts, sortBy, filterSize, filterCategory, showCategoryFilter]);
+  }, [initialProducts, sortBy, filterSize, filterCategory, filterFitType, filterActivity, showCategoryFilter]);
 
   // Label aktif untuk filter
   const activeFilterLabel = () => {
     const parts: string[] = [];
-    if (showCategoryFilter && filterCategory !== "ALL")
-      parts.push(filterCategory);
+    if (showCategoryFilter && filterCategory !== "ALL") parts.push(filterCategory);
+    if (filterFitType !== "ALL") parts.push(ALL_FIT_TYPES.find(f => f.key === filterFitType)?.label || filterFitType);
     if (filterSize !== "ALL") parts.push(filterSize);
     return parts.length > 0 ? ` (${parts.join(", ")})` : "";
   };
 
+  // Cek apakah ada active filter/reset
+  const hasActiveFilters = filterSize !== "ALL" || filterFitType !== "ALL" || filterActivity !== "ALL" || filterCategory !== "ALL";
+
   return (
     <>
+      {/* Activity Tag Bar — Gymshark Style */}
+      <ScrollReveal>
+        <div className="w-full px-5 md:px-16 max-w-[1440px] mx-auto pt-4 pb-2">
+          <div className="flex gap-3 overflow-x-auto pb-3 scrollbar-hide">
+            {ACTIVITIES.map((act) => (
+              <button
+                key={act.key}
+                onClick={() => setFilterActivity(act.key)}
+                className={`whitespace-nowrap px-5 py-2.5 text-[11px] md:text-[12px] tracking-[0.15em] font-semibold uppercase border transition-all duration-300 flex-shrink-0 ${
+                  filterActivity === act.key
+                    ? "bg-primary text-on-primary border-primary shadow-lg"
+                    : "bg-transparent text-secondary border-outline-variant/50 hover:text-primary hover:border-primary/60"
+                }`}
+              >
+                {act.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </ScrollReveal>
+
       {/* Filters Bar */}
       <ScrollReveal>
         <div className="w-full px-5 md:px-16 max-w-[1440px] mx-auto border-t border-outline-variant py-6 flex justify-between items-center mb-12">
@@ -72,7 +132,23 @@ export default function ProductFilterClient({
             {processedProducts.length} PIECES
           </p>
 
-          <div className="flex gap-6 relative">
+          <div className="flex gap-6 relative items-center">
+            {/* Reset All Filters */}
+            {hasActiveFilters && (
+              <button
+                onClick={() => {
+                  setFilterSize("ALL");
+                  setFilterFitType("ALL");
+                  setFilterActivity("ALL");
+                  setFilterCategory("ALL");
+                  setSortBy("newest");
+                }}
+                className="text-[11px] tracking-[0.1em] font-semibold text-red-400 hover:text-red-500 transition-colors uppercase"
+              >
+                RESET
+              </button>
+            )}
+
             {/* Menu Dropdown Filter */}
             <div className="relative">
               <button
@@ -83,7 +159,8 @@ export default function ProductFilterClient({
                 className={`text-[12px] leading-[16px] tracking-[0.1em] font-semibold transition-colors uppercase ${
                   isFilterOpen ||
                   filterSize !== "ALL" ||
-                  filterCategory !== "ALL"
+                  filterCategory !== "ALL" ||
+                  filterFitType !== "ALL"
                     ? "text-primary"
                     : "text-secondary hover:text-primary"
                 }`}
@@ -92,7 +169,7 @@ export default function ProductFilterClient({
               </button>
 
               {isFilterOpen && (
-                <div className="absolute top-full right-0 mt-4 bg-surface-container-lowest border border-outline-variant p-5 z-50 min-w-[180px] shadow-2xl">
+                <div className="absolute top-full right-0 mt-4 bg-surface-container-lowest border border-outline-variant p-5 z-50 min-w-[180px] shadow-2xl max-h-[70vh] overflow-y-auto">
                   {/* Category Filter (hanya untuk Collection) */}
                   {showCategoryFilter && (
                     <>
@@ -119,6 +196,26 @@ export default function ProductFilterClient({
                     </>
                   )}
 
+                  {/* Fit Type Filter */}
+                  <p className="text-[10px] font-bold tracking-widest text-secondary mb-4 uppercase border-b border-outline-variant/50 pb-2">
+                    FIT TYPE
+                  </p>
+                  <div className="flex flex-col gap-3 mb-5">
+                    {ALL_FIT_TYPES.map((fit) => (
+                      <button
+                        key={fit.key}
+                        onClick={() => {
+                          setFilterFitType(fit.key);
+                        }}
+                        className={`text-left text-[12px] tracking-[0.1em] uppercase font-medium hover:text-primary transition-colors ${
+                          filterFitType === fit.key ? "text-primary" : "text-secondary"
+                        }`}
+                      >
+                        {fit.label}
+                      </button>
+                    ))}
+                  </div>
+
                   {/* Size Filter */}
                   <p className="text-[10px] font-bold tracking-widest text-secondary mb-4 uppercase border-b border-outline-variant/50 pb-2">
                     SIZE
@@ -141,11 +238,12 @@ export default function ProductFilterClient({
                   </div>
 
                   {/* Reset Filter */}
-                  {(filterSize !== "ALL" || filterCategory !== "ALL") && (
+                  {(filterSize !== "ALL" || filterCategory !== "ALL" || filterFitType !== "ALL") && (
                     <button
                       onClick={() => {
                         setFilterSize("ALL");
                         setFilterCategory("ALL");
+                        setFilterFitType("ALL");
                         setIsFilterOpen(false);
                       }}
                       className="mt-4 pt-3 border-t border-outline-variant/50 w-full text-left text-[11px] tracking-[0.1em] uppercase font-semibold text-red-400 hover:text-red-500 transition-colors"

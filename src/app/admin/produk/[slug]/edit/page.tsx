@@ -22,10 +22,20 @@ export default function EditProductPage() {
     slug: "",
     price: "",
     category: "men",
+    fitType: "regular",
     description: "",
     colors: "",
   });
   const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
+  const [selectedActivities, setSelectedActivities] = useState<string[]>([]);
+  const availableActivities = ["hyrox", "crossfit", "running", "powerlifting", "pilates", "yoga", "gym"];
+  const availableFitTypes = [
+    { value: "oversized", label: "OVERSIZED" },
+    { value: "regular", label: "REGULAR" },
+    { value: "crop", label: "CROP" },
+    { value: "crop-tank", label: "CROP TANK" },
+    { value: "women-tank", label: "WOMEN TANK" },
+  ];
   const [currentImage, setCurrentImage] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState("");
@@ -47,10 +57,12 @@ export default function EditProductPage() {
         slug: product.slug,
         price: String(product.price),
         category: product.category,
+        fitType: product.fitType || "regular",
         description: product.description || "",
         colors: product.colors?.join(", ") || "",
       });
       setSelectedSizes(product.sizes || []);
+      setSelectedActivities(product.activity || []);
       setCurrentImage(product.image);
       setCurrentGallery(product.images || []);
       setLoading(false);
@@ -65,6 +77,12 @@ export default function EditProductPage() {
   const handleSizeChange = (size: string) => {
     setSelectedSizes((prev) =>
       prev.includes(size) ? prev.filter((s) => s !== size) : [...prev, size]
+    );
+  };
+
+  const handleActivityChange = (activity: string) => {
+    setSelectedActivities((prev) =>
+      prev.includes(activity) ? prev.filter((a) => a !== activity) : [...prev, activity]
     );
   };
 
@@ -142,6 +160,8 @@ export default function EditProductPage() {
         slug: formData.slug.toLowerCase().replace(/\s+/g, "-").trim(),
         price: Number(formData.price),
         category: formData.category,
+        fitType: formData.fitType,
+        activity: [...selectedActivities],
         image: imagePath,
         images: finalGallery,
         description: formData.description.trim(),
@@ -217,6 +237,34 @@ export default function EditProductPage() {
                 <option value="women">WOMEN</option>
                 <option value="unisex">UNISEX</option>
               </select>
+            </div>
+          </div>
+
+          {/* Fit Type */}
+          <div className="flex flex-col space-y-2">
+            <label className="font-semibold uppercase tracking-wider text-secondary text-[12px]">Fit Type</label>
+            <select name="fitType" value={formData.fitType} onChange={handleChange}
+              className="w-full bg-background border border-outline-variant/50 p-3 text-primary focus:outline-none focus:border-primary transition-colors appearance-none">
+              {availableFitTypes.map((fit) => (
+                <option key={fit.value} value={fit.value}>{fit.label}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Activity Tags */}
+          <div className="flex flex-col space-y-2">
+            <span className="font-semibold uppercase tracking-wider text-secondary text-[12px]">Activity Tags</span>
+            <p className="text-[11px] text-secondary tracking-wider">Pilih aktivitas yang sesuai dengan produk ini</p>
+            <div className="flex flex-wrap gap-3 pt-2">
+              {availableActivities.map((activity) => (
+                <label
+                  key={activity}
+                  className={`flex items-center justify-center border px-4 py-2 cursor-pointer transition-colors text-[12px] font-medium tracking-wide uppercase ${selectedActivities.includes(activity) ? "bg-primary text-on-primary border-primary" : "bg-background text-primary border-outline-variant/50 hover:border-primary"}`}
+                >
+                  <input type="checkbox" checked={selectedActivities.includes(activity)} onChange={() => handleActivityChange(activity)} className="sr-only" />
+                  {activity}
+                </label>
+              ))}
             </div>
           </div>
 

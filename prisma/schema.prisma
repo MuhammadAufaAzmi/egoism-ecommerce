@@ -44,6 +44,8 @@ model Product {
   description String   @db.Text
   sizes       String   // JSON string array, contoh: ["S","M","L","XL"]
   colors      String   @default("[]") // JSON string array, contoh: ["BLACK","WHITE"]
+  fitType     String   @default("regular") // "oversized" | "regular" | "crop" | "crop-tank" | "women-tank"
+  activity    String   @default("[]") // JSON string array, contoh: ["gym","crossfit","running"]
   isNew       Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

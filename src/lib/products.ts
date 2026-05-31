@@ -13,6 +13,7 @@ const parseProduct = (p: any) => ({
   sizes: p.sizes ? (JSON.parse(p.sizes) as string[]) : [],
   colors: p.colors ? (JSON.parse(p.colors) as string[]) : [],
   images: p.images ? (JSON.parse(p.images) as string[]) : [],
+  activity: p.activity ? (JSON.parse(p.activity) as string[]) : [],
 });
 
 // === LOGIKA PRODUK ===
@@ -80,6 +81,8 @@ export async function createProduct(input: any) {
         sizes: JSON.stringify(input.sizes),
         colors: JSON.stringify(input.colors),
         images: JSON.stringify(input.images || []),
+        fitType: input.fitType || "regular",
+        activity: JSON.stringify(input.activity || []),
         isNew: input.isNew ?? true,
       },
     });

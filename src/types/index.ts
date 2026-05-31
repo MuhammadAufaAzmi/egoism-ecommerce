@@ -9,6 +9,8 @@ export interface Product {
   description?: string;
   sizes?: string[];
   colors?: string[];
+  fitType?: "oversized" | "regular" | "crop" | "crop-tank" | "women-tank";
+  activity?: string[];
   isNew?: boolean;
   isSale?: boolean;
 }
