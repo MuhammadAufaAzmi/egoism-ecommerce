@@ -45,28 +45,24 @@ export async function GET(request: Request) {
     }
 
     // 3. Find or Create User in DB
+    // We only select fields that definitely exist in the DB
     let user = await prisma.user.findUnique({
       where: { email: userData.email },
+      select: { id: true, email: true, role: true, firstName: true },
     });
 
     if (!user) {
-      // Create new user
-      user = await prisma.user.create({
+      // Create new user — password is null for Google users
+      const newUser = await prisma.user.create({
         data: {
           email: userData.email,
-          firstName: userData.name || userData.given_name,
-          provider: "GOOGLE",
+          firstName: userData.name || userData.given_name || "",
           role: "USER",
+          // password intentionally left null (Google OAuth user)
         },
+        select: { id: true, email: true, role: true, firstName: true },
       });
-    } else {
-      // Link the account if it was a credentials account
-      if (user.provider !== "GOOGLE") {
-        await prisma.user.update({
-          where: { id: user.id },
-          data: { provider: "GOOGLE" },
-        });
-      }
+      user = newUser;
     }
 
     // 4. Set Session Cookies
@@ -84,7 +80,7 @@ export async function GET(request: Request) {
       path: "/",
     });
 
-    // 5. Redirect to Home (or where they came from if implemented)
+    // 5. Redirect to Home
     return NextResponse.redirect(`${baseUrl}/`);
 
   } catch (error: any) {
