@@ -87,8 +87,9 @@ export async function GET(request: Request) {
     // 5. Redirect to Home (or where they came from if implemented)
     return NextResponse.redirect(`${baseUrl}/`);
 
-  } catch (error) {
+  } catch (error: any) {
     console.error("Google Auth Error:", error);
-    return NextResponse.redirect(`${baseUrl}/login?error=AuthenticationFailed`);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    return NextResponse.redirect(`${baseUrl}/login?error=${encodeURIComponent(errorMessage)}`);
   }
 }
