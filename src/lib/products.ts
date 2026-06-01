@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { Product } from "@/types";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
+import crypto from "crypto";
 
 export type { Product };
 
@@ -211,10 +212,39 @@ export async function handleAddToCart(
 ) {
   try {
     const cookieStore = await cookies();
-    const userId = cookieStore.get("user_id")?.value;
+    let userId = cookieStore.get("user_id")?.value;
 
     if (!userId) {
-      return { success: false, message: "Silakan Sign In terlebih dahulu." };
+      // GUEST USER CREATION
+      const guestId = crypto.randomUUID();
+      const guestEmail = `guest_${guestId.substring(0, 8)}@egoism.local`;
+      
+      const newGuest = await prisma.user.create({
+        data: {
+          id: guestId,
+          email: guestEmail,
+          firstName: "Guest",
+          role: "GUEST",
+          password: `GUEST_ACCOUNT::${guestId}`
+        }
+      });
+      
+      // Menggunakan await cookies() set (Next.js 14/15)
+      cookieStore.set("user_id", newGuest.id, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 60 * 60 * 24 * 30, // 30 days
+      });
+      
+      cookieStore.set("user_role", "GUEST", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 60 * 60 * 24 * 30,
+      });
+
+      userId = newGuest.id;
     }
 
     const existingCartItem = await prisma.cart.findFirst({

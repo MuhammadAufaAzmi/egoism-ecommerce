@@ -37,7 +37,8 @@ export default function Navbar() {
       const authRes = await fetch("/api/auth/me");
       const authData = await authRes.json();
       
-      setIsLoggedIn(authData.authenticated);
+      const isFullyAuthenticated = authData.authenticated && authData.user?.role !== "GUEST";
+      setIsLoggedIn(isFullyAuthenticated);
 
       if (authData.authenticated && authData.user?.id) {
         try {

@@ -9,6 +9,7 @@ export default function RegisterPage() {
     name: "",
     email: "",
     password: "",
+    confirmPassword: "",
   });
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
@@ -30,6 +31,11 @@ export default function RegisterPage() {
       return;
     }
 
+    if (formData.password !== formData.confirmPassword) {
+      setMessage({ type: "error", text: "Passwords do not match." });
+      return;
+    }
+
     setLoading(true);
     setMessage({ type: "", text: "" });
 
@@ -37,7 +43,7 @@ export default function RegisterPage() {
 
     if (res.success) {
       setMessage({ type: "success", text: res.message });
-      setFormData({ name: "", email: "", password: "" });
+      setFormData({ name: "", email: "", password: "", confirmPassword: "" });
     } else {
       setMessage({ type: "error", text: res.message });
     }
@@ -148,6 +154,25 @@ export default function RegisterPage() {
               onChange={handleChange}
               className="w-full bg-transparent border-b border-primary/30 text-[15px] py-3 focus:outline-none focus:border-primary transition-colors duration-300 rounded-none text-primary"
               placeholder="Min 8 chars & 1 number"
+            />
+          </div>
+
+          <div className="flex flex-col space-y-2">
+            <label
+              htmlFor="confirmPassword"
+              className="text-[12px] leading-[16px] tracking-[0.1em] font-semibold text-on-surface-variant uppercase"
+            >
+              CONFIRM PASSWORD
+            </label>
+            <input
+              id="confirmPassword"
+              type="password"
+              name="confirmPassword"
+              required
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              className="w-full bg-transparent border-b border-primary/30 text-[15px] py-3 focus:outline-none focus:border-primary transition-colors duration-300 rounded-none text-primary"
+              placeholder="Confirm your password"
             />
           </div>
 

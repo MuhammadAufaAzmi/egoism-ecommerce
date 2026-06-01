@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { getCartItems } from "@/lib/products";
-import { getUserId, getUserAddresses, saveUserAddress } from "@/lib/account";
+import { getUserId, getUserAddresses, saveUserAddress, isGuestUser } from "@/lib/account";
 import { processCheckout } from "@/lib/checkout";
 import { useToast } from "@/components/ui/Toast";
 
@@ -26,6 +26,7 @@ export default function CheckoutPage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("manual");
   const [orderSuccess, setOrderSuccess] = useState(false);
+  const [isGuest, setIsGuest] = useState(false);
 
   // Inline address form
   const [showAddressForm, setShowAddressForm] = useState(false);
@@ -39,6 +40,7 @@ export default function CheckoutPage() {
     city: "",
     province: "",
     postal: "",
+    guestEmail: "",
   });
 
   // Promo code states
@@ -91,12 +93,14 @@ export default function CheckoutPage() {
         }
 
         // Fetch cart dan address secara parallel
-        const [items, addrs] = await Promise.all([
+        const [items, addrs, guestCheck] = await Promise.all([
           getCartItems(userId),
           getUserAddresses(),
+          isGuestUser(),
         ]);
 
         setCartItems(items || []);
+        setIsGuest(!!guestCheck);
 
         const validAddresses = Array.isArray(addrs) ? addrs : [];
         setAddresses(validAddresses);
@@ -194,9 +198,17 @@ export default function CheckoutPage() {
       showToast("Lengkapi semua field alamat.", "warning");
       return;
     }
+    if (isGuest && !addressForm.guestEmail) {
+      showToast("Email wajib diisi untuk pelanggan Guest agar resi dapat dikirim.", "warning");
+      return;
+    }
+
     setSavingAddress(true);
     try {
-      await saveUserAddress(addressForm);
+      // Hilangkan guestEmail dari data address karena tidak ada di schema Address
+      const { guestEmail, ...addressData } = addressForm;
+      await saveUserAddress(addressData, undefined, isGuest ? guestEmail : undefined);
+      
       const addrs = await getUserAddresses();
       const validAddresses = Array.isArray(addrs) ? addrs : [];
       setAddresses(validAddresses);
@@ -535,6 +547,25 @@ export default function CheckoutPage() {
                         className="w-full bg-transparent border-b border-primary/50 focus:border-primary focus:outline-none py-2 text-[13px] text-primary"
                       />
                     </div>
+                    {isGuest && (
+                      <div className="sm:col-span-2">
+                        <label className="text-[10px] uppercase tracking-widest text-secondary block mb-1">
+                          Email Address (For Order Updates)
+                        </label>
+                        <input
+                          type="email"
+                          value={addressForm.guestEmail}
+                          onChange={(e) =>
+                            setAddressForm({
+                              ...addressForm,
+                              guestEmail: e.target.value,
+                            })
+                          }
+                          placeholder="Your email address"
+                          className="w-full bg-transparent border-b border-primary/50 focus:border-primary focus:outline-none py-2 text-[13px] text-primary"
+                        />
+                      </div>
+                    )}
                   </div>
                   <div className="flex gap-3 pt-2">
                     <button

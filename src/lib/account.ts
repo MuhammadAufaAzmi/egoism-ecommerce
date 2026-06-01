@@ -8,6 +8,11 @@ export async function getUserId() {
   return cookieStore.get("user_id")?.value;
 }
 
+export async function isGuestUser() {
+  const cookieStore = await cookies();
+  return cookieStore.get("user_role")?.value === "GUEST";
+}
+
 // FITUR PROFIL
 export async function getUserProfile() {
   const userId = await getUserId();
@@ -51,9 +56,20 @@ export async function getUserAddresses() {
   });
 }
 
-export async function saveUserAddress(data: any, addressId?: string) {
+export async function saveUserAddress(data: any, addressId?: string, guestEmail?: string) {
   const userId = await getUserId();
   if (!userId) return { success: false };
+
+  if (guestEmail) {
+    const isGuest = await isGuestUser();
+    if (isGuest) {
+      await (prisma as any).user.update({
+        where: { id: userId },
+        data: { email: guestEmail },
+      });
+    }
+  }
+
   if (addressId) {
     await (prisma as any).address.update({ where: { id: addressId }, data });
   } else {
