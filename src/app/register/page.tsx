@@ -19,6 +19,17 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (formData.password.length < 8) {
+      setMessage({ type: "error", text: "Password harus memiliki minimal 8 karakter." });
+      return;
+    }
+    
+    if (!/\d/.test(formData.password)) {
+      setMessage({ type: "error", text: "Password harus mengandung setidaknya 1 angka." });
+      return;
+    }
+
     setLoading(true);
     setMessage({ type: "", text: "" });
 
@@ -114,7 +125,7 @@ export default function RegisterPage() {
               value={formData.password}
               onChange={handleChange}
               className="w-full bg-transparent border-b border-primary/30 text-[15px] py-3 focus:outline-none focus:border-primary transition-colors duration-300 rounded-none text-primary"
-              placeholder="Create a secure password"
+              placeholder="Minimal 8 karakter & 1 angka"
             />
           </div>
 

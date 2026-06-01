@@ -216,45 +216,21 @@ export default function PaymentPage() {
                 BCA (Bank Central Asia)
               </p>
               <p className="text-[11px] text-secondary uppercase tracking-widest">
-                A/N EGOISM STUDIOS
+                A/N CHRESTELLA SANGGRA
               </p>
             </div>
             <div className="flex items-center gap-3">
               <p className="text-[16px] font-bold tracking-widest">
-                872 123 4567
+                172 035 2733
               </p>
               <button
                 type="button"
-                onClick={() => handleCopy("8721234567", "BCA")}
+                onClick={() => handleCopy("1720352733", "BCA")}
                 className="text-secondary hover:text-primary transition-colors flex items-center justify-center"
                 title="Salin Nomor Rekening"
               >
                 <span className="material-symbols-outlined text-[20px]">
                   {copied === "BCA" ? "check" : "content_copy"}
-                </span>
-              </button>
-            </div>
-          </div>
-
-          <div className="flex justify-between items-center p-4 border border-outline-variant/30 bg-surface-container-lowest">
-            <div>
-              <p className="text-[14px] font-bold mb-1">Bank Mandiri</p>
-              <p className="text-[11px] text-secondary uppercase tracking-widest">
-                A/N EGOISM STUDIOS
-              </p>
-            </div>
-            <div className="flex items-center gap-3">
-              <p className="text-[16px] font-bold tracking-widest">
-                137 000 123 4567
-              </p>
-              <button
-                type="button"
-                onClick={() => handleCopy("1370001234567", "MANDIRI")}
-                className="text-secondary hover:text-primary transition-colors flex items-center justify-center"
-                title="Salin Nomor Rekening"
-              >
-                <span className="material-symbols-outlined text-[20px]">
-                  {copied === "MANDIRI" ? "check" : "content_copy"}
                 </span>
               </button>
             </div>
