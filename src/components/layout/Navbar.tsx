@@ -76,6 +76,7 @@ export default function Navbar() {
   }, []);
 
   const handleSignOut = async () => {
+    if (!window.confirm("Apakah Anda yakin ingin keluar dari akun?")) return;
     try {
       await fetch("/api/auth/logout", { method: "POST" });
       setIsLoggedIn(false);

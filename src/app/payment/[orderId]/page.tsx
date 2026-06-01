@@ -27,6 +27,13 @@ export default function PaymentPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDone, setIsDone] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const [copied, setCopied] = useState("");
+
+  const handleCopy = (num: string, bank: string) => {
+    navigator.clipboard.writeText(num.replace(/\s+/g, ''));
+    setCopied(bank);
+    setTimeout(() => setCopied(""), 2000);
+  };
 
   // Order data state
   const [orderData, setOrderData] = useState<{
@@ -212,9 +219,21 @@ export default function PaymentPage() {
                 A/N EGOISM STUDIOS
               </p>
             </div>
-            <p className="text-[16px] font-bold tracking-widest">
-              872 123 4567
-            </p>
+            <div className="flex items-center gap-3">
+              <p className="text-[16px] font-bold tracking-widest">
+                872 123 4567
+              </p>
+              <button
+                type="button"
+                onClick={() => handleCopy("8721234567", "BCA")}
+                className="text-secondary hover:text-primary transition-colors flex items-center justify-center"
+                title="Salin Nomor Rekening"
+              >
+                <span className="material-symbols-outlined text-[20px]">
+                  {copied === "BCA" ? "check" : "content_copy"}
+                </span>
+              </button>
+            </div>
           </div>
 
           <div className="flex justify-between items-center p-4 border border-outline-variant/30 bg-surface-container-lowest">
@@ -224,9 +243,21 @@ export default function PaymentPage() {
                 A/N EGOISM STUDIOS
               </p>
             </div>
-            <p className="text-[16px] font-bold tracking-widest">
-              137 000 123 4567
-            </p>
+            <div className="flex items-center gap-3">
+              <p className="text-[16px] font-bold tracking-widest">
+                137 000 123 4567
+              </p>
+              <button
+                type="button"
+                onClick={() => handleCopy("1370001234567", "MANDIRI")}
+                className="text-secondary hover:text-primary transition-colors flex items-center justify-center"
+                title="Salin Nomor Rekening"
+              >
+                <span className="material-symbols-outlined text-[20px]">
+                  {copied === "MANDIRI" ? "check" : "content_copy"}
+                </span>
+              </button>
+            </div>
           </div>
 
           <p className="text-[12px] text-secondary leading-relaxed pt-2">

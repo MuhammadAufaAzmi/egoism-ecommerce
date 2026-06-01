@@ -639,8 +639,8 @@ function OrdersTab() {
     getUserOrders().then(setOrders);
   }, []);
 
-  // Step order: 0=DIPROSES, 1=DIKIRIM, 2=DITERIMA
-  const STATUS_STEPS = ["DIPROSES", "DIKIRIM", "DITERIMA"];
+  // Step order: 0=MENUNGGU KONFIRMASI, 1=DIPROSES, 2=DIKIRIM, 3=DITERIMA
+  const STATUS_STEPS = ["MENUNGGU KONFIRMASI", "DIPROSES", "DIKIRIM", "DITERIMA"];
 
   const getStepIndex = (status: string) => {
     if (status === "DIBATALKAN") return -1;
@@ -651,6 +651,7 @@ function OrdersTab() {
     DITERIMA: "text-green-600 border-green-200 bg-green-50",
     DIKIRIM: "text-blue-500 border-blue-200 bg-blue-50",
     DIPROSES: "text-amber-500 border-amber-200 bg-amber-50",
+    "MENUNGGU KONFIRMASI": "text-orange-500 border-orange-200 bg-orange-50",
     DIBATALKAN: "text-red-400 border-red-200 bg-red-50",
   };
 
