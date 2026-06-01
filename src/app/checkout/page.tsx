@@ -260,7 +260,7 @@ export default function CheckoutPage() {
       <div className="min-h-screen flex flex-col items-center justify-center bg-background text-primary">
         <div className="inline-block w-6 h-6 border-2 border-primary/30 border-t-primary rounded-full animate-spin mb-4" />
         <p className="tracking-widest text-[12px] uppercase">
-          Memuat data checkout...
+          LOADING CHECKOUT DATA...
         </p>
       </div>
     );
@@ -288,7 +288,7 @@ export default function CheckoutPage() {
           </svg>
         </div>
         <p className="text-[14px] text-red-400 uppercase tracking-widest mb-2">
-          Terjadi Kesalahan
+          AN ERROR OCCURRED
         </p>
         <p className="text-[13px] text-secondary mb-8 max-w-md">
           {fetchError}
@@ -297,7 +297,7 @@ export default function CheckoutPage() {
           onClick={() => window.location.reload()}
           className="border border-primary px-8 py-3 text-[12px] tracking-widest uppercase hover:bg-primary hover:text-on-primary transition-colors"
         >
-          COBA LAGI
+          TRY AGAIN
         </button>
       </div>
     );
@@ -311,7 +311,7 @@ export default function CheckoutPage() {
       <div className="min-h-screen flex flex-col items-center justify-center bg-background text-primary">
         <div className="inline-block w-6 h-6 border-2 border-primary/30 border-t-primary rounded-full animate-spin mb-4" />
         <p className="tracking-widest text-[12px] uppercase">
-          Mengalihkan ke Pembayaran...
+          REDIRECTING TO PAYMENT...
         </p>
       </div>
     );
@@ -324,13 +324,13 @@ export default function CheckoutPage() {
     return (
       <div className="min-h-screen pt-[120px] bg-background text-center flex flex-col items-center px-5">
         <p className="text-[14px] text-secondary uppercase tracking-widest mb-6">
-          Keranjang Anda Kosong.
+          YOUR CART IS EMPTY.
         </p>
         <Link
           href="/koleksi"
           className="border border-primary px-8 py-3 text-[12px] tracking-widest uppercase hover:bg-primary hover:text-on-primary transition-colors"
         >
-          KEMBALI BELANJA
+          BACK TO SHOP
         </Link>
       </div>
     );
@@ -349,11 +349,11 @@ export default function CheckoutPage() {
       <div className="w-full max-w-6xl">
         {/* Step Indicator */}
         <div className="flex items-center justify-center gap-2 mb-8 text-[11px] uppercase tracking-widest text-secondary">
-          <span className="text-secondary/50">Keranjang</span>
+          <span className="text-secondary/50">CART</span>
           <span className="text-secondary/30">→</span>
-          <span className="text-primary font-bold">Checkout</span>
+          <span className="text-primary font-bold">CHECKOUT</span>
           <span className="text-secondary/30">→</span>
-          <span className="text-secondary/50">Pembayaran</span>
+          <span className="text-secondary/50">PAYMENT</span>
         </div>
 
         <h1 className="text-[32px] md:text-[40px] font-bold uppercase tracking-wide mb-10 border-b border-outline-variant/30 pb-4">
@@ -373,7 +373,7 @@ export default function CheckoutPage() {
                   onClick={() => setShowAddressForm(!showAddressForm)}
                   className="text-[11px] tracking-widest uppercase text-primary/70 hover:text-primary transition-colors border-b border-primary/30 hover:border-primary"
                 >
-                  {address ? (showAddressForm ? "BATAL" : "UBAH / TAMBAH") : "TAMBAH ALAMAT"}
+                  {address ? (showAddressForm ? "CANCEL" : "EDIT / ADD") : "ADD ADDRESS"}
                 </button>
               </div>
 
@@ -417,7 +417,7 @@ export default function CheckoutPage() {
               ) : !showAddressForm ? (
                 <div className="border border-red-500/50 p-6 bg-red-950/10">
                   <p className="text-red-400 text-[13px] uppercase tracking-wider mb-3">
-                    Belum ada alamat pengiriman.
+                    No shipping address available.
                   </p>
                 </div>
               ) : null}
@@ -426,13 +426,13 @@ export default function CheckoutPage() {
               {showAddressForm && (
                 <div className="border border-outline-variant/50 p-6 bg-surface-container/10 space-y-4">
                   <h3 className="text-[11px] font-semibold uppercase tracking-widest text-secondary mb-2">
-                    TAMBAH ALAMAT BARU
+                    ADD NEW ADDRESS
                   </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {([
-                      { label: "Label (cth: Rumah)", key: "label" },
-                      { label: "Nama Penerima", key: "recipient" },
-                      { label: "No. Telepon", key: "phone" },
+                      { label: "Label (e.g., Home)", key: "label" },
+                      { label: "Recipient Name", key: "recipient" },
+                      { label: "Phone Number", key: "phone" },
                     ] as { label: string; key: keyof typeof addressForm }[]).map(({ label, key }) => (
                       <div key={key}>
                         <label className="text-[10px] uppercase tracking-widest text-secondary block mb-1">{label}</label>
@@ -446,45 +446,45 @@ export default function CheckoutPage() {
                       </div>
                     ))}
                     <div className="sm:col-span-2">
-                      <label className="text-[10px] uppercase tracking-widest text-secondary block mb-1">Alamat Lengkap</label>
+                      <label className="text-[10px] uppercase tracking-widest text-secondary block mb-1">Full Address</label>
                       <input
                         type="text"
                         value={addressForm.address}
                         onChange={(e) => setAddressForm({ ...addressForm, address: e.target.value })}
-                        placeholder="Jl. ..."
+                        placeholder="Street address..."
                         className="w-full bg-transparent border-b border-primary/50 focus:border-primary focus:outline-none py-2 text-[13px] text-primary"
                       />
                     </div>
                     <div>
-                      <label className="text-[10px] uppercase tracking-widest text-secondary block mb-1">Kota</label>
+                      <label className="text-[10px] uppercase tracking-widest text-secondary block mb-1">City</label>
                       <input
                         type="text"
                         value={addressForm.city}
                         onChange={(e) => setAddressForm({ ...addressForm, city: e.target.value })}
-                        placeholder="Kota / Kabupaten"
+                        placeholder="City"
                         className="w-full bg-transparent border-b border-primary/50 focus:border-primary focus:outline-none py-2 text-[13px] text-primary"
                       />
                     </div>
                     <div>
-                      <label className="text-[10px] uppercase tracking-widest text-secondary block mb-1">Provinsi</label>
+                      <label className="text-[10px] uppercase tracking-widest text-secondary block mb-1">Province</label>
                       <select
                         value={addressForm.province}
                         onChange={(e) => setAddressForm({ ...addressForm, province: e.target.value })}
                         className="w-full bg-transparent border-b border-primary/50 focus:border-primary focus:outline-none py-2 text-[13px] text-primary cursor-pointer"
                       >
-                        <option value="">Pilih Provinsi</option>
+                        <option value="">Select Province</option>
                         {provinceList.map((prov) => (
                           <option key={prov} value={prov}>{prov}</option>
                         ))}
                       </select>
                     </div>
                     <div>
-                      <label className="text-[10px] uppercase tracking-widest text-secondary block mb-1">Kode Pos</label>
+                      <label className="text-[10px] uppercase tracking-widest text-secondary block mb-1">Postal Code</label>
                       <input
                         type="text"
                         value={addressForm.postal}
                         onChange={(e) => setAddressForm({ ...addressForm, postal: e.target.value })}
-                        placeholder="Kode Pos"
+                        placeholder="Postal Code"
                         className="w-full bg-transparent border-b border-primary/50 focus:border-primary focus:outline-none py-2 text-[13px] text-primary"
                       />
                     </div>
@@ -495,13 +495,13 @@ export default function CheckoutPage() {
                       disabled={savingAddress}
                       className="bg-primary text-on-primary px-6 py-2.5 text-[11px] font-semibold uppercase tracking-widest hover:opacity-80 transition-opacity disabled:opacity-50"
                     >
-                      {savingAddress ? "MENYIMPAN..." : "SIMPAN ALAMAT"}
+                      {savingAddress ? "SAVING..." : "SAVE ADDRESS"}
                     </button>
                     <button
                       onClick={() => setShowAddressForm(false)}
                       className="border border-outline-variant/50 text-secondary px-4 py-2.5 text-[11px] uppercase tracking-widest hover:border-primary hover:text-primary transition-colors"
                     >
-                      BATAL
+                      CANCEL
                     </button>
                   </div>
                 </div>
@@ -518,7 +518,7 @@ export default function CheckoutPage() {
                 <div className="border border-outline-variant/30 p-8 text-center">
                   <div className="inline-block w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin mb-3" />
                   <p className="text-[12px] text-secondary uppercase tracking-widest">
-                    Menghitung ongkos kirim...
+                    Calculating shipping...
                   </p>
                 </div>
               ) : shippingError ? (
@@ -531,7 +531,7 @@ export default function CheckoutPage() {
                       onClick={() => fetchShippingZone(address.province)}
                       className="text-[11px] tracking-widest uppercase text-amber-600 border border-amber-500/30 px-4 py-2 hover:bg-amber-500/10 transition-colors"
                     >
-                      COBA HITUNG ULANG
+                      RECALCULATE
                     </button>
                   )}
                 </div>
@@ -554,18 +554,18 @@ export default function CheckoutPage() {
                 </div>
               ) : !address ? (
                 <div className="border border-outline-variant/30 p-6 text-[13px] text-secondary uppercase tracking-wider text-center">
-                  Tambah alamat Anda di My Account untuk menghitung ongkir.
+                  Add an address in My Account to calculate shipping.
                 </div>
               ) : (
                 <div className="border border-outline-variant/30 p-6 text-center">
                   <p className="text-[13px] text-secondary uppercase tracking-wider mb-3">
-                    Ongkir belum dihitung.
+                    Shipping not calculated.
                   </p>
                   <button
                     onClick={() => fetchShippingZone(address.province)}
                     className="text-[11px] tracking-widest uppercase text-primary border border-primary/30 px-4 py-2 hover:bg-primary/5 transition-colors"
                   >
-                    HITUNG ONGKIR
+                    CALCULATE SHIPPING
                   </button>
                 </div>
               )}
@@ -648,7 +648,7 @@ export default function CheckoutPage() {
                       onClick={() => { setPromoApplied(null); setPromoCode(""); setPromoError(""); }}
                       className="text-[10px] text-secondary hover:text-red-400 uppercase tracking-widest"
                     >
-                      HAPUS
+                      REMOVE
                     </button>
                   </div>
                 ) : (
@@ -658,7 +658,7 @@ export default function CheckoutPage() {
                       value={promoCode}
                       onChange={(e) => { setPromoCode(e.target.value.toUpperCase()); setPromoError(""); }}
                       onKeyDown={(e) => e.key === "Enter" && handleApplyPromo()}
-                      placeholder="MASUKKAN KODE"
+                      placeholder="ENTER CODE"
                       className="flex-1 bg-transparent border border-outline-variant/50 focus:border-primary focus:outline-none px-3 py-2 text-[12px] text-primary uppercase tracking-widest"
                     />
                     <button
@@ -666,7 +666,7 @@ export default function CheckoutPage() {
                       disabled={promoLoading || !promoCode.trim()}
                       className="bg-primary text-on-primary px-3 py-2 text-[10px] font-semibold uppercase tracking-widest hover:opacity-80 disabled:opacity-50 transition-opacity flex-shrink-0"
                     >
-                      {promoLoading ? "..." : "PAKAI"}
+                      {promoLoading ? "..." : "APPLY"}
                     </button>
                   </div>
                 )}
@@ -677,7 +677,7 @@ export default function CheckoutPage() {
 
               {discountAmount > 0 && (
                 <div className="flex justify-between text-[13px] mb-3 text-green-600">
-                  <span>DISKON</span>
+                  <span>DISCOUNT</span>
                   <span>-{formatIDR(discountAmount)}</span>
                 </div>
               )}
@@ -725,14 +725,7 @@ export default function CheckoutPage() {
                 <div className="text-[12px] text-red-500/90 space-y-4 mb-8 leading-relaxed tracking-wide">
                   <p>
                     Orders require approximately 7–8 working days to be
-                    processed before dispatch. Please note that orders that have
-                    been paid or confirmed cannot be cancelled.
-                  </p>
-                  <p>
-                    Setiap pesanan membutuhkan waktu sekitar 7–8 hari kerja
-                    untuk diproses sebelum pengiriman. Mohon diperhatikan bahwa
-                    pesanan yang telah dibayarkan atau dikonfirmasi tidak dapat
-                    dibatalkan.
+                    processed before dispatch. Orders can be cancelled directly through your Account page as long as they have not been dispatched yet.
                   </p>
                 </div>
               </div>
@@ -741,11 +734,11 @@ export default function CheckoutPage() {
               {!canPlaceOrder && !isProcessing && (
                 <div className="text-[11px] text-amber-600 bg-amber-50/10 border border-amber-500/20 p-3 mb-4 uppercase tracking-wider text-center">
                   {!address
-                    ? "Tambah alamat pengiriman terlebih dahulu"
+                    ? "PLEASE ADD SHIPPING ADDRESS"
                     : !shippingZone && loadingShipping
-                      ? "Menunggu kalkulasi ongkir..."
+                      ? "CALCULATING SHIPPING..."
                       : !shippingZone
-                        ? "Ongkir belum tersedia"
+                        ? "SHIPPING UNAVAILABLE"
                         : ""}
                 </div>
               )}
@@ -758,7 +751,7 @@ export default function CheckoutPage() {
                 {isProcessing ? (
                   <span className="flex items-center justify-center gap-3">
                     <span className="inline-block w-4 h-4 border-2 border-on-primary/30 border-t-on-primary rounded-full animate-spin" />
-                    MEMPROSES PESANAN...
+                    PROCESSING ORDER...
                   </span>
                 ) : (
                   "PLACE ORDER"

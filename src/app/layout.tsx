@@ -17,7 +17,7 @@ const montserrat = Montserrat({
 
 export const metadata: Metadata = {
   title: "EGOISM — Luxury Minimalist Fashion",
-  description: "Brand fashion premium dengan desain minimalis dan elegan.",
+  description: "Premium streetwear brand with minimalist and elegant designs.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,

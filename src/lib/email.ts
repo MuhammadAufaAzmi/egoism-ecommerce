@@ -54,7 +54,7 @@ function emailTemplate(title: string, body: string) {
                 EGOISM — Luxury Minimalist Fashion
               </p>
               <p style="margin:8px 0 0; font-size:11px; color:#8a8a85;">
-                Email ini dikirim otomatis, tidak perlu dibalas.
+                This is an automated email, please do not reply.
               </p>
             </td>
           </tr>
@@ -84,28 +84,28 @@ export async function sendOrderCreatedEmail(
 ) {
   try {
     const body = `
-      <p>Halo <strong>${customerName}</strong>,</p>
-      <p>Terima kasih telah berbelanja di EGOISM. Pesanan Anda telah berhasil dibuat.</p>
+      <p>Hello <strong>${customerName}</strong>,</p>
+      <p>Thank you for shopping at EGOISM. Your order has been successfully created.</p>
       <div style="background-color:#f9f9f6; border:1px solid #e5e5e0; padding:20px; margin:16px 0;">
         <p style="margin:0 0 8px; font-size:11px; letter-spacing:0.15em; color:#8a8a85; text-transform:uppercase; font-weight:600;">
-          Detail Pesanan
+          Order Details
         </p>
         <p style="margin:0 0 4px;"><strong>Order:</strong> ${orderNumber}</p>
         <p style="margin:0 0 4px;"><strong>Total:</strong> ${formatIDR(total)}</p>
         <p style="margin:0 0 4px;"><strong>Items:</strong></p>
         <pre style="margin:0; font-size:12px; color:#4a4a45; white-space:pre-wrap;">${items}</pre>
       </div>
-      <p>Silakan lakukan pembayaran dan upload bukti transfer Anda melalui halaman pembayaran.</p>
+      <p>Please make your payment and upload your payment proof via the payment page.</p>
       <p style="margin-top:16px; font-size:12px; color:#8a8a85;">
-        Pesanan yang tidak dibayar dalam 24 jam akan otomatis dibatalkan.
+        Orders not paid within 24 hours will be automatically cancelled.
       </p>
     `;
 
     await transporter.sendMail({
       from: `"EGOISM" <${process.env.SMTP_USER}>`,
       to: customerEmail,
-      subject: `Pesanan ${orderNumber} — Instruksi Pembayaran`,
-      html: emailTemplate("Pesanan Baru Dibuat", body),
+      subject: `Order ${orderNumber} — Payment Instructions`,
+      html: emailTemplate("New Order Created", body),
     });
 
     console.log(`[Email] Order created email sent to ${customerEmail}`);
@@ -125,41 +125,49 @@ export async function sendOrderStatusEmail(
   try {
     const statusMessages: Record<string, { subject: string; message: string }> = {
       "MENUNGGU KONFIRMASI": {
-        subject: "Bukti Pembayaran Diterima",
-        message: "Bukti pembayaran Anda telah kami terima dan sedang dalam proses verifikasi. Mohon tunggu maksimal 1×24 jam.",
+        subject: "Payment Proof Received",
+        message: "We have received your payment proof and it is currently being verified. Please wait up to 1×24 hours.",
       },
       "DIPROSES": {
-        subject: "Pembayaran Dikonfirmasi — Pesanan Diproses",
-        message: "Pembayaran Anda telah terverifikasi! Pesanan Anda sekarang sedang diproses dan dibuatkan oleh tim kami.",
+        subject: "Payment Confirmed — Order Processing",
+        message: "Your payment has been verified! Your order is now being processed and prepared by our team.",
       },
       "DIKIRIM": {
-        subject: "Pesanan Dikirim",
-        message: "Pesanan Anda telah dikirim! Silakan pantau status pengiriman Anda.",
+        subject: "Order Shipped",
+        message: "Your order has been shipped! You can track your shipment status.",
       },
       "DITERIMA": {
-        subject: "Pesanan Selesai",
-        message: "Pesanan Anda telah ditandai sebagai diterima. Terima kasih telah berbelanja di EGOISM!",
+        subject: "Order Delivered",
+        message: "Your order has been marked as delivered. Thank you for shopping at EGOISM!",
       },
       "DIBATALKAN": {
-        subject: "Pesanan Dibatalkan",
-        message: "Mohon maaf, pesanan Anda telah dibatalkan. Jika Anda merasa ini adalah kesalahan, silakan hubungi tim kami.",
+        subject: "Order Cancelled",
+        message: "We're sorry, your order has been cancelled. If you believe this is a mistake, please contact our team.",
       },
     };
 
     const statusInfo = statusMessages[newStatus];
     if (!statusInfo) return; // Skip jika status tidak dikenali
 
+    const STATUS_DISPLAY: Record<string, string> = {
+      "MENUNGGU KONFIRMASI": "AWAITING CONFIRMATION",
+      "DIPROSES": "PROCESSING",
+      "DIKIRIM": "SHIPPED",
+      "DITERIMA": "DELIVERED",
+      "DIBATALKAN": "CANCELLED",
+    };
+
     const body = `
-      <p>Halo <strong>${customerName}</strong>,</p>
+      <p>Hello <strong>${customerName}</strong>,</p>
       <p>${statusInfo.message}</p>
       <div style="background-color:#f9f9f6; border:1px solid #e5e5e0; padding:20px; margin:16px 0;">
         <p style="margin:0 0 8px; font-size:11px; letter-spacing:0.15em; color:#8a8a85; text-transform:uppercase; font-weight:600;">
-          Status Pesanan
+          Order Status
         </p>
         <p style="margin:0 0 4px;"><strong>Order:</strong> ${orderNumber}</p>
-        <p style="margin:0;"><strong>Status:</strong> ${newStatus}</p>
+        <p style="margin:0;"><strong>Status:</strong> ${STATUS_DISPLAY[newStatus] ?? newStatus}</p>
       </div>
-      <p>Anda dapat melihat detail pesanan di halaman <strong>My Account</strong>.</p>
+      <p>You can view your order details on the <strong>My Account</strong> page.</p>
     `;
 
     await transporter.sendMail({
@@ -186,15 +194,15 @@ export async function sendPasswordResetEmail(
     const resetLink = `${baseUrl}/reset-password?token=${resetToken}`;
 
     const body = `
-      <p>Halo <strong>${customerName}</strong>,</p>
-      <p>Kami menerima permintaan untuk mereset password akun EGOISM Anda.</p>
+      <p>Hello <strong>${customerName}</strong>,</p>
+      <p>We received a request to reset the password for your EGOISM account.</p>
       <div style="text-align:center; margin:24px 0;">
         <a href="${resetLink}" style="display:inline-block; background-color:#1a1a18; color:#f5f5f0; text-decoration:none; padding:14px 32px; font-size:12px; letter-spacing:0.2em; text-transform:uppercase; font-weight:600;">
           RESET PASSWORD
         </a>
       </div>
       <p style="font-size:12px; color:#8a8a85;">
-        Link ini berlaku selama 1 jam. Jika Anda tidak meminta reset password, abaikan email ini.
+        This link is valid for 1 hour. If you didn't request a password reset, please ignore this email.
       </p>
     `;
 

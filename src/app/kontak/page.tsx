@@ -22,12 +22,22 @@ export default function KontakPage() {
                 <p className="text-[32px] leading-[40px] font-medium text-primary uppercase mb-2">
                   CUSTOMER SERVICE
                 </p>
-                <a
-                  href="mailto:egoismliftingtee@gmail.com"
-                  className="text-[16px] md:text-[18px] leading-[28px] text-secondary hover:text-primary transition-colors duration-300 lowercase"
-                >
-                  egoismliftingtee@gmail.com
-                </a>
+                <div className="flex flex-col gap-1">
+                  <a
+                    href="mailto:egoismliftingtee@gmail.com"
+                    className="text-[16px] md:text-[18px] leading-[28px] text-secondary hover:text-primary transition-colors duration-300 lowercase"
+                  >
+                    egoismliftingtee@gmail.com
+                  </a>
+                  <a
+                    href="https://wa.me/6285186882686"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[16px] md:text-[18px] leading-[28px] text-secondary hover:text-primary transition-colors duration-300"
+                  >
+                    +62 851-8688-2686
+                  </a>
+                </div>
               </div>
               <div>
                 <h2 className="text-[12px] leading-[16px] tracking-[0.2em] font-semibold text-secondary uppercase mb-6">

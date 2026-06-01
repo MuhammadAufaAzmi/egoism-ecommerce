@@ -52,9 +52,9 @@ export default function MyAccountPage() {
   };
 
   const navItems: { label: string; icon: string; tab: Tab }[] = [
-    { label: "PROFIL SAYA", icon: "person", tab: "profile" },
-    { label: "ALAMAT PENGIRIMAN", icon: "location_on", tab: "address" },
-    { label: "RIWAYAT PESANAN", icon: "shopping_bag", tab: "orders" },
+    { label: "MY PROFILE", icon: "person", tab: "profile" },
+    { label: "SHIPPING ADDRESS", icon: "location_on", tab: "address" },
+    { label: "ORDER HISTORY", icon: "shopping_bag", tab: "orders" },
   ];
 
   return (
@@ -74,7 +74,7 @@ export default function MyAccountPage() {
             {sidebarUser.firstName} {sidebarUser.lastName}
           </p>
           <p className="text-[11px] tracking-[0.08em] font-semibold text-secondary/60 mt-0.5 uppercase">
-            Member sejak {sidebarUser.memberSince}
+            Member since {sidebarUser.memberSince}
           </p>
         </div>
 
@@ -108,7 +108,7 @@ export default function MyAccountPage() {
             <span className="material-symbols-outlined text-[18px]">
               arrow_back
             </span>
-            KEMBALI KE TOKO
+            BACK TO SHOP
           </Link>
           <button
             onClick={handleSignOut}
@@ -225,7 +225,7 @@ function ProfileTab() {
     { label: "First Name", key: "firstName" as const, type: "text" },
     { label: "Last Name", key: "lastName" as const, type: "text" },
     { label: "Email", key: "email" as const, type: "email" },
-    { label: "No. Telepon", key: "phone" as const, type: "tel" },
+    { label: "Phone Number", key: "phone" as const, type: "tel" },
   ];
 
   return (
@@ -233,7 +233,7 @@ function ProfileTab() {
       <div className="flex items-start justify-between mb-14">
         <div>
           <h2 className="text-[40px] md:text-[48px] leading-tight font-semibold text-primary uppercase mb-4">
-            Profil Saya
+            My Profile
           </h2>
           <div className="h-px w-20 bg-stone-200" />
         </div>
@@ -263,7 +263,7 @@ function ProfileTab() {
               {form.email}
             </p>
             <p className="text-[11px] tracking-[0.1em] font-semibold text-secondary/60 uppercase mt-1">
-              Member sejak {form.memberSince}
+              Member since {form.memberSince}
             </p>
           </div>
         </div>
@@ -297,7 +297,7 @@ function ProfileTab() {
               onClick={handleSave}
               className="bg-primary text-on-primary px-12 py-4 text-[13px] tracking-[0.12em] font-semibold uppercase hover:opacity-80 transition-opacity"
             >
-              SIMPAN
+              SAVE
             </button>
             <button
               onClick={() => {
@@ -306,7 +306,7 @@ function ProfileTab() {
               }}
               className="border border-stone-200 text-secondary px-10 py-4 text-[13px] tracking-[0.12em] font-semibold uppercase hover:border-primary hover:text-primary transition-all"
             >
-              BATAL
+              CANCEL
             </button>
           </div>
         )}
@@ -314,20 +314,20 @@ function ProfileTab() {
         {/* KEAMANAN AKUN (GANTI PASSWORD) */}
         <div className="pt-10 mt-10 border-t border-stone-100 max-w-2xl">
           <h3 className="text-[13px] tracking-[0.15em] font-semibold text-primary uppercase mb-6">
-            KEAMANAN AKUN
+            ACCOUNT SECURITY
           </h3>
           {!showPasswordForm ? (
             <button
               onClick={() => setShowPasswordForm(true)}
               className="border border-stone-200 text-[12px] tracking-[0.12em] font-semibold text-secondary hover:text-primary hover:border-primary px-6 py-3 transition-colors uppercase"
             >
-              GANTI PASSWORD
+              CHANGE PASSWORD
             </button>
           ) : (
             <div className="border border-outline-variant p-6 bg-surface-container/20 space-y-4">
               <div className="space-y-2">
                 <label className="text-[11px] tracking-[0.15em] font-semibold text-secondary block uppercase">
-                  Password Lama
+                  Current Password
                 </label>
                 <input
                   type="password"
@@ -338,21 +338,21 @@ function ProfileTab() {
               </div>
               <div className="space-y-2">
                 <label className="text-[11px] tracking-[0.15em] font-semibold text-secondary block uppercase">
-                  Password Baru
+                  New Password
                 </label>
                 <input
                   type="password"
                   value={passData.newPass}
                   onChange={(e) => setPassData({ ...passData, newPass: e.target.value })}
                   className="w-full bg-transparent border-b border-primary focus:ring-0 py-2 text-[15px] text-primary outline-none"
-                  placeholder="Minimal 8 karakter & 1 angka"
+                  placeholder="Min 8 chars & 1 number"
                 />
               </div>
               <div className="flex gap-4 pt-4">
                 <button
                   onClick={async () => {
                     if (passData.newPass.length < 8 || !/\d/.test(passData.newPass)) {
-                      showToast("Password baru minimal 8 karakter & mengandung angka.", "warning");
+                      showToast("New password must be min 8 chars & contain a number.", "warning");
                       return;
                     }
                     setPassLoading(true);
@@ -369,13 +369,13 @@ function ProfileTab() {
                   disabled={passLoading}
                   className="bg-primary text-on-primary px-6 py-3 text-[12px] tracking-[0.12em] font-semibold uppercase hover:opacity-80 transition-opacity disabled:opacity-50"
                 >
-                  {passLoading ? "MENYIMPAN..." : "SIMPAN"}
+                  {passLoading ? "SAVING..." : "SAVE"}
                 </button>
                 <button
                   onClick={() => setShowPasswordForm(false)}
                   className="border border-stone-200 text-secondary px-6 py-3 text-[12px] tracking-[0.12em] font-semibold uppercase hover:border-primary hover:text-primary transition-all"
                 >
-                  BATAL
+                  CANCEL
                 </button>
               </div>
             </div>
@@ -503,14 +503,14 @@ function AddressTab() {
 
   const textFields = [
     {
-      label: "Label Alamat (cth: Rumah, Kantor)",
+      label: "Address Label (e.g., Home, Office)",
       key: "label" as const,
       colSpan: "md:col-span-2",
     },
-    { label: "Nama Penerima", key: "recipient" as const },
-    { label: "No. Telepon", key: "phone" as const },
+    { label: "Recipient Name", key: "recipient" as const },
+    { label: "Phone Number", key: "phone" as const },
     {
-      label: "Alamat Lengkap",
+      label: "Full Address",
       key: "address" as const,
       colSpan: "md:col-span-2",
     },
@@ -521,11 +521,11 @@ function AddressTab() {
       <div className="flex items-start justify-between mb-14">
         <div>
           <h2 className="text-[40px] md:text-[48px] leading-tight font-semibold text-primary uppercase mb-4">
-            Alamat Pengiriman
+            Shipping Address
           </h2>
           <div className="h-px w-20 bg-stone-200" />
           <p className="text-[14px] text-secondary mt-4">
-            Alamat ini akan otomatis terisi saat checkout.
+            This address will be automatically used at checkout.
           </p>
         </div>
         {!showForm && (
@@ -534,7 +534,7 @@ function AddressTab() {
             className="flex items-center gap-2 text-[12px] tracking-[0.12em] font-semibold text-secondary hover:text-primary border border-stone-200 hover:border-primary px-4 py-2 mt-2 transition-colors uppercase"
           >
             <span className="material-symbols-outlined text-[16px]">add</span>
-            TAMBAH
+            ADD
           </button>
         )}
       </div>
@@ -542,7 +542,7 @@ function AddressTab() {
       {showForm && (
         <div className="mb-12 border border-outline-variant p-8 bg-surface-container/30">
           <h3 className="text-[13px] tracking-[0.15em] font-semibold text-primary uppercase mb-8">
-            {editId !== null ? "EDIT ALAMAT" : "TAMBAH ALAMAT BARU"}
+            {editId !== null ? "EDIT ADDRESS" : "ADD NEW ADDRESS"}
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {textFields.map(({ label, key, colSpan }) => (
@@ -564,7 +564,7 @@ function AddressTab() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8">
             <div className="space-y-2">
               <label className="text-[11px] tracking-[0.15em] font-semibold text-secondary block uppercase">
-                Provinsi
+                Province
               </label>
               <select
                 value={form.province}
@@ -574,7 +574,7 @@ function AddressTab() {
                 className="w-full bg-transparent border-b border-primary focus:ring-0 py-3 text-[15px] text-primary outline-none cursor-pointer"
               >
                 <option value="">
-                  {loadingProvinces ? "Memuat..." : "Pilih Provinsi"}
+                  {loadingProvinces ? "Loading..." : "Select Province"}
                 </option>
                 {provinceList.map((prov) => (
                   <option key={prov} value={prov}>
@@ -585,26 +585,26 @@ function AddressTab() {
             </div>
             <div className="space-y-2">
               <label className="text-[11px] tracking-[0.15em] font-semibold text-secondary block uppercase">
-                Kota / Kabupaten
+                City
               </label>
               <input
                 type="text"
                 value={form.city}
                 onChange={(e) => setForm({ ...form, city: e.target.value })}
                 className="w-full bg-transparent border-b border-primary focus:ring-0 py-3 text-[15px] text-primary outline-none"
-                placeholder="Contoh: Tangerang Selatan"
+                placeholder="e.g., Jakarta Selatan"
               />
             </div>
             <div className="space-y-2">
               <label className="text-[11px] tracking-[0.15em] font-semibold text-secondary block uppercase">
-                Kode Pos
+                Postal Code
               </label>
               <input
                 type="text"
                 value={form.postal}
                 onChange={(e) => setForm({ ...form, postal: e.target.value })}
                 className="w-full bg-transparent border-b border-primary focus:ring-0 py-3 text-[15px] text-primary outline-none"
-                placeholder="Kode Pos"
+                placeholder="Postal Code"
               />
             </div>
           </div>
@@ -613,13 +613,13 @@ function AddressTab() {
               onClick={saveForm}
               className="bg-primary text-on-primary px-10 py-4 text-[13px] tracking-[0.12em] font-semibold uppercase hover:opacity-80 transition-opacity"
             >
-              SIMPAN
+              SAVE
             </button>
             <button
               onClick={() => setShowForm(false)}
               className="border border-stone-200 text-secondary px-8 py-4 text-[13px] tracking-[0.12em] font-semibold uppercase hover:border-primary hover:text-primary transition-all"
             >
-              BATAL
+              CANCEL
             </button>
           </div>
         </div>
@@ -631,13 +631,13 @@ function AddressTab() {
             location_off
           </span>
           <p className="text-[14px] text-secondary mb-6">
-            Belum ada alamat tersimpan.
+            No saved addresses.
           </p>
           <button
             onClick={openAdd}
             className="bg-primary text-on-primary px-10 py-4 text-[13px] tracking-[0.12em] font-semibold uppercase hover:opacity-80 transition-opacity"
           >
-            + TAMBAH ALAMAT
+            + ADD ADDRESS
           </button>
         </div>
       ) : (
@@ -654,7 +654,7 @@ function AddressTab() {
                   </span>
                   {addr.isDefault && (
                     <span className="text-[10px] tracking-[0.1em] font-semibold bg-primary text-on-primary px-2 py-0.5 uppercase">
-                      UTAMA
+                      DEFAULT
                     </span>
                   )}
                 </div>
@@ -675,7 +675,7 @@ function AddressTab() {
                     <span className="material-symbols-outlined text-[14px]">
                       delete
                     </span>{" "}
-                    Hapus
+                    Delete
                   </button>
                 </div>
               </div>
@@ -694,7 +694,7 @@ function AddressTab() {
                   onClick={() => setDefault(addr.id)}
                   className="mt-4 text-[11px] tracking-[0.12em] font-semibold text-secondary hover:text-primary border border-stone-200 hover:border-primary px-4 py-2 transition-colors uppercase"
                 >
-                  JADIKAN ALAMAT UTAMA
+                  SET AS DEFAULT
                 </button>
               )}
             </div>
@@ -734,11 +734,19 @@ function OrdersTab() {
     DIBATALKAN: "text-red-400 border-red-200 bg-red-50",
   };
 
+  const STATUS_DISPLAY: Record<string, string> = {
+    "MENUNGGU KONFIRMASI": "AWAITING CONFIRMATION",
+    "DIPROSES": "PROCESSING",
+    "DIKIRIM": "SHIPPED",
+    "DITERIMA": "DELIVERED",
+    "DIBATALKAN": "CANCELLED",
+  };
+
   return (
     <div>
       <header className="mb-14">
         <h2 className="text-[40px] md:text-[48px] leading-tight font-semibold text-primary uppercase mb-4">
-          Riwayat Pesanan
+          Order History
         </h2>
         <div className="h-px w-20 bg-stone-200" />
       </header>
@@ -748,12 +756,12 @@ function OrdersTab() {
           <span className="material-symbols-outlined text-[48px] text-stone-300 block mb-4">
             shopping_bag
           </span>
-          <p className="text-[14px] text-secondary mb-6">Belum ada pesanan.</p>
+          <p className="text-[14px] text-secondary mb-6">No orders yet.</p>
           <Link
             href="/koleksi"
             className="bg-primary text-on-primary px-10 py-4 text-[13px] tracking-[0.12em] font-semibold uppercase hover:opacity-80 transition-opacity inline-block"
           >
-            MULAI BELANJA
+            START SHOPPING
           </Link>
         </div>
       ) : (
@@ -795,7 +803,7 @@ function OrdersTab() {
                           <button
                             onClick={async (e) => {
                               e.stopPropagation();
-                              if (!window.confirm("Yakin ingin membatalkan pesanan ini?")) return;
+                              if (!window.confirm("Are you sure you want to cancel this order?")) return;
                               setCancelingId(order.id);
                               const res = await cancelUserOrder(order.id);
                               if (res.success) {
@@ -809,7 +817,7 @@ function OrdersTab() {
                             disabled={cancelingId === order.id}
                             className="mt-4 text-[10px] font-bold text-red-500 uppercase tracking-widest border border-red-500/30 px-3 py-1.5 hover:bg-red-500/10 transition-colors disabled:opacity-50"
                           >
-                            {cancelingId === order.id ? "MEMBATALKAN..." : "BATALKAN PESANAN"}
+                            {cancelingId === order.id ? "CANCELING..." : "CANCEL ORDER"}
                           </button>
                         )}
                       </p>
@@ -817,7 +825,7 @@ function OrdersTab() {
                     <span
                       className={`text-[11px] tracking-[0.1em] font-semibold border px-3 py-1 uppercase ${statusColor[order.status] ?? "text-secondary border-stone-200"}`}
                     >
-                      {order.status}
+                      {STATUS_DISPLAY[order.status] ?? order.status}
                     </span>
                     <span className="material-symbols-outlined text-[20px] text-secondary">
                       {isExpanded ? "expand_less" : "expand_more"}
@@ -832,7 +840,7 @@ function OrdersTab() {
                     {!isCancelled ? (
                       <div className="mb-8">
                         <p className="text-[10px] uppercase tracking-widest text-secondary font-semibold mb-5">
-                          Status Pesanan
+                          Order Status
                         </p>
                         <div className="flex items-start gap-0">
                           {STATUS_STEPS.map((step, idx) => {
@@ -869,7 +877,7 @@ function OrdersTab() {
                                       isDone ? "text-primary" : "text-stone-300"
                                     }`}
                                   >
-                                    {step}
+                                    {STATUS_DISPLAY[step] ?? step}
                                   </p>
                                 </div>
                                 {idx < STATUS_STEPS.length - 1 && (
@@ -888,7 +896,7 @@ function OrdersTab() {
                       <div className="mb-6 flex items-center gap-3 p-4 bg-red-50 border border-red-200">
                         <span className="material-symbols-outlined text-red-400">cancel</span>
                         <p className="text-[13px] text-red-500 font-medium">
-                          Pesanan ini telah dibatalkan.
+                          This order has been cancelled.
                         </p>
                       </div>
                     )}
@@ -898,7 +906,7 @@ function OrdersTab() {
                       <div className="bg-blue-50 border border-blue-200 px-6 py-4 flex items-center justify-between">
                         <div>
                           <p className="text-[10px] uppercase tracking-widest text-blue-500 font-semibold mb-0.5">
-                            Nomor Resi
+                            Tracking Number
                           </p>
                           <p className="text-[16px] font-bold text-blue-700 tracking-wider">
                             {order.trackingNumber}
@@ -910,7 +918,7 @@ function OrdersTab() {
                           }}
                           className="text-[11px] text-blue-500 border border-blue-300 px-3 py-1.5 hover:bg-blue-100 transition-colors uppercase tracking-widest"
                         >
-                          SALIN
+                          COPY
                         </button>
                       </div>
                     )}
