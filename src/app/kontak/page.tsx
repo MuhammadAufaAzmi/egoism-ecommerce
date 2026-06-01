@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import PageHeader from "@/components/ui/PageHeader";
 import ScrollReveal from "@/components/ui/ScrollReveal";
+import ContactForm from "./ContactForm";
 
 export const metadata: Metadata = { title: "Contact — EGOISM" };
 
@@ -56,59 +57,7 @@ export default function KontakPage() {
 
           {/* Right: Form */}
           <ScrollReveal delay={200} className="w-full md:w-1/2">
-            <div className="flex flex-col gap-10 w-full max-w-xl">
-              <div className="flex flex-col gap-2">
-                <label
-                  className="text-[12px] leading-[16px] tracking-[0.2em] font-semibold uppercase text-secondary"
-                  htmlFor="name"
-                >
-                  NAME
-                </label>
-                <input
-                  className="bg-transparent border-0 border-b border-primary p-0 py-3 text-[18px] text-primary placeholder:text-secondary/40 focus:ring-0 focus:outline-none focus:border-primary rounded-none"
-                  id="name"
-                  name="name"
-                  placeholder="ENTER YOUR NAME"
-                  type="text"
-                />
-              </div>
-              <div className="flex flex-col gap-2">
-                <label
-                  className="text-[12px] leading-[16px] tracking-[0.2em] font-semibold uppercase text-secondary"
-                  htmlFor="email"
-                >
-                  EMAIL
-                </label>
-                <input
-                  className="bg-transparent border-0 border-b border-primary p-0 py-3 text-[18px] text-primary placeholder:text-secondary/40 focus:ring-0 focus:outline-none focus:border-primary rounded-none"
-                  id="email"
-                  name="email"
-                  placeholder="ENTER YOUR EMAIL"
-                  type="email"
-                />
-              </div>
-              <div className="flex flex-col gap-2">
-                <label
-                  className="text-[12px] leading-[16px] tracking-[0.2em] font-semibold uppercase text-secondary"
-                  htmlFor="message"
-                >
-                  MESSAGE
-                </label>
-                <textarea
-                  className="bg-transparent border-0 border-b border-primary p-0 py-3 text-[18px] text-primary placeholder:text-secondary/40 focus:ring-0 focus:outline-none focus:border-primary rounded-none resize-none"
-                  id="message"
-                  name="message"
-                  placeholder="HOW CAN WE ASSIST YOU?"
-                  rows={4}
-                />
-              </div>
-              <button
-                type="button"
-                className="bg-primary text-on-primary text-[14px] tracking-[0.05em] font-medium uppercase py-5 px-8 hover:opacity-80 transition-opacity duration-300 w-full rounded-none mt-4 tracking-widest"
-              >
-                SEND MESSAGE
-              </button>
-            </div>
+            <ContactForm />
           </ScrollReveal>
         </section>
       </div>

@@ -212,7 +212,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                 onClick={() => setQuickAddOpen(false)}
                 className="w-full mt-1.5 text-[9px] text-secondary uppercase tracking-widest hover:text-primary"
               >
-                TUTUP PANEL
+                CLOSE
               </button>
             </div>
           )}

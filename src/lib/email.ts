@@ -218,3 +218,46 @@ export async function sendPasswordResetEmail(
     console.error("[Email] Failed to send password reset email:", error);
   }
 }
+
+// Kirim email dari Contact Form
+export async function sendContactEmail(
+  name: string,
+  email: string,
+  message: string
+) {
+  try {
+    const adminEmail = process.env.ADMIN_EMAIL || process.env.SMTP_USER;
+    if (!adminEmail) return { success: false, message: "Server email is not configured." };
+
+    const body = `
+      <p>You have received a new message from the EGOISM Contact Form.</p>
+      <div style="background-color:#f9f9f6; border:1px solid #e5e5e0; padding:20px; margin:16px 0;">
+        <p style="margin:0 0 8px; font-size:11px; letter-spacing:0.15em; color:#8a8a85; text-transform:uppercase; font-weight:600;">
+          Customer Details
+        </p>
+        <p style="margin:0 0 4px;"><strong>Name:</strong> ${name}</p>
+        <p style="margin:0 0 16px;"><strong>Email:</strong> ${email}</p>
+        
+        <p style="margin:0 0 8px; font-size:11px; letter-spacing:0.15em; color:#8a8a85; text-transform:uppercase; font-weight:600;">
+          Message
+        </p>
+        <pre style="margin:0; font-size:14px; line-height:1.6; color:#4a4a45; white-space:pre-wrap; font-family:inherit;">${message}</pre>
+      </div>
+      <p>Please reply directly to <strong>${email}</strong>.</p>
+    `;
+
+    await transporter.sendMail({
+      from: `"EGOISM Website" <${process.env.SMTP_USER}>`,
+      to: adminEmail,
+      replyTo: email,
+      subject: `New Contact Message from ${name}`,
+      html: emailTemplate("New Inquiry", body),
+    });
+
+    console.log(`[Email] Contact email from ${name} sent to ${adminEmail}`);
+    return { success: true };
+  } catch (error) {
+    console.error("[Email] Failed to send contact email:", error);
+    return { success: false, message: "Gagal mengirim pesan. Silakan coba lagi nanti." };
+  }
+}
