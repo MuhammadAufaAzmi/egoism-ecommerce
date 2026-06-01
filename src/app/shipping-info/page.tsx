@@ -11,57 +11,50 @@ export default function ShippingInfoPage() {
 
       <section className="max-w-[1440px] mx-auto px-5 md:px-16 pb-[100px]">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-16 lg:gap-24">
-          {/* Domestic */}
+          {/* Processing */}
           <ScrollReveal delay={0}>
             <section className="flex flex-col border-t border-outline-variant pt-8">
               <h2 className="text-[32px] leading-[40px] font-medium uppercase mb-8 text-primary">
-                DOMESTIC SHIPPING
+                WAKTU PEMROSESAN
               </h2>
               <div className="space-y-6 text-[16px] leading-[24px] text-secondary">
-                <p className="uppercase">STANDARD DELIVERY: 3-5 BUSINESS DAYS. FLAT RATE IDR 25,000.</p>
-                <p className="uppercase">EXPRESS DELIVERY: 1-2 BUSINESS DAYS. FLAT RATE IDR 50,000.</p>
-                <p className="uppercase">FREE STANDARD SHIPPING ON ALL DOMESTIC ORDERS OVER IDR 1,000,000.</p>
-                <div className="mt-12 pt-8 border-t border-outline-variant">
-                  <p className="text-[12px] leading-[16px] tracking-[0.1em] font-semibold text-secondary uppercase">
-                    CARRIERS: JNE, J&T, SICEPAT.
-                  </p>
-                </div>
+                <p className="uppercase">SEMUA KOLEKSI EGOISM DIPRODUKSI SECARA PRE-ORDER.</p>
+                <p className="uppercase">PESANAN ANDA MEMBUTUHKAN WAKTU 7-8 HARI KERJA UNTUK DIPROSES DAN DISIAPKAN SEBELUM DIKIRIMKAN.</p>
+                <p className="uppercase">KAMI TIDAK MELAKUKAN PENGIRIMAN PADA AKHIR PEKAN (SABTU/MINGGU) MAUPUN HARI LIBUR NASIONAL.</p>
               </div>
             </section>
           </ScrollReveal>
 
-          {/* International */}
+          {/* Rates */}
           <ScrollReveal delay={150}>
             <section className="flex flex-col border-t border-outline-variant pt-8">
               <h2 className="text-[32px] leading-[40px] font-medium uppercase mb-8 text-primary">
-                INTERNATIONAL SHIPPING
+                ONGKOS KIRIM
               </h2>
               <div className="space-y-6 text-[16px] leading-[24px] text-secondary">
-                <p className="uppercase">WORLDWIDE EXPRESS: 5-10 BUSINESS DAYS. RATES CALCULATED AT CHECKOUT.</p>
-                <p className="uppercase">DUTIES AND TAXES ARE NOT INCLUDED IN THE FINAL PRICE AT CHECKOUT.</p>
-                <p className="uppercase">CUSTOMERS ARE RESPONSIBLE FOR ALL IMPORT DUTIES AND LOCAL TAXES.</p>
+                <p className="uppercase">BIAYA PENGIRIMAN DIHITUNG SECARA OTOMATIS SAAT ANDA MELAKUKAN CHECKOUT BERDASARKAN PROVINSI TUJUAN ANDA.</p>
+                <p className="uppercase">TARIF PENGIRIMAN MENYESUAIKAN STANDAR LOGISTIK REKANAN KAMI DI INDONESIA.</p>
                 <div className="mt-12 pt-8 border-t border-outline-variant">
                   <p className="text-[12px] leading-[16px] tracking-[0.1em] font-semibold text-secondary uppercase">
-                    CARRIERS: DHL EXPRESS.
+                    KURIR: JNT, JNE, ATAU SICEPAT.
                   </p>
                 </div>
               </div>
             </section>
           </ScrollReveal>
 
-          {/* Processing */}
+          {/* Tracking */}
           <ScrollReveal delay={300}>
             <section className="flex flex-col border-t border-outline-variant pt-8">
               <h2 className="text-[32px] leading-[40px] font-medium uppercase mb-8 text-primary">
-                PROCESSING TIMES
+                PELACAKAN
               </h2>
               <div className="space-y-6 text-[16px] leading-[24px] text-secondary">
-                <p className="uppercase">ALL ORDERS ARE PROCESSED WITHIN 1-2 BUSINESS DAYS.</p>
-                <p className="uppercase">ORDERS PLACED AFTER 4PM WIB WILL BE PROCESSED THE FOLLOWING BUSINESS DAY.</p>
-                <p className="uppercase">ORDERS ARE NOT SHIPPED OR DELIVERED ON WEEKENDS OR NATIONAL HOLIDAYS.</p>
+                <p className="uppercase">SETELAH PESANAN DIKIRIM, ANDA DAPAT MEMANTAU STATUS PESANAN (DIPROSES, DIKIRIM, DITERIMA) KAPAN SAJA.</p>
+                <p className="uppercase">PEMANTAUAN DAPAT DILAKUKAN LANGSUNG MELALUI MENU RIWAYAT PESANAN DI DALAM AKUN ANDA.</p>
                 <div className="mt-12 pt-8 border-t border-outline-variant">
                   <p className="text-[12px] leading-[16px] tracking-[0.1em] font-semibold text-secondary uppercase">
-                    TRACKING INFO SENT VIA EMAIL UPON DISPATCH.
+                    NOMOR RESI AKAN DITAMPILKAN DI AKUN ANDA.
                   </p>
                 </div>
               </div>
