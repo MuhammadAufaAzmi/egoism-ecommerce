@@ -52,11 +52,7 @@ export default function CheckoutPage() {
   const [loadingShipping, setLoadingShipping] = useState(false);
   const [shippingError, setShippingError] = useState("");
 
-
-  const totalQuantity = cartItems.reduce(
-    (sum, item) => sum + item.quantity,
-    0
-  );
+  const totalQuantity = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   // Fetch ongkir dari database lokal berdasarkan provinsi
   const fetchShippingZone = useCallback(async (province: string) => {
@@ -66,7 +62,7 @@ export default function CheckoutPage() {
 
     try {
       const res = await fetch(
-        `/api/shipping/zones?province=${encodeURIComponent(province)}`
+        `/api/shipping/zones?province=${encodeURIComponent(province)}`,
       );
       const data = await res.json();
 
@@ -74,7 +70,7 @@ export default function CheckoutPage() {
         setShippingZone(data.zone);
       } else {
         setShippingError(
-          "Pengiriman ke provinsi ini belum didukung secara otomatis atau sedang ada gangguan jaringan. Silakan hubungi WhatsApp Admin untuk bantuan manual, atau coba gunakan alamat lain."
+          "Pengiriman ke provinsi ini belum didukung secara otomatis atau sedang ada gangguan jaringan. Silakan hubungi WhatsApp Admin untuk bantuan manual, atau coba gunakan alamat lain.",
         );
       }
     } catch {
@@ -123,7 +119,7 @@ export default function CheckoutPage() {
       } catch (error) {
         console.error("Error fetching checkout data:", error);
         setFetchError(
-          "Gagal memuat data checkout. Silakan refresh halaman atau coba lagi nanti."
+          "Gagal memuat data checkout. Silakan refresh halaman atau coba lagi nanti.",
         );
       } finally {
         setLoading(false);
@@ -133,13 +129,9 @@ export default function CheckoutPage() {
     fetchData();
   }, [router, fetchShippingZone]);
 
-
   const handlePlaceOrder = async () => {
     if (!address) {
-      showToast(
-        "Silakan tambah alamat pengiriman terlebih dahulu.",
-        "warning"
-      );
+      showToast("Silakan tambah alamat pengiriman terlebih dahulu.", "warning");
       setShowAddressForm(true);
       return;
     }
@@ -147,7 +139,7 @@ export default function CheckoutPage() {
     if (!shippingZone) {
       showToast(
         "Ongkir belum tersedia. Pastikan alamat sudah benar.",
-        "warning"
+        "warning",
       );
       return;
     }
@@ -167,12 +159,15 @@ export default function CheckoutPage() {
 
       if (result.success && result.orderId) {
         setOrderSuccess(true);
-        showToast("Pesanan berhasil dibuat! Menuju halaman pembayaran...", "success");
+        showToast(
+          "Pesanan berhasil dibuat! Menuju halaman pembayaran...",
+          "success",
+        );
         window.location.href = `/payment/${result.orderId}`;
       } else {
         showToast(
           result.message || "Gagal memproses pesanan. Silakan coba lagi.",
-          "error"
+          "error",
         );
         setIsProcessing(false);
       }
@@ -180,7 +175,7 @@ export default function CheckoutPage() {
       console.error("Checkout error:", error);
       showToast(
         "Terjadi kesalahan saat memproses pesanan. Silakan coba lagi.",
-        "error"
+        "error",
       );
       setIsProcessing(false);
     }
@@ -188,8 +183,14 @@ export default function CheckoutPage() {
 
   // Simpan alamat baru langsung dari checkout
   const handleSaveAddress = async () => {
-    if (!addressForm.recipient || !addressForm.phone || !addressForm.address ||
-        !addressForm.city || !addressForm.province || !addressForm.postal) {
+    if (
+      !addressForm.recipient ||
+      !addressForm.phone ||
+      !addressForm.address ||
+      !addressForm.city ||
+      !addressForm.province ||
+      !addressForm.postal
+    ) {
       showToast("Lengkapi semua field alamat.", "warning");
       return;
     }
@@ -239,7 +240,7 @@ export default function CheckoutPage() {
 
   const subtotal = cartItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
-    0
+    0,
   );
   const shippingCost = shippingZone?.cost || 0;
   const discountAmount = promoApplied?.discountAmount || 0;
@@ -290,9 +291,7 @@ export default function CheckoutPage() {
         <p className="text-[14px] text-red-400 uppercase tracking-widest mb-2">
           AN ERROR OCCURRED
         </p>
-        <p className="text-[13px] text-secondary mb-8 max-w-md">
-          {fetchError}
-        </p>
+        <p className="text-[13px] text-secondary mb-8 max-w-md">{fetchError}</p>
         <button
           onClick={() => window.location.reload()}
           className="border border-primary px-8 py-3 text-[12px] tracking-widest uppercase hover:bg-primary hover:text-on-primary transition-colors"
@@ -339,7 +338,12 @@ export default function CheckoutPage() {
   // ========================
   // Cek apakah checkout bisa dilakukan
   // ========================
-  const canPlaceOrder = address && shippingZone && !isProcessing && !loadingShipping && cartItems.length > 0;
+  const canPlaceOrder =
+    address &&
+    shippingZone &&
+    !isProcessing &&
+    !loadingShipping &&
+    cartItems.length > 0;
 
   // ========================
   // MAIN CHECKOUT UI
@@ -373,7 +377,11 @@ export default function CheckoutPage() {
                   onClick={() => setShowAddressForm(!showAddressForm)}
                   className="text-[11px] tracking-widest uppercase text-primary/70 hover:text-primary transition-colors border-b border-primary/30 hover:border-primary"
                 >
-                  {address ? (showAddressForm ? "CANCEL" : "EDIT / ADD") : "ADD ADDRESS"}
+                  {address
+                    ? showAddressForm
+                      ? "CANCEL"
+                      : "EDIT / ADD"
+                    : "ADD ADDRESS"}
                 </button>
               </div>
 
@@ -429,61 +437,100 @@ export default function CheckoutPage() {
                     ADD NEW ADDRESS
                   </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {([
-                      { label: "Label (e.g., Home)", key: "label" },
-                      { label: "Recipient Name", key: "recipient" },
-                      { label: "Phone Number", key: "phone" },
-                    ] as { label: string; key: keyof typeof addressForm }[]).map(({ label, key }) => (
+                    {(
+                      [
+                        { label: "Label (e.g., Home)", key: "label" },
+                        { label: "Recipient Name", key: "recipient" },
+                        { label: "Phone Number", key: "phone" },
+                      ] as { label: string; key: keyof typeof addressForm }[]
+                    ).map(({ label, key }) => (
                       <div key={key}>
-                        <label className="text-[10px] uppercase tracking-widest text-secondary block mb-1">{label}</label>
+                        <label className="text-[10px] uppercase tracking-widest text-secondary block mb-1">
+                          {label}
+                        </label>
                         <input
                           type="text"
                           value={addressForm[key]}
-                          onChange={(e) => setAddressForm({ ...addressForm, [key]: e.target.value })}
+                          onChange={(e) =>
+                            setAddressForm({
+                              ...addressForm,
+                              [key]: e.target.value,
+                            })
+                          }
                           placeholder={label}
                           className="w-full bg-transparent border-b border-primary/50 focus:border-primary focus:outline-none py-2 text-[13px] text-primary"
                         />
                       </div>
                     ))}
                     <div className="sm:col-span-2">
-                      <label className="text-[10px] uppercase tracking-widest text-secondary block mb-1">Full Address</label>
+                      <label className="text-[10px] uppercase tracking-widest text-secondary block mb-1">
+                        Full Address
+                      </label>
                       <input
                         type="text"
                         value={addressForm.address}
-                        onChange={(e) => setAddressForm({ ...addressForm, address: e.target.value })}
+                        onChange={(e) =>
+                          setAddressForm({
+                            ...addressForm,
+                            address: e.target.value,
+                          })
+                        }
                         placeholder="Street address..."
                         className="w-full bg-transparent border-b border-primary/50 focus:border-primary focus:outline-none py-2 text-[13px] text-primary"
                       />
                     </div>
                     <div>
-                      <label className="text-[10px] uppercase tracking-widest text-secondary block mb-1">City</label>
+                      <label className="text-[10px] uppercase tracking-widest text-secondary block mb-1">
+                        City
+                      </label>
                       <input
                         type="text"
                         value={addressForm.city}
-                        onChange={(e) => setAddressForm({ ...addressForm, city: e.target.value })}
+                        onChange={(e) =>
+                          setAddressForm({
+                            ...addressForm,
+                            city: e.target.value,
+                          })
+                        }
                         placeholder="City"
                         className="w-full bg-transparent border-b border-primary/50 focus:border-primary focus:outline-none py-2 text-[13px] text-primary"
                       />
                     </div>
                     <div>
-                      <label className="text-[10px] uppercase tracking-widest text-secondary block mb-1">Province</label>
+                      <label className="text-[10px] uppercase tracking-widest text-secondary block mb-1">
+                        Province
+                      </label>
                       <select
                         value={addressForm.province}
-                        onChange={(e) => setAddressForm({ ...addressForm, province: e.target.value })}
+                        onChange={(e) =>
+                          setAddressForm({
+                            ...addressForm,
+                            province: e.target.value,
+                          })
+                        }
                         className="w-full bg-transparent border-b border-primary/50 focus:border-primary focus:outline-none py-2 text-[13px] text-primary cursor-pointer"
                       >
                         <option value="">Select Province</option>
                         {provinceList.map((prov) => (
-                          <option key={prov} value={prov}>{prov}</option>
+                          <option key={prov} value={prov}>
+                            {prov}
+                          </option>
                         ))}
                       </select>
                     </div>
                     <div>
-                      <label className="text-[10px] uppercase tracking-widest text-secondary block mb-1">Postal Code</label>
+                      <label className="text-[10px] uppercase tracking-widest text-secondary block mb-1">
+                        Postal Code
+                      </label>
                       <input
                         type="text"
                         value={addressForm.postal}
-                        onChange={(e) => setAddressForm({ ...addressForm, postal: e.target.value })}
+                        onChange={(e) =>
+                          setAddressForm({
+                            ...addressForm,
+                            postal: e.target.value,
+                          })
+                        }
                         placeholder="Postal Code"
                         className="w-full bg-transparent border-b border-primary/50 focus:border-primary focus:outline-none py-2 text-[13px] text-primary"
                       />
@@ -543,8 +590,7 @@ export default function CheckoutPage() {
                         Zona {shippingZone.zone}
                       </p>
                       <p className="text-[11px] text-secondary mt-0.5">
-                        {shippingZone.province} • Estimasi{" "}
-                        {shippingZone.etd}
+                        {shippingZone.province} • Estimasi {shippingZone.etd}
                       </p>
                     </div>
                     <p className="text-[16px] font-bold text-primary whitespace-nowrap ml-4">
@@ -637,15 +683,25 @@ export default function CheckoutPage() {
 
               {/* Promo Code / Voucher */}
               <div className="border-t border-outline-variant/30 pt-4 mb-4">
-                <p className="text-[11px] font-semibold uppercase tracking-widest text-secondary mb-3">PROMO CODE</p>
+                <p className="text-[11px] font-semibold uppercase tracking-widest text-secondary mb-3">
+                  PROMO CODE
+                </p>
                 {promoApplied ? (
                   <div className="flex items-center justify-between bg-green-950/10 border border-green-500/30 px-3 py-2">
                     <div>
-                      <p className="text-[11px] font-bold text-green-600 uppercase tracking-widest">{promoApplied.code}</p>
-                      <p className="text-[10px] text-green-600/80 mt-0.5">-{formatIDR(promoApplied.discountAmount)}</p>
+                      <p className="text-[11px] font-bold text-green-600 uppercase tracking-widest">
+                        {promoApplied.code}
+                      </p>
+                      <p className="text-[10px] text-green-600/80 mt-0.5">
+                        -{formatIDR(promoApplied.discountAmount)}
+                      </p>
                     </div>
                     <button
-                      onClick={() => { setPromoApplied(null); setPromoCode(""); setPromoError(""); }}
+                      onClick={() => {
+                        setPromoApplied(null);
+                        setPromoCode("");
+                        setPromoError("");
+                      }}
                       className="text-[10px] text-secondary hover:text-red-400 uppercase tracking-widest"
                     >
                       REMOVE
@@ -656,7 +712,10 @@ export default function CheckoutPage() {
                     <input
                       type="text"
                       value={promoCode}
-                      onChange={(e) => { setPromoCode(e.target.value.toUpperCase()); setPromoError(""); }}
+                      onChange={(e) => {
+                        setPromoCode(e.target.value.toUpperCase());
+                        setPromoError("");
+                      }}
                       onKeyDown={(e) => e.key === "Enter" && handleApplyPromo()}
                       placeholder="ENTER CODE"
                       className="flex-1 bg-transparent border border-outline-variant/50 focus:border-primary focus:outline-none px-3 py-2 text-[12px] text-primary uppercase tracking-widest"
@@ -671,7 +730,9 @@ export default function CheckoutPage() {
                   </div>
                 )}
                 {promoError && (
-                  <p className="text-[10px] text-red-400 mt-1.5 uppercase tracking-wider">{promoError}</p>
+                  <p className="text-[10px] text-red-400 mt-1.5 uppercase tracking-wider">
+                    {promoError}
+                  </p>
                 )}
               </div>
 
@@ -713,8 +774,7 @@ export default function CheckoutPage() {
                       </span>
                       {paymentMethod === "manual" && (
                         <div className="text-[13px] text-secondary bg-surface-container/20 p-4 border border-outline-variant/30">
-                          We accept bank transfer payment via BCA and Mandiri
-                          bank.
+                          We accept bank transfer payment via BCA bank.
                         </div>
                       )}
                     </div>
@@ -725,7 +785,9 @@ export default function CheckoutPage() {
                 <div className="text-[12px] text-red-500/90 space-y-4 mb-8 leading-relaxed tracking-wide">
                   <p>
                     Orders require approximately 7–8 working days to be
-                    processed before dispatch. Orders can be cancelled directly through your Account page as long as they have not been dispatched yet.
+                    processed before dispatch. Orders can be cancelled directly
+                    through your Account page as long as they have not been
+                    dispatched yet.
                   </p>
                 </div>
               </div>
