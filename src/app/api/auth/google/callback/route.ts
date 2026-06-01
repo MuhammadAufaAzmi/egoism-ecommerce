@@ -52,13 +52,15 @@ export async function GET(request: Request) {
     });
 
     if (!user) {
-      // Create new user — password is null for Google users
+      // Create new user — use sentinel password for Google OAuth users
+      const crypto = await import("crypto");
+      const sentinelPassword = "GOOGLE_OAUTH::" + crypto.randomUUID();
       const newUser = await prisma.user.create({
         data: {
           email: userData.email,
           firstName: userData.name || userData.given_name || "",
           role: "USER",
-          // password intentionally left null (Google OAuth user)
+          password: sentinelPassword, // Satisfies NOT NULL; never used for login
         },
         select: { id: true, email: true, role: true, firstName: true },
       });

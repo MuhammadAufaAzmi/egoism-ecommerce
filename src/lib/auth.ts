@@ -47,8 +47,9 @@ export async function loginUser(formData: any) {
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) return { success: false, message: "Email atau password salah!" };
     
-    if (!user.password) {
-      return { success: false, message: "Akun ini terdaftar menggunakan Google. Silakan klik tombol 'Continue with Google'." };
+    // Detect Google OAuth accounts (sentinel password)
+    if (!user.password || user.password.startsWith("GOOGLE_OAUTH::")) {
+      return { success: false, message: "This account uses Google Sign-In. Please click 'Continue with Google'." };
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
