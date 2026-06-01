@@ -33,12 +33,12 @@ export default function KontakPage() {
                 <h2 className="text-[12px] leading-[16px] tracking-[0.2em] font-semibold text-secondary uppercase mb-6">
                   HEADQUARTERS
                 </h2>
-                <p className="text-[18px] leading-[28px] text-secondary uppercase leading-relaxed">
-                  123 INDUSTRIAL BLVD
+                <p className="text-[14px] md:text-[16px] leading-[28px] text-secondary uppercase leading-relaxed">
+                  Ruko Tabespot Blok G1 No. 12
                   <br />
-                  ARCHITECT CITY
+                  Pagedangan, Kec. Pagedangan
                   <br />
-                  AC 90210
+                  Kabupaten Tangerang, Banten 15339
                 </p>
               </div>
             </div>
