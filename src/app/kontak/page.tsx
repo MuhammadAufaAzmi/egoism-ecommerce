@@ -23,10 +23,10 @@ export default function KontakPage() {
                   CUSTOMER SERVICE
                 </p>
                 <a
-                  href="mailto:STUDIO@EGOISM.COM"
-                  className="text-[18px] leading-[28px] text-secondary hover:text-primary transition-colors duration-300"
+                  href="mailto:egoismliftingtee@gmail.com"
+                  className="text-[16px] md:text-[18px] leading-[28px] text-secondary hover:text-primary transition-colors duration-300 lowercase"
                 >
-                  STUDIO@EGOISM.COM
+                  egoismliftingtee@gmail.com
                 </a>
               </div>
               <div>
