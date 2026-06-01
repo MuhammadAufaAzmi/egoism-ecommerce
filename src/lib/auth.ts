@@ -46,6 +46,11 @@ export async function loginUser(formData: any) {
 
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) return { success: false, message: "Email atau password salah!" };
+    
+    if (!user.password) {
+      return { success: false, message: "Akun ini terdaftar menggunakan Google. Silakan klik tombol 'Continue with Google'." };
+    }
+
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid)
       return { success: false, message: "Email atau password salah!" };
@@ -150,6 +155,10 @@ export async function changePassword(currentPass: string, newPass: string) {
 
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) return { success: false, message: "User tidak ditemukan." };
+
+    if (!user.password) {
+      return { success: false, message: "Akun ini didaftarkan via Google. Password tidak dapat diubah dari sini." };
+    }
 
     const isValid = await bcrypt.compare(currentPass, user.password);
     if (!isValid) return { success: false, message: "Password lama salah." };
