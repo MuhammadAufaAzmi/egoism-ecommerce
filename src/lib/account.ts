@@ -111,3 +111,27 @@ export async function getUserOrders() {
     trackingNumber: o.trackingNumber,
   }));
 }
+
+export async function cancelUserOrder(orderId: string) {
+  const userId = await getUserId();
+  if (!userId) return { success: false, message: "Akses ditolak." };
+
+  const order = await (prisma as any).order.findUnique({
+    where: { orderNumber: orderId },
+  });
+
+  if (!order || order.userId !== userId) {
+    return { success: false, message: "Pesanan tidak ditemukan." };
+  }
+
+  if (order.status !== "MENUNGGU KONFIRMASI" && order.status !== "DIPROSES") {
+    return { success: false, message: "Pesanan ini sudah tidak dapat dibatalkan." };
+  }
+
+  await (prisma as any).order.update({
+    where: { orderNumber: orderId },
+    data: { status: "DIBATALKAN" },
+  });
+
+  return { success: true, message: "Pesanan berhasil dibatalkan." };
+}

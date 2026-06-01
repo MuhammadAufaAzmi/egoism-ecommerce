@@ -74,7 +74,7 @@ export default function CheckoutPage() {
         setShippingZone(data.zone);
       } else {
         setShippingError(
-          "Tidak bisa menghitung ongkir untuk provinsi ini. Silakan update alamat Anda."
+          "Pengiriman ke provinsi ini belum didukung secara otomatis atau sedang ada gangguan jaringan. Silakan hubungi WhatsApp Admin untuk bantuan manual, atau coba gunakan alamat lain."
         );
       }
     } catch {

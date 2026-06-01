@@ -140,3 +140,29 @@ export async function resetPassword(token: string, newPassword: string) {
     return { success: false, message: "Gagal mereset password." };
   }
 }
+
+// === CHANGE PASSWORD ===
+export async function changePassword(currentPass: string, newPass: string) {
+  try {
+    const cookieStore = await cookies();
+    const userId = cookieStore.get("user_id")?.value;
+    if (!userId) return { success: false, message: "Sesi telah berakhir. Silakan login ulang." };
+
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) return { success: false, message: "User tidak ditemukan." };
+
+    const isValid = await bcrypt.compare(currentPass, user.password);
+    if (!isValid) return { success: false, message: "Password lama salah." };
+
+    const hashedPassword = await bcrypt.hash(newPass, 10);
+    await prisma.user.update({
+      where: { id: userId },
+      data: { password: hashedPassword },
+    });
+
+    return { success: true, message: "Password berhasil diubah." };
+  } catch (error) {
+    console.error(error);
+    return { success: false, message: "Terjadi kesalahan server saat mengubah password." };
+  }
+}

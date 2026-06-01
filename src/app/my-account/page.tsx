@@ -12,7 +12,9 @@ import {
   deleteUserAddress,
   setAddressDefault,
   getUserOrders,
+  cancelUserOrder,
 } from "@/lib/account";
+import { changePassword } from "@/lib/auth";
 
 type Tab = "profile" | "address" | "orders";
 
@@ -194,6 +196,10 @@ export default function MyAccountPage() {
    TAB 1 — PROFIL 
 ───────────────────────────────────────── */
 function ProfileTab() {
+  const { showToast } = useToast();
+  const [showPasswordForm, setShowPasswordForm] = useState(false);
+  const [passData, setPassData] = useState({ currentPass: "", newPass: "" });
+  const [passLoading, setPassLoading] = useState(false);
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState<any>({
     firstName: "",
@@ -304,6 +310,77 @@ function ProfileTab() {
             </button>
           </div>
         )}
+
+        {/* KEAMANAN AKUN (GANTI PASSWORD) */}
+        <div className="pt-10 mt-10 border-t border-stone-100 max-w-2xl">
+          <h3 className="text-[13px] tracking-[0.15em] font-semibold text-primary uppercase mb-6">
+            KEAMANAN AKUN
+          </h3>
+          {!showPasswordForm ? (
+            <button
+              onClick={() => setShowPasswordForm(true)}
+              className="border border-stone-200 text-[12px] tracking-[0.12em] font-semibold text-secondary hover:text-primary hover:border-primary px-6 py-3 transition-colors uppercase"
+            >
+              GANTI PASSWORD
+            </button>
+          ) : (
+            <div className="border border-outline-variant p-6 bg-surface-container/20 space-y-4">
+              <div className="space-y-2">
+                <label className="text-[11px] tracking-[0.15em] font-semibold text-secondary block uppercase">
+                  Password Lama
+                </label>
+                <input
+                  type="password"
+                  value={passData.currentPass}
+                  onChange={(e) => setPassData({ ...passData, currentPass: e.target.value })}
+                  className="w-full bg-transparent border-b border-primary focus:ring-0 py-2 text-[15px] text-primary outline-none"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[11px] tracking-[0.15em] font-semibold text-secondary block uppercase">
+                  Password Baru
+                </label>
+                <input
+                  type="password"
+                  value={passData.newPass}
+                  onChange={(e) => setPassData({ ...passData, newPass: e.target.value })}
+                  className="w-full bg-transparent border-b border-primary focus:ring-0 py-2 text-[15px] text-primary outline-none"
+                  placeholder="Minimal 8 karakter & 1 angka"
+                />
+              </div>
+              <div className="flex gap-4 pt-4">
+                <button
+                  onClick={async () => {
+                    if (passData.newPass.length < 8 || !/\d/.test(passData.newPass)) {
+                      showToast("Password baru minimal 8 karakter & mengandung angka.", "warning");
+                      return;
+                    }
+                    setPassLoading(true);
+                    const res = await changePassword(passData.currentPass, passData.newPass);
+                    if (res.success) {
+                      showToast(res.message, "success");
+                      setShowPasswordForm(false);
+                      setPassData({ currentPass: "", newPass: "" });
+                    } else {
+                      showToast(res.message, "error");
+                    }
+                    setPassLoading(false);
+                  }}
+                  disabled={passLoading}
+                  className="bg-primary text-on-primary px-6 py-3 text-[12px] tracking-[0.12em] font-semibold uppercase hover:opacity-80 transition-opacity disabled:opacity-50"
+                >
+                  {passLoading ? "MENYIMPAN..." : "SIMPAN"}
+                </button>
+                <button
+                  onClick={() => setShowPasswordForm(false)}
+                  className="border border-stone-200 text-secondary px-6 py-3 text-[12px] tracking-[0.12em] font-semibold uppercase hover:border-primary hover:text-primary transition-all"
+                >
+                  BATAL
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -633,6 +710,8 @@ function AddressTab() {
 ───────────────────────────────────────── */
 function OrdersTab() {
   const [orders, setOrders] = useState<any[]>([]);
+  const { showToast } = useToast();
+  const [cancelingId, setCancelingId] = useState("");
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -706,9 +785,35 @@ function OrdersTab() {
                     </p>
                   </div>
                   <div className="flex items-center gap-4 flex-shrink-0">
-                    <p className="text-[16px] font-semibold text-primary">
-                      {order.total}
-                    </p>
+                    <div className="text-right">
+                      <p className="text-[12px] font-semibold text-secondary uppercase tracking-widest mb-1">
+                        TOTAL
+                      </p>
+                      <p className="text-[16px] font-bold text-primary flex flex-col items-end">
+                        <span>{order.total}</span>
+                        {(order.status === "MENUNGGU KONFIRMASI" || order.status === "DIPROSES") && (
+                          <button
+                            onClick={async (e) => {
+                              e.stopPropagation();
+                              if (!window.confirm("Yakin ingin membatalkan pesanan ini?")) return;
+                              setCancelingId(order.id);
+                              const res = await cancelUserOrder(order.id);
+                              if (res.success) {
+                                showToast(res.message, "success");
+                                getUserOrders().then(setOrders);
+                              } else {
+                                showToast(res.message, "error");
+                              }
+                              setCancelingId("");
+                            }}
+                            disabled={cancelingId === order.id}
+                            className="mt-4 text-[10px] font-bold text-red-500 uppercase tracking-widest border border-red-500/30 px-3 py-1.5 hover:bg-red-500/10 transition-colors disabled:opacity-50"
+                          >
+                            {cancelingId === order.id ? "MEMBATALKAN..." : "BATALKAN PESANAN"}
+                          </button>
+                        )}
+                      </p>
+                    </div>
                     <span
                       className={`text-[11px] tracking-[0.1em] font-semibold border px-3 py-1 uppercase ${statusColor[order.status] ?? "text-secondary border-stone-200"}`}
                     >
