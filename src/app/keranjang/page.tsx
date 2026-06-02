@@ -6,7 +6,9 @@ import {
   getCartItems,
   handleUpdateCartQuantity,
   handleRemoveCartItem,
+  getProducts,
 } from "@/lib/products";
+import ProductCard from "@/components/ui/ProductCard";
 
 export const metadata = { title: "Shopping Bag — EGOISM" };
 
@@ -35,6 +37,13 @@ export default async function KeranjangPage() {
     (sum: number, item: CartItem) => sum + item.price * item.quantity,
     0,
   );
+  
+  let recommendedProducts: any[] = [];
+  if (items.length === 0) {
+    const all = await getProducts();
+    // Randomize or just pick 4
+    recommendedProducts = all.sort(() => 0.5 - Math.random()).slice(0, 4);
+  }
 
   const displayPrice = (price: number) => {
     return new Intl.NumberFormat("id-ID", {
@@ -52,16 +61,29 @@ export default async function KeranjangPage() {
         </h1>
 
         {items.length === 0 ? (
-          <div className="text-center py-24">
-            <p className="text-[18px] text-secondary mb-8">
-              Your bag is empty.
-            </p>
-            <Link
-              href="/koleksi"
-              className="inline-block border border-primary px-10 py-4 text-[14px] tracking-[0.05em] font-medium uppercase text-primary hover:bg-primary hover:text-on-primary transition-colors"
-            >
-              EXPLORE COLLECTION
-            </Link>
+          <div className="flex flex-col items-center">
+            <div className="text-center py-24 mb-12">
+              <p className="text-[18px] text-secondary mb-8">
+                Your bag is empty.
+              </p>
+              <Link
+                href="/koleksi"
+                className="inline-block border border-primary px-10 py-4 text-[14px] tracking-[0.05em] font-medium uppercase text-primary hover:bg-primary hover:text-on-primary transition-colors"
+              >
+                EXPLORE COLLECTION
+              </Link>
+            </div>
+            
+            <div className="w-full pt-16 border-t border-outline-variant/30">
+              <h2 className="text-[20px] font-medium text-primary uppercase mb-8 tracking-widest text-center">
+                YOU MIGHT ALSO LIKE
+              </h2>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-12">
+                {recommendedProducts.map((p) => (
+                  <ProductCard key={p.id} product={p} />
+                ))}
+              </div>
+            </div>
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-16">

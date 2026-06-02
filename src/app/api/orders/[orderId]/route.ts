@@ -15,6 +15,7 @@ export async function GET(
         items: true,
         total: true,
         status: true,
+        createdAt: true,
       },
     });
 

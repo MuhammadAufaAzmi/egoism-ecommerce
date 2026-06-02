@@ -11,7 +11,7 @@ export default async function WishlistPage() {
     return (
       <div className="pt-[120px] pb-24 min-h-screen bg-background text-primary flex flex-col items-center justify-center">
         <span className="material-symbols-outlined text-[64px] text-outline-variant/50 mb-6">lock</span>
-        <h1 className="text-[24px] md:text-[32px] font-bold uppercase tracking-widest mb-4">Akses Ditolak</h1>
+        <h1 className="text-[24px] md:text-[32px] font-bold uppercase tracking-widest mb-4">Sign In Required</h1>
         <p className="text-[14px] text-secondary uppercase tracking-widest mb-8 text-center max-w-md">
           Silakan sign in terlebih dahulu untuk melihat daftar wishlist Anda.
         </p>

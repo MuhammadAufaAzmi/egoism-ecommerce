@@ -35,13 +35,39 @@ export default function PaymentPage() {
     setTimeout(() => setCopied(""), 2000);
   };
 
-  // Order data state
   const [orderData, setOrderData] = useState<{
     total: number;
     items: string;
     status: string;
+    createdAt: string;
   } | null>(null);
   const [orderLoading, setOrderLoading] = useState(true);
+  const [timeLeft, setTimeLeft] = useState<string>("");
+  const [isExpired, setIsExpired] = useState(false);
+
+  useEffect(() => {
+    if (!orderData?.createdAt) return;
+
+    const interval = setInterval(() => {
+      const createdTime = new Date(orderData.createdAt).getTime();
+      const expiresTime = createdTime + 24 * 60 * 60 * 1000;
+      const now = new Date().getTime();
+      const diff = expiresTime - now;
+
+      if (diff <= 0) {
+        setIsExpired(true);
+        setTimeLeft("WAKTU PEMBAYARAN HABIS");
+        clearInterval(interval);
+      } else {
+        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+        setTimeLeft(`${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`);
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [orderData?.createdAt]);
 
   // Fetch order data on mount
   useEffect(() => {
@@ -171,9 +197,16 @@ export default function PaymentPage() {
           <p className="text-[11px] text-secondary uppercase tracking-widest mb-1">
             Order {orderId}
           </p>
-          <h1 className="text-[28px] md:text-[36px] font-bold uppercase tracking-wide">
+          <h1 className="text-[28px] md:text-[36px] font-bold uppercase tracking-wide mb-4">
             Payment Instructions
           </h1>
+          {timeLeft && (
+            <div className={`inline-block px-4 py-2 border ${isExpired ? 'border-red-500 bg-red-50 text-red-500' : 'border-amber-500 bg-amber-50 text-amber-600'}`}>
+              <p className="text-[11px] uppercase tracking-widest font-bold">
+                {isExpired ? timeLeft : `Sisa Waktu Pembayaran: ${timeLeft}`}
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Total Yang Harus Dibayar */}
@@ -189,12 +222,21 @@ export default function PaymentPage() {
                 {formatRupiah(orderData.total)}
               </p>
               <div className="mt-4 pt-4 border-t border-outline-variant/20">
-                <p className="text-[10px] text-secondary tracking-widest uppercase mb-2 font-semibold">
+                <p className="text-[10px] text-secondary tracking-widest uppercase mb-3 font-semibold">
                   Ringkasan Pesanan
                 </p>
-                <pre className="text-[12px] text-secondary whitespace-pre-wrap leading-relaxed">
-                  {orderData.items}
-                </pre>
+                <div className="space-y-3">
+                  {orderData.items.split("\n").map((item, idx) => {
+                    if (!item.trim()) return null;
+                    return (
+                      <div key={idx} className="flex justify-between items-start border-b border-outline-variant/20 pb-3">
+                        <p className="text-[12px] text-secondary/90 leading-relaxed pr-4">
+                          {item.trim()}
+                        </p>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             </>
           ) : (

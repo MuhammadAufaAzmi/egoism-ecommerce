@@ -713,6 +713,7 @@ function OrdersTab() {
   const { showToast } = useToast();
   const [cancelingId, setCancelingId] = useState("");
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [showCancelModal, setShowCancelModal] = useState<string | null>(null);
 
   useEffect(() => {
     getUserOrders().then(setOrders);
@@ -798,21 +799,12 @@ function OrdersTab() {
                         TOTAL
                       </p>
                       <p className="text-[16px] font-bold text-primary flex flex-col items-end">
-                        <span>{order.total}</span>
+                        <span>{new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(order.total)}</span>
                         {(order.status === "MENUNGGU KONFIRMASI" || order.status === "DIPROSES") && (
                           <button
                             onClick={async (e) => {
                               e.stopPropagation();
-                              if (!window.confirm("Are you sure you want to cancel this order?")) return;
-                              setCancelingId(order.id);
-                              const res = await cancelUserOrder(order.id);
-                              if (res.success) {
-                                showToast(res.message, "success");
-                                getUserOrders().then(setOrders);
-                              } else {
-                                showToast(res.message, "error");
-                              }
-                              setCancelingId("");
+                              setShowCancelModal(order.id);
                             }}
                             disabled={cancelingId === order.id}
                             className="mt-4 text-[10px] font-bold text-red-500 uppercase tracking-widest border border-red-500/30 px-3 py-1.5 hover:bg-red-500/10 transition-colors disabled:opacity-50"
@@ -927,6 +919,44 @@ function OrdersTab() {
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* Cancel Order Modal */}
+      {showCancelModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-5 bg-black/40 backdrop-blur-sm">
+          <div className="bg-surface-container-lowest border border-outline-variant/30 p-8 w-full max-w-sm shadow-2xl">
+            <h3 className="text-[18px] font-bold uppercase tracking-wider text-primary mb-2">Cancel Order</h3>
+            <p className="text-[13px] text-secondary leading-relaxed mb-8">
+              Are you sure you want to cancel this order? This action cannot be undone.
+            </p>
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={async () => {
+                  const idToCancel = showCancelModal;
+                  setShowCancelModal(null);
+                  setCancelingId(idToCancel);
+                  const res = await cancelUserOrder(idToCancel);
+                  if (res.success) {
+                    showToast(res.message, "success");
+                    getUserOrders().then(setOrders);
+                  } else {
+                    showToast(res.message, "error");
+                  }
+                  setCancelingId("");
+                }}
+                className="w-full bg-red-500 text-white font-bold uppercase tracking-widest py-3 hover:bg-red-600 transition-colors"
+              >
+                YES, CANCEL IT
+              </button>
+              <button
+                onClick={() => setShowCancelModal(null)}
+                className="w-full border border-outline-variant/50 text-primary font-bold uppercase tracking-widest py-3 hover:bg-surface-container-low transition-colors"
+              >
+                GO BACK
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

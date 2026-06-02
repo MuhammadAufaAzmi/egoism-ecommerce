@@ -216,7 +216,7 @@ export default function ProductFilterClient({
                   {/* Category Filter (hanya untuk Collection) */}
                   {showCategoryFilter && (
                     <>
-                      <p className="text-[10px] font-bold tracking-widest text-secondary mb-4 uppercase border-b border-outline-variant/50 pb-2">
+                      <p className="text-[11px] font-bold tracking-widest text-secondary mb-4 uppercase border-b border-outline-variant/50 pb-2">
                         CATEGORY
                       </p>
                       <div className="flex flex-col gap-3 mb-5">
@@ -240,7 +240,7 @@ export default function ProductFilterClient({
                   )}
 
                   {/* Fit Type Filter */}
-                  <p className="text-[10px] font-bold tracking-widest text-secondary mb-4 uppercase border-b border-outline-variant/50 pb-2">
+                  <p className="text-[11px] font-bold tracking-widest text-secondary mb-4 uppercase border-b border-outline-variant/50 pb-2">
                     FIT TYPE
                   </p>
                   <div className="flex flex-col gap-3 mb-5">
@@ -260,7 +260,7 @@ export default function ProductFilterClient({
                   </div>
 
                   {/* Size Filter */}
-                  <p className="text-[10px] font-bold tracking-widest text-secondary mb-4 uppercase border-b border-outline-variant/50 pb-2">
+                  <p className="text-[11px] font-bold tracking-widest text-secondary mb-4 uppercase border-b border-outline-variant/50 pb-2">
                     SIZE
                   </p>
                   <div className="flex flex-col gap-3">
@@ -289,7 +289,7 @@ export default function ProductFilterClient({
                         setFilterFitType("ALL");
                         setIsFilterOpen(false);
                       }}
-                      className="mt-4 pt-3 border-t border-outline-variant/50 w-full text-left text-[11px] tracking-[0.1em] uppercase font-semibold text-red-400 hover:text-red-500 transition-colors"
+                      className="mt-4 pt-3 border-t border-outline-variant/50 w-full text-left text-[12px] tracking-[0.1em] uppercase font-semibold text-red-400 hover:text-red-500 transition-colors"
                     >
                       RESET FILTER
                     </button>
