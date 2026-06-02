@@ -85,6 +85,11 @@ export default function ProductDetail({
   const [isZooming, setIsZooming] = useState(false);
   const [reviewTab, setReviewTab] = useState(false);
 
+  // Calculate average rating
+  const averageRating = reviews.length > 0 
+    ? (reviews.reduce((acc: number, r: any) => acc + r.rating, 0) / reviews.length).toFixed(1)
+    : 0;
+
   const [isPending, startTransition] = useTransition();
   const [message, setMessage] = useState({ type: "", text: "" });
 
@@ -196,7 +201,7 @@ export default function ProductDetail({
               alt={product.name}
               fill
               priority
-              className={`object-cover transition-transform duration-300 ${isZooming ? "scale-[1.7]" : "scale-100"}`}
+              className={`object-cover transition-transform duration-300 ${isZooming ? "md:scale-[1.7]" : "scale-100"}`}
               style={isZooming ? { transformOrigin: `${zoomPosition.x}% ${zoomPosition.y}%` } : {}}
             />
           ) : (
@@ -226,11 +231,41 @@ export default function ProductDetail({
       <div className="flex flex-col justify-between py-2">
         <div>
           <div className="flex justify-between items-start gap-4">
-            <h1 className="text-[36px] md:text-[56px] leading-tight uppercase font-bold tracking-tight mb-4">
+            <h1 className="text-[36px] md:text-[56px] leading-tight uppercase font-bold tracking-tight mb-2">
               {product.name}
             </h1>
             <WishlistButton productId={product.id} initialWishlisted={initialWishlisted} className="mt-4 p-2 bg-surface-container-low border border-outline-variant/30 rounded-full hover:border-red-500" />
           </div>
+          
+          {/* Average Rating Summary */}
+          {reviews.length > 0 ? (
+            <div className="flex items-center gap-2 mb-6">
+              <div className="flex text-primary">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <span key={star} className={`material-symbols-outlined text-[16px] ${star <= Number(averageRating) ? 'text-primary' : 'text-outline-variant'}`}>
+                    star
+                  </span>
+                ))}
+              </div>
+              <span className="text-[12px] font-semibold tracking-widest text-secondary">{averageRating} / 5</span>
+              <span className="text-[10px] text-secondary/50">•</span>
+              <a href="#reviews" onClick={(e) => { e.preventDefault(); setReviewTab(true); document.getElementById('reviews')?.scrollIntoView({ behavior: 'smooth' }); }} className="text-[12px] uppercase tracking-widest text-secondary underline hover:text-primary">
+                {reviews.length} Ulasan
+              </a>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 mb-6">
+              <div className="flex text-outline-variant">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <span key={star} className="material-symbols-outlined text-[16px]">
+                    star
+                  </span>
+                ))}
+              </div>
+              <span className="text-[12px] uppercase tracking-widest text-secondary">Belum ada ulasan</span>
+            </div>
+          )}
+
           <p className="text-[20px] md:text-[24px] font-medium text-primary mb-8 tracking-tight">
             {displayPrice(product.price)}
           </p>
@@ -241,7 +276,7 @@ export default function ProductDetail({
           </div>
 
           {/* Reviews Section */}
-          <div className="mt-12 border-t border-outline-variant/30 pt-8">
+          <div id="reviews" className="mt-12 border-t border-outline-variant/30 pt-8">
             <button 
               onClick={() => setReviewTab(!reviewTab)}
               className="flex items-center justify-between w-full"
@@ -437,11 +472,22 @@ export default function ProductDetail({
           <button
             onClick={onAddToCart}
             disabled={isPending}
-            className="w-full bg-primary text-on-primary font-semibold text-[13px] tracking-[0.2em] uppercase py-5 border border-primary hover:bg-transparent hover:text-primary transition-colors duration-300 disabled:opacity-50"
+            className="hidden md:block w-full bg-primary text-on-primary font-semibold text-[13px] tracking-[0.2em] uppercase py-5 border border-primary hover:bg-transparent hover:text-primary transition-colors duration-300 disabled:opacity-50"
           >
             {isPending ? "CONNECTING TO DATABASE..." : "ADD TO BAG"}
           </button>
         </div>
+      </div>
+
+      {/* Sticky Mobile Add To Bag */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-surface-container-lowest border-t border-outline-variant/30 p-4 z-50 shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
+        <button
+          onClick={onAddToCart}
+          disabled={isPending}
+          className="w-full bg-primary text-on-primary font-bold text-[13px] tracking-[0.2em] uppercase py-4 border border-primary transition-colors duration-300 disabled:opacity-50"
+        >
+          {isPending ? "WAIT..." : `ADD TO BAG - ${displayPrice(product.price)}`}
+        </button>
       </div>
     </div>
   );
