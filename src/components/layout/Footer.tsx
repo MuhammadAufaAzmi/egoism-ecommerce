@@ -16,7 +16,7 @@ export default function Footer() {
             EGOISM
           </Link>
           <p className="text-[13px] text-secondary mt-5 leading-relaxed max-w-[320px]">
-            Minimalist luxury performance wear. We bridge the gap between high-end streetwear and functional training apparel. Designed for those who demand excellence in every environment.
+            Premium gymwear & streetwear,<br />crafted in Indonesia.
           </p>
           
           {/* Social Media */}

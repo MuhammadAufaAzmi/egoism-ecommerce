@@ -177,6 +177,22 @@ export default async function HomePage() {
       <StatsCounter />
 
       {/* ========================================
+          BRAND STORY — About Egoism
+          ======================================== */}
+      <section className="w-full py-[100px] md:py-[140px] bg-background px-5 md:px-16">
+        <ScrollReveal>
+          <div className="max-w-[1000px] mx-auto text-center flex flex-col items-center">
+            <h2 className="text-[12px] md:text-[14px] leading-[16px] tracking-[0.3em] font-semibold text-secondary uppercase mb-8">
+              OUR STORY
+            </h2>
+            <p className="font-heading text-[24px] md:text-[40px] leading-[1.4] text-primary tracking-tight font-medium">
+              Minimalist luxury performance wear. We bridge the gap between high-end streetwear and functional training apparel. Designed for those who demand excellence in every environment.
+            </p>
+          </div>
+        </ScrollReveal>
+      </section>
+
+      {/* ========================================
           QUOTE SECTION — Enhanced Typography
           ======================================== */}
       <section className="w-full py-[120px] md:py-[160px] bg-surface flex items-center justify-center px-5 md:px-16 border-y border-outline-variant/30">
