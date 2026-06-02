@@ -110,6 +110,7 @@ model Order {
   trackingNumber  String?
   status          String   @default("DIPROSES")
   paymentProof    String?  @db.VarChar(255)
+  shippingAddress String?  @db.Text
   createdAt       DateTime @default(now())
 
   user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)

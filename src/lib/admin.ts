@@ -125,6 +125,7 @@ export async function getAllOrders() {
     customerEmail: o.user?.email || "No Email",
     customerPhone: o.user?.phone || "-",
     trackingNumber: o.trackingNumber || "",
+    shippingAddress: o.shippingAddress || "-",
   }));
 }
 

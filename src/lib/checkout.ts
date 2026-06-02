@@ -8,6 +8,7 @@ import crypto from "crypto";
 interface CheckoutOptions {
   shippingCost?: number;
   shippingZone?: string;
+  shippingAddress?: string;
 }
 
 export async function processCheckout(options?: CheckoutOptions) {
@@ -55,6 +56,7 @@ export async function processCheckout(options?: CheckoutOptions) {
         total: totalAmount,
         shippingCost: shippingCost,
         shippingZone: options?.shippingZone || null,
+        shippingAddress: options?.shippingAddress || null,
         status: "MENUNGGU PEMBAYARAN", // Status awal
       },
     });

@@ -157,8 +157,9 @@ export default function CheckoutPage() {
 
     try {
       const result = await processCheckout({
-        shippingCost: shippingCost, // use the calculated shippingCost
-        shippingZone: shippingZone.zone,
+        shippingCost: shippingCost,
+        shippingZone: shippingZone?.zone,
+        shippingAddress: `${address.recipient} - ${address.phone}\n${address.address}, ${address.city}, ${address.province} ${address.postal}`,
       });
 
       if (result.success && result.orderId) {

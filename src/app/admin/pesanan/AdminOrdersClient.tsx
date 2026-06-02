@@ -19,6 +19,7 @@ interface Order {
   customerEmail: string;
   customerPhone: string;
   trackingNumber?: string;
+  shippingAddress?: string;
 }
 
 interface AdminOrdersClientProps {
@@ -711,7 +712,7 @@ export default function AdminOrdersClient({
               {/* Customer info */}
               <div>
                 <p className="text-[10px] text-secondary uppercase tracking-widest mb-2 font-semibold">
-                  Pelanggan
+                  Pelanggan & Pengiriman
                 </p>
                 <div className="border border-outline-variant/20 p-4 space-y-1.5">
                   <p className="text-[14px] font-semibold">
@@ -723,6 +724,14 @@ export default function AdminOrdersClient({
                   <p className="text-[12px] text-secondary">
                     {detailModal.order.customerPhone}
                   </p>
+                  <div className="mt-3 pt-3 border-t border-outline-variant/20">
+                    <p className="text-[10px] text-secondary uppercase tracking-widest mb-1 font-semibold">
+                      Alamat Pengiriman
+                    </p>
+                    <p className="text-[12px] text-secondary whitespace-pre-line leading-relaxed">
+                      {detailModal.order.shippingAddress || "Alamat tidak tersedia (Order lama)"}
+                    </p>
+                  </div>
                 </div>
               </div>
 

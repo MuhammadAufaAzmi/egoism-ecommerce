@@ -18,8 +18,7 @@ export default function ShippingInfoPage() {
                 WAKTU PEMROSESAN
               </h2>
               <div className="space-y-6 text-[16px] leading-[24px] text-secondary">
-                <p className="uppercase">SEMUA KOLEKSI EGOISM DIPRODUKSI SECARA PRE-ORDER.</p>
-                <p className="uppercase">PESANAN ANDA MEMBUTUHKAN WAKTU 7-8 HARI KERJA UNTUK DIPROSES DAN DISIAPKAN SEBELUM DIKIRIMKAN.</p>
+                <p className="uppercase">PESANAN ANDA MEMBUTUHKAN WAKTU 1-2 HARI KERJA UNTUK DIPROSES DAN DISIAPKAN SEBELUM DIKIRIMKAN.</p>
                 <p className="uppercase">KAMI TIDAK MELAKUKAN PENGIRIMAN PADA AKHIR PEKAN (SABTU/MINGGU) MAUPUN HARI LIBUR NASIONAL.</p>
               </div>
             </section>
