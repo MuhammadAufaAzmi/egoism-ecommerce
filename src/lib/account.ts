@@ -133,19 +133,23 @@ export async function cancelUserOrder(orderId: string) {
   if (!userId) return { success: false, message: "Akses ditolak." };
 
   const order = await (prisma as any).order.findUnique({
-    where: { orderNumber: orderId },
+    where: { id: orderId },
   });
 
   if (!order || order.userId !== userId) {
     return { success: false, message: "Pesanan tidak ditemukan." };
   }
 
-  if (order.status !== "MENUNGGU KONFIRMASI" && order.status !== "DIPROSES") {
+  if (
+    order.status !== "MENUNGGU PEMBAYARAN" &&
+    order.status !== "MENUNGGU KONFIRMASI" &&
+    order.status !== "DIPROSES"
+  ) {
     return { success: false, message: "Pesanan ini sudah tidak dapat dibatalkan." };
   }
 
   await (prisma as any).order.update({
-    where: { orderNumber: orderId },
+    where: { id: orderId },
     data: { status: "DIBATALKAN" },
   });
 
