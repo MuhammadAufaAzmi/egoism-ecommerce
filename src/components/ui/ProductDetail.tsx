@@ -48,6 +48,11 @@ const COLOR_MAP: Record<string, string> = {
   "BLUE BENHUR": "#2563eb",
   "DARK BLUE": "#1e3a8a",
   "BIRU MUDA": "#60a5fa",
+  // Custom recent colors
+  "MISTY BLACK": "#2b2b2b",
+  "MISTY COFFE": "#8c6b5d",
+  "MISTY GREY": "#a6a6a6",
+  "CYAN": "#06b6d4",
 };
 
 interface ProductDetailProps {
