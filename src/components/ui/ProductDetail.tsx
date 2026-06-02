@@ -485,19 +485,6 @@ export default function ProductDetail({
           >
             {isPending ? "ADDING TO BAG..." : "ADD TO BAG"}
           </button>
-        </div>
-      </div>
-
-      {/* Sticky Mobile Add To Bag */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-surface-container-lowest border-t border-outline-variant/30 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] z-[100] shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
-        <button
-          onClick={onAddToCart}
-          disabled={isPending}
-          className="w-full bg-primary text-on-primary font-bold text-[13px] tracking-[0.2em] uppercase py-4 border border-primary transition-colors duration-300 disabled:opacity-50"
-        >
-          {isPending ? "ADDING..." : `ADD TO BAG - ${displayPrice(product.price)}`}
-        </button>
-      </div>
     </div>
   );
 }
