@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic"; // Ensure it's not cached so we get a random one each time
 
