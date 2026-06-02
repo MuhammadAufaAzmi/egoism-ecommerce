@@ -18,8 +18,18 @@ export default function PromoPopup() {
   const pathname = usePathname();
 
   useEffect(() => {
-    // Jangan muncul di halaman admin
-    if (pathname?.startsWith("/admin")) return;
+    // Jangan muncul di halaman khusus (Admin, Auth, Checkout, Payment)
+    if (
+      pathname?.startsWith("/admin") ||
+      pathname === "/login" ||
+      pathname === "/register" ||
+      pathname === "/forgot-password" ||
+      pathname === "/reset-password" ||
+      pathname === "/checkout" ||
+      pathname?.startsWith("/payment")
+    ) {
+      return;
+    }
 
     // Cek apakah popup sudah pernah ditutup di sesi ini
     const hasSeenPromo = sessionStorage.getItem("promoPopupShown");
