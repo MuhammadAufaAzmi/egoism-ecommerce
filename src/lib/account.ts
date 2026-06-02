@@ -133,7 +133,7 @@ export async function cancelUserOrder(orderId: string) {
   if (!userId) return { success: false, message: "Akses ditolak." };
 
   const order = await (prisma as any).order.findUnique({
-    where: { id: orderId },
+    where: { orderNumber: orderId },
   });
 
   if (!order || order.userId !== userId) {
@@ -149,7 +149,7 @@ export async function cancelUserOrder(orderId: string) {
   }
 
   await (prisma as any).order.update({
-    where: { id: orderId },
+    where: { orderNumber: orderId },
     data: { status: "DIBATALKAN" },
   });
 
