@@ -8,6 +8,8 @@ import { ToastProvider } from "@/components/ui/Toast";
 import AnnouncementBar from "@/components/ui/AnnouncementBar";
 import BackToTop from "@/components/ui/BackToTop";
 
+import NextTopLoader from "nextjs-toploader";
+
 const montserrat = Montserrat({
   subsets: ["latin"],
   variable: "--font-montserrat",
@@ -53,6 +55,17 @@ export default function RootLayout({
         />
       </head>
       <body className="bg-surface-container-lowest text-on-surface antialiased min-h-screen flex flex-col font-sans pb-16 md:pb-0">
+        <NextTopLoader
+          color="#1a1a1a"
+          initialPosition={0.08}
+          crawlSpeed={200}
+          height={3}
+          crawl={true}
+          showSpinner={false}
+          easing="ease"
+          speed={200}
+          shadow="0 0 10px #1a1a1a,0 0 5px #1a1a1a"
+        />
         <ToastProvider>
           <AnnouncementBar />
           <Navbar />
