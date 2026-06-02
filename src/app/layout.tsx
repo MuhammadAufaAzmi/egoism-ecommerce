@@ -7,6 +7,7 @@ import MobileBottomNav from "@/components/layout/MobileBottomNav";
 import { ToastProvider } from "@/components/ui/Toast";
 import AnnouncementBar from "@/components/ui/AnnouncementBar";
 import BackToTop from "@/components/ui/BackToTop";
+import PromoPopup from "@/components/ui/PromoPopup";
 
 import NextTopLoader from "nextjs-toploader";
 
@@ -73,6 +74,7 @@ export default function RootLayout({
           <Footer />
           <MobileBottomNav />
           <BackToTop />
+          <PromoPopup />
         </ToastProvider>
         {/* Service Worker Registration */}
         <script
