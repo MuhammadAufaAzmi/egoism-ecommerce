@@ -36,6 +36,15 @@
   }
 }
 
+@keyframes marqueeReverse {
+  0% {
+    transform: translateX(-50%);
+  }
+  100% {
+    transform: translateX(0%);
+  }
+}
+
 /* Fade In Up — scroll-triggered reveal */
 @keyframes fadeInUp {
   from {
@@ -206,6 +215,16 @@
   }
 
   .marquee-track:hover {
+    animation-play-state: paused;
+  }
+
+  .marquee-track-reverse {
+    display: flex;
+    width: max-content;
+    animation: marqueeReverse 30s linear infinite;
+  }
+
+  .marquee-track-reverse:hover {
     animation-play-state: paused;
   }
 

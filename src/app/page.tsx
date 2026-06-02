@@ -179,13 +179,26 @@ export default async function HomePage() {
       {/* ========================================
           BRAND STORY — About Egoism
           ======================================== */}
-      <section className="w-full py-[100px] md:py-[140px] bg-background px-5 md:px-16">
+      <section className="relative w-full py-[120px] md:py-[180px] bg-surface overflow-hidden flex items-center justify-center border-t border-outline-variant/30">
+        {/* Infinite Marquee Background */}
+        <div className="absolute inset-0 flex flex-col justify-center gap-8 sm:gap-16 opacity-[0.03] pointer-events-none select-none overflow-hidden">
+          <div className="marquee-track font-heading font-bold text-[80px] sm:text-[140px] md:text-[200px] uppercase text-primary leading-none">
+            <span className="px-4">EGOISM PERFORMANCE • LUXURY STREETWEAR •</span>
+            <span className="px-4">EGOISM PERFORMANCE • LUXURY STREETWEAR •</span>
+          </div>
+          <div className="marquee-track-reverse font-heading font-bold text-[80px] sm:text-[140px] md:text-[200px] uppercase text-primary leading-none">
+            <span className="px-4">ONLY YOU MATTER • NO EXCUSES •</span>
+            <span className="px-4">ONLY YOU MATTER • NO EXCUSES •</span>
+            <span className="px-4">ONLY YOU MATTER • NO EXCUSES •</span>
+          </div>
+        </div>
+
         <ScrollReveal>
-          <div className="max-w-[1000px] mx-auto text-center flex flex-col items-center">
-            <h2 className="text-[12px] md:text-[14px] leading-[16px] tracking-[0.3em] font-semibold text-secondary uppercase mb-8">
+          <div className="relative z-10 max-w-[1000px] mx-auto text-center flex flex-col items-center px-5">
+            <h2 className="text-[12px] md:text-[14px] leading-[16px] tracking-[0.4em] font-semibold text-secondary uppercase mb-8">
               OUR STORY
             </h2>
-            <p className="font-heading text-[24px] md:text-[40px] leading-[1.4] text-primary tracking-tight font-medium">
+            <p className="font-heading text-[26px] md:text-[48px] leading-[1.3] text-primary tracking-tight font-medium drop-shadow-sm">
               Minimalist luxury performance wear. We bridge the gap between high-end streetwear and functional training apparel. Designed for those who demand excellence in every environment.
             </p>
           </div>
