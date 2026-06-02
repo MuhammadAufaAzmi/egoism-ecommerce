@@ -782,55 +782,72 @@ function OrdersTab() {
                 {/* Order Header */}
                 <button
                   onClick={() => setExpandedId(isExpanded ? null : order.id)}
-                  className="w-full text-left px-8 py-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-stone-50/50 transition-colors"
+                  className="w-full text-left p-4 sm:px-8 sm:py-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between hover:bg-stone-50/50 transition-colors"
                 >
-                  <div>
-                    <p className="text-[13px] tracking-[0.1em] font-bold text-primary uppercase">
-                      {order.orderNumber || order.id.slice(0, 8).toUpperCase()}
-                    </p>
-                    <p className="text-[12px] tracking-[0.08em] font-semibold text-secondary uppercase mt-0.5">
-                      {order.date}
-                    </p>
-                    <p className="text-[13px] text-secondary mt-1 line-clamp-1">
+                  <div className="w-full sm:w-auto">
+                    <div className="flex justify-between items-start sm:block">
+                      <div>
+                        <p className="text-[13px] tracking-[0.1em] font-bold text-primary uppercase">
+                          {order.orderNumber || order.id.slice(0, 8).toUpperCase()}
+                        </p>
+                        <p className="text-[12px] tracking-[0.08em] font-semibold text-secondary uppercase mt-0.5">
+                          {order.date}
+                        </p>
+                      </div>
+                      <span className="material-symbols-outlined text-[20px] text-secondary sm:hidden">
+                        {isExpanded ? "expand_less" : "expand_more"}
+                      </span>
+                    </div>
+                    <p className="text-[13px] text-secondary mt-2 sm:mt-1 line-clamp-1">
                       {order.items}
                     </p>
                   </div>
-                  <div className="flex items-center gap-4 flex-shrink-0">
-                    <div className="text-right">
-                      <p className="text-[12px] font-semibold text-secondary uppercase tracking-widest mb-1">
-                        TOTAL
-                      </p>
-                      <p className="text-[16px] font-bold text-primary flex flex-col items-end gap-2">
-                        <span>{new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(order.total)}</span>
-                        {order.status === "MENUNGGU PEMBAYARAN" && (
-                          <Link
-                            href={`/payment/${order.orderNumber}`}
-                            onClick={(e) => e.stopPropagation()}
-                            className="mt-2 text-[10px] font-bold text-on-primary bg-primary uppercase tracking-widest border border-primary px-4 py-2 hover:opacity-80 transition-opacity"
-                          >
-                            BAYAR SEKARANG
-                          </Link>
-                        )}
-                        {(order.status === "MENUNGGU PEMBAYARAN" || order.status === "MENUNGGU KONFIRMASI" || order.status === "DIPROSES") && (
-                          <button
-                            onClick={async (e) => {
-                              e.stopPropagation();
-                              setShowCancelModal(order.id);
-                            }}
-                            disabled={cancelingId === order.id}
-                            className="text-[10px] font-bold text-red-500 uppercase tracking-widest border border-red-500/30 px-3 py-1.5 hover:bg-red-500/10 transition-colors disabled:opacity-50"
-                          >
-                            {cancelingId === order.id ? "CANCELING..." : "CANCEL ORDER"}
-                          </button>
-                        )}
-                      </p>
+
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 flex-shrink-0 w-full sm:w-auto border-t sm:border-0 border-stone-100 pt-3 sm:pt-0">
+                    <div className="flex justify-between items-center w-full sm:w-auto sm:block sm:text-right">
+                      <div className="sm:hidden">
+                        <span className={`inline-block text-[10px] tracking-[0.1em] font-semibold border px-2 py-1 uppercase ${statusColor[order.status] ?? "text-secondary border-stone-200"}`}>
+                          {STATUS_DISPLAY[order.status] ?? order.status}
+                        </span>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-[10px] sm:text-[12px] font-semibold text-secondary uppercase tracking-widest mb-0.5 sm:mb-1">
+                          TOTAL
+                        </p>
+                        <p className="text-[14px] sm:text-[16px] font-bold text-primary">
+                          {new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(order.total)}
+                        </p>
+                      </div>
                     </div>
-                    <span
-                      className={`text-[11px] tracking-[0.1em] font-semibold border px-3 py-1 uppercase ${statusColor[order.status] ?? "text-secondary border-stone-200"}`}
-                    >
+
+                    <div className="flex w-full sm:w-auto gap-2 sm:flex-col sm:items-end sm:gap-2">
+                      {order.status === "MENUNGGU PEMBAYARAN" && (
+                        <Link
+                          href={`/payment/${order.orderNumber}`}
+                          onClick={(e) => e.stopPropagation()}
+                          className="flex-1 sm:flex-none text-center text-[10px] font-bold text-on-primary bg-primary uppercase tracking-widest border border-primary px-3 py-2 hover:opacity-80 transition-opacity"
+                        >
+                          BAYAR
+                        </Link>
+                      )}
+                      {(order.status === "MENUNGGU PEMBAYARAN" || order.status === "MENUNGGU KONFIRMASI" || order.status === "DIPROSES") && (
+                        <button
+                          onClick={async (e) => {
+                            e.stopPropagation();
+                            setShowCancelModal(order.id);
+                          }}
+                          disabled={cancelingId === order.id}
+                          className="flex-1 sm:flex-none text-center text-[10px] font-bold text-red-500 uppercase tracking-widest border border-red-500/30 px-3 py-2 hover:bg-red-500/10 transition-colors disabled:opacity-50"
+                        >
+                          {cancelingId === order.id ? "CANCELING" : "CANCEL"}
+                        </button>
+                      )}
+                    </div>
+
+                    <span className={`hidden sm:inline-block text-[11px] tracking-[0.1em] font-semibold border px-3 py-1 uppercase ${statusColor[order.status] ?? "text-secondary border-stone-200"}`}>
                       {STATUS_DISPLAY[order.status] ?? order.status}
                     </span>
-                    <span className="material-symbols-outlined text-[20px] text-secondary">
+                    <span className="hidden sm:block material-symbols-outlined text-[20px] text-secondary">
                       {isExpanded ? "expand_less" : "expand_more"}
                     </span>
                   </div>
@@ -845,8 +862,9 @@ function OrdersTab() {
                         <p className="text-[10px] uppercase tracking-widest text-secondary font-semibold mb-5">
                           Order Status
                         </p>
-                        <div className="flex items-start gap-0">
-                          {STATUS_STEPS.map((step, idx) => {
+                        <div className="flex items-start gap-0 overflow-x-auto no-scrollbar pb-4 sm:overflow-visible sm:pb-0">
+                          <div className="flex w-full min-w-[500px] sm:min-w-0">
+                            {STATUS_STEPS.map((step, idx) => {
                             const isDone = idx <= stepIndex;
                             const isCurrent = idx === stepIndex;
                             return (
@@ -893,6 +911,7 @@ function OrdersTab() {
                               </div>
                             );
                           })}
+                          </div>
                         </div>
                       </div>
                     ) : (
