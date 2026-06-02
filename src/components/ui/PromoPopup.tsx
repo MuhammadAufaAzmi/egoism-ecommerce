@@ -18,14 +18,13 @@ export default function PromoPopup() {
   const pathname = usePathname();
 
   useEffect(() => {
-    // Jangan muncul di halaman khusus (Admin, Auth, Checkout, Payment)
+    // Jangan muncul di halaman khusus (Admin, Auth, Payment)
     if (
       pathname?.startsWith("/admin") ||
       pathname === "/login" ||
       pathname === "/register" ||
       pathname === "/forgot-password" ||
       pathname === "/reset-password" ||
-      pathname === "/checkout" ||
       pathname?.startsWith("/payment")
     ) {
       return;
