@@ -58,27 +58,38 @@ export async function getUserAddresses() {
 
 export async function saveUserAddress(data: any, addressId?: string, guestEmail?: string) {
   const userId = await getUserId();
-  if (!userId) return { success: false };
+  if (!userId) return { success: false, message: "Akses ditolak" };
 
-  if (guestEmail) {
-    const isGuest = await isGuestUser();
-    if (isGuest) {
-      await (prisma as any).user.update({
-        where: { id: userId },
-        data: { email: guestEmail },
+  try {
+    if (guestEmail) {
+      const isGuest = await isGuestUser();
+      if (isGuest) {
+        try {
+          await (prisma as any).user.update({
+            where: { id: userId },
+            data: { email: guestEmail },
+          });
+        } catch (emailError: any) {
+          if (emailError.code === 'P2002') {
+            return { success: false, message: "Email ini sudah terdaftar. Silakan login atau gunakan email lain." };
+          }
+        }
+      }
+    }
+
+    if (addressId) {
+      await (prisma as any).address.update({ where: { id: addressId }, data });
+    } else {
+      const count = await (prisma as any).address.count({ where: { userId } });
+      await (prisma as any).address.create({
+        data: { ...data, userId, isDefault: count === 0 },
       });
     }
+    return { success: true };
+  } catch (error) {
+    console.error("Save address error:", error);
+    return { success: false, message: "Gagal menyimpan alamat." };
   }
-
-  if (addressId) {
-    await (prisma as any).address.update({ where: { id: addressId }, data });
-  } else {
-    const count = await (prisma as any).address.count({ where: { userId } });
-    await (prisma as any).address.create({
-      data: { ...data, userId, isDefault: count === 0 },
-    });
-  }
-  return { success: true };
 }
 
 export async function deleteUserAddress(addressId: string) {

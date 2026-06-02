@@ -208,7 +208,13 @@ export default function CheckoutPage() {
     try {
       // Hilangkan guestEmail dari data address karena tidak ada di schema Address
       const { guestEmail, ...addressData } = addressForm;
-      await saveUserAddress(addressData, undefined, isGuest ? guestEmail : undefined);
+      const res = await saveUserAddress(addressData, undefined, isGuest ? guestEmail : undefined);
+      
+      if (!res.success) {
+        showToast(res.message || "Gagal menyimpan alamat.", "error");
+        setSavingAddress(false);
+        return;
+      }
       
       const addrs = await getUserAddresses();
       const validAddresses = Array.isArray(addrs) ? addrs : [];
