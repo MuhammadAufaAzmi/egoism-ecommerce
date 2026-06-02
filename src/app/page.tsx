@@ -101,40 +101,68 @@ export default async function HomePage() {
 
 
       {/* ========================================
-          NEW ARRIVALS — Selected Pieces
+          NEW IN — Selected Pieces
           ======================================== */}
       <section
         className="max-w-[1440px] mx-auto px-5 md:px-16 py-[100px] md:py-[120px]"
-        id="shop"
+        id="new-in"
       >
         <ScrollReveal>
           <div className="w-full text-center mb-16">
-            <p className="text-[12px] leading-[16px] tracking-[0.2em] font-semibold text-secondary uppercase mb-5">
-              NEW ARRIVALS
-            </p>
             <h2 className="font-heading text-[36px] md:text-[64px] leading-[1.05] text-primary uppercase tracking-tight font-bold">
-              Selected Pieces
+              NEW IN
             </h2>
+            <p className="text-[12px] leading-[16px] tracking-[0.2em] font-semibold text-secondary uppercase mt-5">
+              Fresh Drops This Week
+            </p>
           </div>
         </ScrollReveal>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {featuredProducts.map((product: any, index: number) => (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+          {products.slice(0, 4).map((product: any, index: number) => (
             <ScrollReveal key={product.id} delay={index * 150}>
               <ProductCard product={product} />
             </ScrollReveal>
           ))}
         </div>
-        <ScrollReveal delay={500}>
-          <div className="flex justify-center mt-16">
-            <Link
-              href="/koleksi"
-              className="inline-block border border-primary px-10 py-4 text-[13px] tracking-[0.15em] font-semibold font-body uppercase text-primary hover:bg-primary hover:text-on-primary transition-all duration-300"
-            >
-              VIEW ALL
-            </Link>
-          </div>
-        </ScrollReveal>
       </section>
+
+      {/* ========================================
+          TOP 10 BESTSELLERS
+          ======================================== */}
+      {products.length > 4 && (
+        <section
+          className="max-w-[1440px] mx-auto px-5 md:px-16 pb-[100px] md:pb-[120px]"
+          id="bestsellers"
+        >
+          <ScrollReveal>
+            <div className="w-full text-center mb-16">
+              <h2 className="font-heading text-[36px] md:text-[64px] leading-[1.05] text-primary uppercase tracking-tight font-bold">
+                TOP 10 BESTSELLERS
+              </h2>
+              <p className="text-[12px] leading-[16px] tracking-[0.2em] font-semibold text-secondary uppercase mt-5">
+                Most Wanted Pieces
+              </p>
+            </div>
+          </ScrollReveal>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-6">
+            {products.slice(4, 14).map((product: any, index: number) => (
+              <ScrollReveal key={product.id} delay={index * 100}>
+                <ProductCard product={product} />
+              </ScrollReveal>
+            ))}
+          </div>
+          <ScrollReveal delay={300}>
+            <div className="flex justify-center mt-16">
+              <Link
+                href="/koleksi"
+                className="inline-block border border-primary px-10 py-4 text-[13px] tracking-[0.15em] font-semibold font-body uppercase text-primary hover:bg-primary hover:text-on-primary transition-all duration-300"
+              >
+                VIEW ALL COLLECTION
+              </Link>
+            </div>
+          </ScrollReveal>
+        </section>
+      )}
 
       {/* ========================================
           HOW DO YOU TRAIN? — Parallax Activity Cards

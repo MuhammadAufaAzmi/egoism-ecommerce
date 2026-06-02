@@ -157,7 +157,7 @@ export default function CheckoutPage() {
 
     try {
       const result = await processCheckout({
-        shippingCost: shippingZone.cost,
+        shippingCost: shippingCost, // use the calculated shippingCost
         shippingZone: shippingZone.zone,
       });
 
@@ -254,7 +254,18 @@ export default function CheckoutPage() {
     (sum, item) => sum + item.price * item.quantity,
     0,
   );
-  const shippingCost = shippingZone?.cost || 0;
+  
+  let shippingCost = shippingZone?.cost || 0;
+  const isJabodetabek = shippingZone && (
+    shippingZone.province.toLowerCase().includes("jakarta") || 
+    shippingZone.province.toLowerCase().includes("banten") || 
+    shippingZone.province.toLowerCase().includes("jawa barat")
+  );
+  
+  if (isJabodetabek) {
+    shippingCost = 0;
+  }
+
   const discountAmount = promoApplied?.discountAmount || 0;
   const grandTotal = subtotal + shippingCost - discountAmount;
 
@@ -700,7 +711,7 @@ export default function CheckoutPage() {
                   {loadingShipping
                     ? "Menghitung..."
                     : shippingZone
-                      ? formatIDR(shippingCost)
+                      ? shippingCost === 0 ? "FREE (JABODETABEK)" : formatIDR(shippingCost)
                       : !address
                         ? "Butuh alamat"
                         : "Belum tersedia"}

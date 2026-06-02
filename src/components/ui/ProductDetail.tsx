@@ -144,9 +144,13 @@ export default function ProductDetail({
     const finalColor = selectedColor || "BLACK";
     const finalFitType = selectedFitType || "regular";
 
-    startTransition(async () => {
-      setMessage({ type: "", text: "" });
+    // Optimistic UI feedback immediately
+    setMessage({
+      type: "success",
+      text: "Adding to bag...",
+    });
 
+    startTransition(async () => {
       // Panggil handleAddToCart sebanyak quantity yang dipilih
       let result = { success: false, message: "" };
       for (let i = 0; i < quantity; i++) {
@@ -474,7 +478,7 @@ export default function ProductDetail({
             disabled={isPending}
             className="hidden md:block w-full bg-primary text-on-primary font-semibold text-[13px] tracking-[0.2em] uppercase py-5 border border-primary hover:bg-transparent hover:text-primary transition-colors duration-300 disabled:opacity-50"
           >
-            {isPending ? "CONNECTING TO DATABASE..." : "ADD TO BAG"}
+            {isPending ? "ADDING TO BAG..." : "ADD TO BAG"}
           </button>
         </div>
       </div>
@@ -486,7 +490,7 @@ export default function ProductDetail({
           disabled={isPending}
           className="w-full bg-primary text-on-primary font-bold text-[13px] tracking-[0.2em] uppercase py-4 border border-primary transition-colors duration-300 disabled:opacity-50"
         >
-          {isPending ? "WAIT..." : `ADD TO BAG - ${displayPrice(product.price)}`}
+          {isPending ? "ADDING..." : `ADD TO BAG - ${displayPrice(product.price)}`}
         </button>
       </div>
     </div>

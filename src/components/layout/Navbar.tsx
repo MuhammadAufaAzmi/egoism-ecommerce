@@ -142,6 +142,11 @@ export default function Navbar() {
 
   return (
     <>
+      {/* Announcement Bar */}
+      <div className="w-full bg-[#1a1a18] text-white py-2 px-4 text-center text-[10px] md:text-[11px] font-bold tracking-[0.2em] uppercase flex items-center justify-center gap-2">
+        <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
+        FREE SHIPPING JABODETABEK AREA
+      </div>
       <nav className={`sticky top-0 left-0 w-full z-50 backdrop-blur-md border-b transition-all duration-300 ${isScrolled ? "bg-background/95 border-outline-variant/30 shadow-sm" : "bg-background/80 border-transparent"}`}>
         <div className="max-w-[1440px] mx-auto px-5 md:px-16 h-[90px] flex items-center justify-between">
           <div className="flex-1 md:flex-none">
@@ -215,7 +220,7 @@ export default function Navbar() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
               </svg>
               {cartCount > 0 && (
-                <span className="absolute -top-2 -right-2 w-5 h-5 bg-primary text-on-primary text-[10px] font-bold flex items-center justify-center rounded-full">
+                <span className="absolute -top-1.5 -right-2.5 min-w-[18px] h-[18px] px-1 bg-primary text-on-primary text-[9px] font-bold flex items-center justify-center rounded-full border-2 border-background">
                   {cartCount}
                 </span>
               )}
@@ -261,7 +266,7 @@ export default function Navbar() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
               </svg>
               {cartCount > 0 && (
-                <span className="absolute -top-2 -right-2 w-4 h-4 bg-primary text-on-primary text-[9px] font-bold flex items-center justify-center rounded-full">
+                <span className="absolute -top-1.5 -right-2 min-w-[16px] h-[16px] px-1 bg-primary text-on-primary text-[8px] font-bold flex items-center justify-center rounded-full border border-background">
                   {cartCount}
                 </span>
               )}

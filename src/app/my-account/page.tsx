@@ -732,10 +732,12 @@ function OrdersTab() {
     DIKIRIM: "text-blue-500 border-blue-200 bg-blue-50",
     DIPROSES: "text-amber-500 border-amber-200 bg-amber-50",
     "MENUNGGU KONFIRMASI": "text-orange-500 border-orange-200 bg-orange-50",
+    "MENUNGGU PEMBAYARAN": "text-rose-500 border-rose-200 bg-rose-50",
     DIBATALKAN: "text-red-400 border-red-200 bg-red-50",
   };
 
   const STATUS_DISPLAY: Record<string, string> = {
+    "MENUNGGU PEMBAYARAN": "AWAITING PAYMENT",
     "MENUNGGU KONFIRMASI": "AWAITING CONFIRMATION",
     "DIPROSES": "PROCESSING",
     "DIKIRIM": "SHIPPED",
@@ -798,16 +800,25 @@ function OrdersTab() {
                       <p className="text-[12px] font-semibold text-secondary uppercase tracking-widest mb-1">
                         TOTAL
                       </p>
-                      <p className="text-[16px] font-bold text-primary flex flex-col items-end">
+                      <p className="text-[16px] font-bold text-primary flex flex-col items-end gap-2">
                         <span>{new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(order.total)}</span>
-                        {(order.status === "MENUNGGU KONFIRMASI" || order.status === "DIPROSES") && (
+                        {order.status === "MENUNGGU PEMBAYARAN" && (
+                          <Link
+                            href={`/payment/${order.orderNumber}`}
+                            onClick={(e) => e.stopPropagation()}
+                            className="mt-2 text-[10px] font-bold text-on-primary bg-primary uppercase tracking-widest border border-primary px-4 py-2 hover:opacity-80 transition-opacity"
+                          >
+                            BAYAR SEKARANG
+                          </Link>
+                        )}
+                        {(order.status === "MENUNGGU PEMBAYARAN" || order.status === "MENUNGGU KONFIRMASI" || order.status === "DIPROSES") && (
                           <button
                             onClick={async (e) => {
                               e.stopPropagation();
                               setShowCancelModal(order.id);
                             }}
                             disabled={cancelingId === order.id}
-                            className="mt-4 text-[10px] font-bold text-red-500 uppercase tracking-widest border border-red-500/30 px-3 py-1.5 hover:bg-red-500/10 transition-colors disabled:opacity-50"
+                            className="text-[10px] font-bold text-red-500 uppercase tracking-widest border border-red-500/30 px-3 py-1.5 hover:bg-red-500/10 transition-colors disabled:opacity-50"
                           >
                             {cancelingId === order.id ? "CANCELING..." : "CANCEL ORDER"}
                           </button>

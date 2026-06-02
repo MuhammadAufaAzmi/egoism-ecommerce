@@ -365,7 +365,7 @@ export default function ProductFilterClient({
       {/* Product Grid */}
       <div className="w-full px-5 md:px-16 max-w-[1440px] mx-auto pb-24">
         {processedProducts.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-16">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 md:gap-x-6 gap-y-10 md:gap-y-16">
             {processedProducts.map((product, index) => (
               <ScrollReveal key={product.id} delay={index * 100}>
                 <ProductCard product={product} />
