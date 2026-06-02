@@ -67,42 +67,51 @@ export default function PromoPopup() {
     }).format(amount);
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-5 bg-background/80 backdrop-blur-sm animate-in fade-in duration-500">
-      <div className="relative w-full max-w-md bg-surface-container-lowest border border-outline-variant/30 shadow-2xl p-8 md:p-10 text-center animate-in zoom-in-95 duration-500">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-5 bg-[#1a1a18]/40 backdrop-blur-md animate-in fade-in duration-500">
+      <div className="relative w-full max-w-[400px] bg-surface-container-lowest shadow-2xl p-8 md:p-10 text-center animate-in zoom-in-95 duration-500 overflow-hidden">
         
+        {/* Dekorasi Garis Atas */}
+        <div className="absolute top-0 left-0 w-full h-1 bg-primary"></div>
+
         {/* Tombol Tutup */}
         <button 
           onClick={handleClose}
-          className="absolute top-4 right-4 text-secondary hover:text-primary transition-colors"
+          className="absolute top-4 right-4 text-secondary hover:text-primary transition-colors flex items-center justify-center w-8 h-8 rounded-full hover:bg-surface-container/50"
           aria-label="Tutup promo"
         >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M6 18L18 6M6 6l12 12" />
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
 
         {/* Header EGOISM */}
-        <h2 className="text-[14px] font-bold tracking-[0.2em] text-primary uppercase mb-6">
-          SPECIAL OFFER
-        </h2>
+        <div className="flex flex-col items-center mb-6">
+          <span className="text-[10px] font-bold tracking-[0.25em] text-secondary uppercase mb-2">
+            EXCLUSIVE FOR YOU
+          </span>
+          <h2 className="text-[20px] font-bold tracking-[0.2em] text-primary uppercase">
+            SPECIAL OFFER
+          </h2>
+        </div>
 
         {/* Main Content */}
         <div className="mb-8">
-          <p className="text-[32px] font-medium text-primary uppercase leading-tight mb-3">
+          <p className="text-[36px] font-medium text-primary uppercase leading-none mb-4">
             {promo.discountType === "percent" 
               ? `${promo.discountValue}% OFF` 
               : `${formatIDR(promo.discountValue)} OFF`}
           </p>
-          <p className="text-[13px] text-secondary">
+          <p className="text-[12px] leading-relaxed text-secondary px-2">
             {promo.minOrder > 0 
-              ? `Berlaku untuk minimal pembelian ${formatIDR(promo.minOrder)}.` 
-              : "Berlaku untuk semua pembelian tanpa minimal belanja."}
+              ? `Gunakan kode di bawah ini untuk menikmati potongan harga dengan minimal pembelanjaan ${formatIDR(promo.minOrder)}.` 
+              : "Gunakan kode di bawah ini untuk menikmati potongan harga tanpa minimal pembelanjaan."}
           </p>
         </div>
 
         {/* Promo Code Box */}
-        <div className="bg-surface-container/20 border border-dashed border-primary/50 p-4 mb-6 relative group">
-          <p className="text-[20px] font-bold tracking-widest text-primary uppercase">
+        <div className="bg-background border border-primary p-4 mb-8 flex flex-col items-center justify-center relative">
+          <p className="text-[10px] uppercase tracking-widest text-secondary mb-1">YOUR VOUCHER CODE</p>
+          <p className="text-[22px] font-bold tracking-[0.15em] text-primary uppercase">
             {promo.code}
           </p>
         </div>
@@ -111,21 +120,21 @@ export default function PromoPopup() {
         <div className="flex flex-col gap-3">
           <button 
             onClick={handleCopy}
-            className={`w-full py-4 text-[13px] font-bold uppercase tracking-widest transition-all duration-300 ${
+            className={`w-full py-4 text-[12px] font-bold uppercase tracking-[0.15em] transition-all duration-300 ${
               copied 
-                ? "bg-green-600 text-white border-transparent" 
-                : "bg-primary text-on-primary hover:opacity-80"
+                ? "bg-green-600 text-white" 
+                : "bg-primary text-on-primary hover:opacity-90"
             }`}
           >
-            {copied ? "KODE TERSALIN!" : "SALIN KODE DISKON"}
+            {copied ? "✓ KODE BERHASIL DISALIN" : "SALIN KODE DISKON"}
           </button>
           
           <Link 
             href="/koleksi"
             onClick={handleClose}
-            className="w-full py-4 text-[13px] font-bold uppercase tracking-widest text-primary border border-primary hover:bg-primary hover:text-on-primary transition-all duration-300"
+            className="w-full py-3.5 text-[12px] font-bold uppercase tracking-[0.15em] text-primary hover:text-secondary transition-colors"
           >
-            BELANJA SEKARANG
+            NANTI SAJA
           </Link>
         </div>
 
