@@ -485,6 +485,8 @@ export default function ProductDetail({
           >
             {isPending ? "ADDING TO BAG..." : "ADD TO BAG"}
           </button>
+        </div>
+      </div>
     </div>
   );
 }
