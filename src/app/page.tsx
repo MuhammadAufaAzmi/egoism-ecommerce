@@ -31,6 +31,7 @@ export default async function HomePage() {
             fill
             className="object-cover object-center"
             priority
+            fetchPriority="high"
           />
           <div className="absolute inset-0 bg-primary/30 mix-blend-multiply" />
         </ParallaxHero>

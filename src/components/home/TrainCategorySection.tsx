@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 interface ActivityCard {
   label: string;
@@ -62,13 +63,18 @@ function ParallaxCard({
         ref={bgRef}
         className="absolute inset-0 w-full h-full transition-none"
         style={{
-          backgroundImage: `url(${card.image})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
           transform: "translateY(0px) scale(1.18)",
           willChange: "transform",
         }}
-      />
+      >
+        <Image
+          src={card.image}
+          alt={card.label}
+          fill
+          sizes="(max-width: 768px) 50vw, 25vw"
+          className="object-cover object-center"
+        />
+      </div>
 
       {/* Gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-black/10 group-hover:from-black/95 group-hover:via-black/35 transition-all duration-600" />

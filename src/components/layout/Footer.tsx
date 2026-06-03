@@ -21,9 +21,9 @@ export default function Footer() {
           
           {/* Social Media */}
           <div className="flex flex-col mt-8">
-            <h4 className="text-[11px] leading-[16px] tracking-[0.1em] font-semibold text-secondary mb-4 uppercase">
+            <h2 className="text-[11px] leading-[16px] tracking-[0.1em] font-semibold text-secondary mb-4 uppercase">
               COMMUNITY
-            </h4>
+            </h2>
             <div className="flex items-center gap-5">
               <a
                 href="https://instagram.com/egoism.id"
@@ -76,9 +76,9 @@ export default function Footer() {
 
         {/* Customer Service */}
         <div className="col-span-1 flex flex-col gap-4">
-          <h4 className="text-[12px] leading-[16px] tracking-[0.1em] font-semibold text-secondary mb-2 uppercase">
+          <h2 className="text-[12px] leading-[16px] tracking-[0.1em] font-semibold text-secondary mb-2 uppercase">
             CUSTOMER SERVICE
-          </h4>
+          </h2>
           <Link
             href="/kontak"
             className="text-[16px] leading-[24px] text-secondary hover:text-primary transition-colors duration-200 hover:underline underline-offset-4 decoration-1"
@@ -101,9 +101,9 @@ export default function Footer() {
 
         {/* Legal */}
         <div className="col-span-1 flex flex-col gap-4 mt-8 md:mt-0">
-          <h4 className="text-[12px] leading-[16px] tracking-[0.1em] font-semibold text-secondary mb-2 uppercase">
+          <h2 className="text-[12px] leading-[16px] tracking-[0.1em] font-semibold text-secondary mb-2 uppercase">
             LEGAL
-          </h4>
+          </h2>
           {/* PERBAIKAN: Mengganti tag <a> menjadi komponen <Link> dan mengarahkan href ke rute yang tepat */}
           <Link
             href="/terms"
@@ -123,7 +123,7 @@ export default function Footer() {
       </div>
 
       <div className="w-full px-5 md:px-16 pb-8 max-w-[1440px] mx-auto flex justify-center border-t border-outline-variant/40 pt-8 mt-10">
-        <p className="text-[12px] leading-[16px] tracking-[0.15em] font-semibold text-secondary/70">
+        <p className="text-[12px] leading-[16px] tracking-[0.15em] font-semibold text-secondary">
           © 2026 EGOISM. ALL RIGHTS RESERVED.
         </p>
       </div>
