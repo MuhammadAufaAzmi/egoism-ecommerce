@@ -19,6 +19,7 @@ export default function Navbar() {
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [loadingSuggestions, setLoadingSuggestions] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
 
   const getCookie = (name: string) => {
@@ -76,12 +77,16 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const handleSignOut = async () => {
-    if (!window.confirm("Apakah Anda yakin ingin keluar dari akun?")) return;
+  const handleSignOut = () => {
+    setShowLogoutModal(true);
+  };
+
+  const confirmSignOut = async () => {
     try {
       await fetch("/api/auth/logout", { method: "POST" });
       setIsLoggedIn(false);
       setIsOpen(false);
+      setShowLogoutModal(false);
       setCartCount(0);
       router.push("/");
       router.refresh();
@@ -480,6 +485,34 @@ export default function Navbar() {
           </div>
         )}
       </nav>
+
+      {/* LOGOUT CONFIRMATION MODAL */}
+      {showLogoutModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-surface border border-outline-variant/30 p-6 max-w-sm w-full mx-4 shadow-2xl animate-in zoom-in-95 duration-200">
+            <h3 className="font-heading text-[20px] text-primary uppercase font-bold tracking-tight mb-2">
+              SIGN OUT
+            </h3>
+            <p className="text-[13px] text-secondary mb-6 leading-relaxed">
+              Apakah Anda yakin ingin keluar dari akun EGOISM Anda?
+            </p>
+            <div className="flex items-center gap-3 w-full">
+              <button
+                onClick={() => setShowLogoutModal(false)}
+                className="flex-1 px-4 py-3 border border-primary/30 text-primary text-[12px] font-semibold tracking-[0.1em] uppercase hover:bg-primary/5 transition-colors"
+              >
+                BATAL
+              </button>
+              <button
+                onClick={confirmSignOut}
+                className="flex-1 px-4 py-3 bg-red-600 text-white text-[12px] font-semibold tracking-[0.1em] uppercase hover:bg-red-700 transition-colors"
+              >
+                KELUAR
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
