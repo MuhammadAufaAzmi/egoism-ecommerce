@@ -24,14 +24,14 @@ export default function CheckoutPage() {
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState("manual");
+  const [paymentMethod, setPembayaranMethod] = useState("manual");
   const [orderSuccess, setOrderSuccess] = useState(false);
   const [isGuest, setIsGuest] = useState(false);
 
   // Inline address form
   const [showAddressForm, setShowAddressForm] = useState(false);
   const [savingAddress, setSavingAddress] = useState(false);
-  const [provinceList, setProvinceList] = useState<string[]>([]);
+  const [provinceList, setProvinsiList] = useState<string[]>([]);
   const [addressForm, setAddressForm] = useState({
     label: "Rumah",
     recipient: "",
@@ -54,7 +54,7 @@ export default function CheckoutPage() {
   const [loadingShipping, setLoadingShipping] = useState(false);
   const [shippingError, setShippingError] = useState("");
 
-  const totalQuantity = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+  const totalQuantity = cartItems.reduce((sum, barang) => sum + item.quantity, 0);
 
   // Fetch ongkir dari database lokal berdasarkan provinsi
   const fetchShippingZone = useCallback(async (province: string) => {
@@ -118,7 +118,7 @@ export default function CheckoutPage() {
         const res = await fetch("/api/shipping/zones");
         const data = await res.json();
         if (data.success) {
-          setProvinceList(data.zones.map((z: any) => z.province));
+          setProvinsiList(data.zones.map((z: any) => z.province));
         }
       } catch (error) {
         console.error("Error fetching checkout data:", error);
@@ -258,7 +258,7 @@ export default function CheckoutPage() {
   };
 
   const subtotal = cartItems.reduce(
-    (sum, item) => sum + item.price * item.quantity,
+    (sum, barang) => sum + item.price * item.quantity,
     0,
   );
   
@@ -291,7 +291,7 @@ export default function CheckoutPage() {
       <div className="min-h-screen flex flex-col items-center justify-center bg-background text-primary">
         <div className="inline-block w-6 h-6 border-2 border-primary/30 border-t-primary rounded-full animate-spin mb-4" />
         <p className="tracking-widest text-[12px] uppercase">
-          LOADING CHECKOUT DATA...
+          MEMUAT DATA CHECKOUT...
         </p>
       </div>
     );
@@ -319,14 +319,14 @@ export default function CheckoutPage() {
           </svg>
         </div>
         <p className="text-[14px] text-red-400 uppercase tracking-widest mb-2">
-          AN ERROR OCCURRED
+          TERJADI KESALAHAN
         </p>
         <p className="text-[13px] text-secondary mb-8 max-w-md">{fetchError}</p>
         <button
           onClick={() => window.location.reload()}
           className="border border-primary px-8 py-3 text-[12px] tracking-widest uppercase hover:bg-primary hover:text-on-primary transition-colors"
         >
-          TRY AGAIN
+          COBA LAGI
         </button>
       </div>
     );
@@ -340,7 +340,7 @@ export default function CheckoutPage() {
       <div className="min-h-screen flex flex-col items-center justify-center bg-background text-primary">
         <div className="inline-block w-6 h-6 border-2 border-primary/30 border-t-primary rounded-full animate-spin mb-4" />
         <p className="tracking-widest text-[12px] uppercase">
-          REDIRECTING TO PAYMENT...
+          MENGALIHKAN KE PEMBAYARAN...
         </p>
       </div>
     );
@@ -353,13 +353,13 @@ export default function CheckoutPage() {
     return (
       <div className="min-h-screen pt-[120px] bg-background text-center flex flex-col items-center px-5">
         <p className="text-[14px] text-secondary uppercase tracking-widest mb-6">
-          YOUR CART IS EMPTY.
+          KERANJANG ANDA KOSONG.
         </p>
         <Link
           href="/koleksi"
           className="border border-primary px-8 py-3 text-[12px] tracking-widest uppercase hover:bg-primary hover:text-on-primary transition-colors"
         >
-          BACK TO SHOP
+          KEMBALI BELANJA
         </Link>
       </div>
     );
@@ -383,11 +383,11 @@ export default function CheckoutPage() {
       <div className="w-full max-w-6xl">
         {/* Step Indicator */}
         <div className="flex items-center justify-center gap-2 mb-8 text-[11px] uppercase tracking-widest text-secondary">
-          <span className="text-secondary/50">CART</span>
+          <span className="text-secondary/50">KERANJANG</span>
           <span className="text-secondary/30">→</span>
           <span className="text-primary font-bold">CHECKOUT</span>
           <span className="text-secondary/30">→</span>
-          <span className="text-secondary/50">PAYMENT</span>
+          <span className="text-secondary/50">PEMBAYARAN</span>
         </div>
 
         <h1 className="text-[32px] md:text-[40px] font-bold uppercase tracking-wide mb-10 border-b border-outline-variant/30 pb-4">
@@ -397,11 +397,11 @@ export default function CheckoutPage() {
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-12">
           {/* KOLOM KIRI: ALAMAT & BARANG */}
           <div className="lg:col-span-3 space-y-10">
-            {/* ===== SECTION 1: SHIPPING ADDRESS ===== */}
+            {/* ===== SECTION 1: ALAMAT PENGIRIMAN ===== */}
             <section>
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-[12px] font-semibold tracking-widest uppercase text-secondary">
-                  SHIPPING ADDRESS
+                  ALAMAT PENGIRIMAN
                 </h2>
                 <button
                   onClick={() => setShowAddressForm(!showAddressForm)}
@@ -455,7 +455,7 @@ export default function CheckoutPage() {
               ) : !showAddressForm ? (
                 <div className="border border-red-500/50 p-6 bg-red-950/10">
                   <p className="text-red-400 text-[13px] uppercase tracking-wider mb-3">
-                    No shipping address available.
+                    Belum ada alamat pengiriman.
                   </p>
                 </div>
               ) : null}
@@ -464,14 +464,14 @@ export default function CheckoutPage() {
               {showAddressForm && (
                 <div className="border border-outline-variant/50 p-6 bg-surface-container/10 space-y-4">
                   <h3 className="text-[11px] font-semibold uppercase tracking-widest text-secondary mb-2">
-                    ADD NEW ADDRESS
+                    TAMBAH ALAMAT BARU
                   </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {(
                       [
-                        { label: "Label (e.g., Home)", key: "label" },
-                        { label: "Recipient Name", key: "recipient" },
-                        { label: "Phone Number", key: "phone" },
+                        { label: "Label (contoh: Rumah)", key: "label" },
+                        { label: "Nama Penerima", key: "recipient" },
+                        { label: "Nomor Telepon", key: "phone" },
                       ] as { label: string; key: keyof typeof addressForm }[]
                     ).map(({ label, key }) => (
                       <div key={key}>
@@ -494,7 +494,7 @@ export default function CheckoutPage() {
                     ))}
                     <div className="sm:col-span-2">
                       <label className="text-[10px] uppercase tracking-widest text-secondary block mb-1">
-                        Full Address
+                        Alamat Lengkap
                       </label>
                       <input
                         type="text"
@@ -505,13 +505,13 @@ export default function CheckoutPage() {
                             address: e.target.value,
                           })
                         }
-                        placeholder="Street address..."
+                        placeholder="Alamat jalan..."
                         className="w-full bg-transparent border-b border-primary/50 focus:border-primary focus:outline-none py-2 text-[13px] text-primary"
                       />
                     </div>
                     <div>
                       <label className="text-[10px] uppercase tracking-widest text-secondary block mb-1">
-                        City
+                        Kota
                       </label>
                       <input
                         type="text"
@@ -522,13 +522,13 @@ export default function CheckoutPage() {
                             city: e.target.value,
                           })
                         }
-                        placeholder="City"
+                        placeholder="Kota"
                         className="w-full bg-transparent border-b border-primary/50 focus:border-primary focus:outline-none py-2 text-[13px] text-primary"
                       />
                     </div>
                     <div>
                       <label className="text-[10px] uppercase tracking-widest text-secondary block mb-1">
-                        Province
+                        Provinsi
                       </label>
                       <select
                         value={addressForm.province}
@@ -540,7 +540,7 @@ export default function CheckoutPage() {
                         }
                         className="w-full bg-transparent border-b border-primary/50 focus:border-primary focus:outline-none py-2 text-[13px] text-primary cursor-pointer"
                       >
-                        <option value="">Select Province</option>
+                        <option value="">Select Provinsi</option>
                         {provinceList.map((prov) => (
                           <option key={prov} value={prov}>
                             {prov}
@@ -550,7 +550,7 @@ export default function CheckoutPage() {
                     </div>
                     <div>
                       <label className="text-[10px] uppercase tracking-widest text-secondary block mb-1">
-                        Postal Code
+                        Kode Pos
                       </label>
                       <input
                         type="text"
@@ -561,14 +561,14 @@ export default function CheckoutPage() {
                             postal: e.target.value,
                           })
                         }
-                        placeholder="Postal Code"
+                        placeholder="Kode Pos"
                         className="w-full bg-transparent border-b border-primary/50 focus:border-primary focus:outline-none py-2 text-[13px] text-primary"
                       />
                     </div>
                     {isGuest && (
                       <div className="sm:col-span-2">
                         <label className="text-[10px] uppercase tracking-widest text-secondary block mb-1">
-                          Email Address (For Order Updates)
+                          Alamat Email (Untuk Info Resi)
                         </label>
                         <input
                           type="email"
@@ -579,7 +579,7 @@ export default function CheckoutPage() {
                               guestEmail: e.target.value,
                             })
                           }
-                          placeholder="Your email address"
+                          placeholder="Alamat email Anda"
                           className="w-full bg-transparent border-b border-primary/50 focus:border-primary focus:outline-none py-2 text-[13px] text-primary"
                         />
                       </div>
@@ -604,17 +604,17 @@ export default function CheckoutPage() {
               )}
             </section>
 
-            {/* ===== SECTION 2: SHIPPING / ONGKIR ===== */}
+            {/* ===== SECTION 2: PENGIRIMAN / ONGKIR ===== */}
             <section>
               <h2 className="text-[12px] font-semibold tracking-widest uppercase text-secondary mb-4">
-                SHIPPING
+                PENGIRIMAN
               </h2>
 
               {loadingShipping ? (
                 <div className="border border-outline-variant/30 p-8 text-center">
                   <div className="inline-block w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin mb-3" />
                   <p className="text-[12px] text-secondary uppercase tracking-widest">
-                    Calculating shipping...
+                    Menghitung ongkir...
                   </p>
                 </div>
               ) : shippingError ? (
@@ -649,27 +649,27 @@ export default function CheckoutPage() {
                 </div>
               ) : !address ? (
                 <div className="border border-outline-variant/30 p-6 text-[13px] text-secondary uppercase tracking-wider text-center">
-                  Add an address in My Account to calculate shipping.
+                  Pilih atau tambah alamat untuk menghitung ongkir.
                 </div>
               ) : (
                 <div className="border border-outline-variant/30 p-6 text-center">
                   <p className="text-[13px] text-secondary uppercase tracking-wider mb-3">
-                    Shipping not calculated.
+                    Ongkir belum dihitung.
                   </p>
                   <button
                     onClick={() => fetchShippingZone(address.province)}
                     className="text-[11px] tracking-widest uppercase text-primary border border-primary/30 px-4 py-2 hover:bg-primary/5 transition-colors"
                   >
-                    CALCULATE SHIPPING
+                    CALCULATE PENGIRIMAN
                   </button>
                 </div>
               )}
             </section>
 
-            {/* ===== SECTION 3: ORDER SUMMARY ===== */}
+            {/* ===== SECTION 3: RINGKASAN PESANAN ===== */}
             <section>
               <h2 className="text-[12px] font-semibold tracking-widest uppercase text-secondary mb-4">
-                ORDER SUMMARY
+                RINGKASAN PESANAN
               </h2>
               <div className="space-y-4">
                 {cartItems.map((item) => (
@@ -690,10 +690,10 @@ export default function CheckoutPage() {
                         {item.name}
                       </p>
                       <p className="text-[11px] text-secondary uppercase tracking-wider mt-1">
-                        Color: {item.color} | Size: {item.size}
+                        Warna: {item.color} | Ukuran: {item.size}
                       </p>
                       <p className="text-[11px] text-secondary uppercase tracking-wider mt-1">
-                        Qty: {item.quantity}
+                        Jumlah: {item.quantity}
                       </p>
                       <p className="text-[13px] font-semibold mt-2 text-primary">
                         {formatIDR(item.price * item.quantity)}
@@ -709,16 +709,16 @@ export default function CheckoutPage() {
           <div className="lg:col-span-2">
             <div className="border border-outline-variant/50 p-6 lg:sticky lg:top-32 bg-surface-container-lowest">
               <div className="flex justify-between text-[13px] mb-3 text-secondary">
-                <span>SUBTOTAL ({totalQuantity} item)</span>
+                <span>SUBTOTAL ({totalQuantity} barang)</span>
                 <span>{formatIDR(subtotal)}</span>
               </div>
               <div className="flex justify-between text-[13px] mb-3 text-secondary">
-                <span>SHIPPING</span>
+                <span>PENGIRIMAN</span>
                 <span>
                   {loadingShipping
                     ? "Menghitung..."
                     : shippingZone
-                      ? shippingCost === 0 ? "FREE (JABODETABEK)" : formatIDR(shippingCost)
+                      ? shippingCost === 0 ? "GRATIS (JABODETABEK)" : formatIDR(shippingCost)
                       : !address
                         ? "Butuh alamat"
                         : "Belum tersedia"}
@@ -733,7 +733,7 @@ export default function CheckoutPage() {
               {/* Promo Code / Voucher */}
               <div className="border-t border-outline-variant/30 pt-4 mb-4">
                 <p className="text-[11px] font-semibold uppercase tracking-widest text-secondary mb-3">
-                  PROMO CODE
+                  KODE PROMO
                 </p>
                 {promoApplied ? (
                   <div className="flex items-center justify-between bg-green-950/10 border border-green-500/30 px-3 py-2">
@@ -766,7 +766,7 @@ export default function CheckoutPage() {
                         setPromoError("");
                       }}
                       onKeyDown={(e) => e.key === "Enter" && handleApplyPromo()}
-                      placeholder="ENTER CODE"
+                      placeholder="MASUKKAN KODE"
                       className="flex-1 bg-transparent border border-outline-variant/50 focus:border-primary focus:outline-none px-3 py-2 text-[12px] text-primary uppercase tracking-widest"
                     />
                     <button
@@ -787,7 +787,7 @@ export default function CheckoutPage() {
 
               {discountAmount > 0 && (
                 <div className="flex justify-between text-[13px] mb-3 text-green-600">
-                  <span>DISCOUNT</span>
+                  <span>DISKON</span>
                   <span>-{formatIDR(discountAmount)}</span>
                 </div>
               )}
@@ -802,7 +802,7 @@ export default function CheckoutPage() {
               {/* PAYMENT SECTION */}
               <div className="border-t border-outline-variant/30 pt-6 mb-8">
                 <h2 className="text-[18px] font-medium mb-6 tracking-wide">
-                  Payment
+                  Pembayaran
                 </h2>
 
                 <div className="space-y-4 mb-8">
@@ -813,7 +813,7 @@ export default function CheckoutPage() {
                       name="payment"
                       value="manual"
                       checked={paymentMethod === "manual"}
-                      onChange={() => setPaymentMethod("manual")}
+                      onChange={() => setPembayaranMethod("manual")}
                       className="mt-1.5 w-4 h-4 accent-primary"
                     />
                     <div className="flex-1">
@@ -823,7 +823,7 @@ export default function CheckoutPage() {
                       </span>
                       {paymentMethod === "manual" && (
                         <div className="text-[13px] text-secondary bg-surface-container/20 p-4 border border-outline-variant/30">
-                          We accept bank transfer payment via BCA bank.
+                          Kami menerima pembayaran via transfer bank dan e-wallet. Detail akan diberikan pada halaman selanjutnya.
                         </div>
                       )}
                     </div>
@@ -845,11 +845,11 @@ export default function CheckoutPage() {
               {!canPlaceOrder && !isProcessing && (
                 <div className="text-[11px] text-amber-600 bg-amber-50/10 border border-amber-500/20 p-3 mb-4 uppercase tracking-wider text-center">
                   {!address
-                    ? "PLEASE ADD SHIPPING ADDRESS"
+                    ? "PLEASE ADD ALAMAT PENGIRIMAN"
                     : !shippingZone && loadingShipping
-                      ? "CALCULATING SHIPPING..."
+                      ? "CALCULATING PENGIRIMAN..."
                       : !shippingZone
-                        ? "SHIPPING UNAVAILABLE"
+                        ? "PENGIRIMAN UNAVAILABLE"
                         : ""}
                 </div>
               )}
@@ -862,7 +862,7 @@ export default function CheckoutPage() {
                 {isProcessing ? (
                   <span className="flex items-center justify-center gap-3">
                     <span className="inline-block w-4 h-4 border-2 border-on-primary/30 border-t-on-primary rounded-full animate-spin" />
-                    PROCESSING ORDER...
+                    MEMPROSES PESANAN...
                   </span>
                 ) : (
                   "PLACE ORDER"

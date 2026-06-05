@@ -80,7 +80,9 @@ export default function ProductDetail({
 }: ProductDetailProps) {
   const router = useRouter();
   const [selectedSize, setSelectedSize] = useState<string>("");
-  const [selectedColor, setSelectedColor] = useState<string>("");
+  const [selectedColor, setSelectedColor] = useState<string>(
+    product.colors && product.colors.length === 1 ? product.colors[0] : ""
+  );
   const [selectedFitType, setSelectedFitType] = useState<string>(
     product.fitType && product.fitType.length === 1 ? product.fitType[0] : ""
   );
@@ -123,7 +125,7 @@ export default function ProductDetail({
     if (product.colors && product.colors.length > 0 && !selectedColor) {
       setMessage({
         type: "error",
-        text: "Please select a color before adding to bag.",
+        text: "Silakan pilih warna sebelum menambah ke keranjang.",
       });
       return;
     }
@@ -131,7 +133,7 @@ export default function ProductDetail({
     if (product.fitType && product.fitType.length > 1 && !selectedFitType) {
       setMessage({
         type: "error",
-        text: "Please select a fit type/model before adding to bag.",
+        text: "Silakan pilih tipe fit/model sebelum menambah ke keranjang.",
       });
       return;
     }
@@ -140,7 +142,7 @@ export default function ProductDetail({
     if (availableSizes.length > 0 && !selectedSize) {
       setMessage({
         type: "error",
-        text: "Please select a size before adding to bag.",
+        text: "Silakan pilih ukuran sebelum menambah ke keranjang.",
       });
       return;
     }
@@ -152,7 +154,7 @@ export default function ProductDetail({
     // Optimistic UI feedback immediately
     setMessage({
       type: "success",
-      text: "Adding to bag...",
+      text: "Menambahkan ke keranjang...",
     });
 
     startTransition(async () => {
@@ -166,7 +168,7 @@ export default function ProductDetail({
       if (result.success) {
         setMessage({
           type: "success",
-          text: `${quantity} item${quantity > 1 ? "s" : ""} added to bag.`,
+          text: `${quantity} barang ditambahkan ke keranjang.`,
         });
       } else {
         setMessage({ type: "error", text: result.message });
@@ -215,7 +217,7 @@ export default function ProductDetail({
             />
           ) : (
             <span className="text-[12px] tracking-widest uppercase text-secondary">
-              NO IMAGE AVAILABLE
+              TIDAK ADA GAMBAR
             </span>
           )}
         </div>
@@ -247,7 +249,7 @@ export default function ProductDetail({
           </div>
           
           {/* Average Rating Summary */}
-          {reviews.length > 0 ? (
+          {reviews.length > 0 && (
             <div className="flex items-center gap-2 mb-6">
               <div className="flex text-primary">
                 {[1, 2, 3, 4, 5].map((star) => (
@@ -261,17 +263,6 @@ export default function ProductDetail({
               <a href="#reviews" onClick={(e) => { e.preventDefault(); setReviewTab(true); document.getElementById('reviews')?.scrollIntoView({ behavior: 'smooth' }); }} className="text-[12px] uppercase tracking-widest text-secondary underline hover:text-primary">
                 {reviews.length} Ulasan
               </a>
-            </div>
-          ) : (
-            <div className="flex items-center gap-2 mb-6">
-              <div className="flex text-outline-variant">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <span key={star} className="material-symbols-outlined text-[16px]">
-                    star
-                  </span>
-                ))}
-              </div>
-              <span className="text-[12px] uppercase tracking-widest text-secondary">Belum ada ulasan</span>
             </div>
           )}
 
@@ -290,7 +281,7 @@ export default function ProductDetail({
               onClick={() => setReviewTab(!reviewTab)}
               className="flex items-center justify-between w-full"
             >
-              <h3 className="text-[13px] font-semibold uppercase tracking-[0.2em]">Reviews ({reviews.length})</h3>
+              <h3 className="text-[13px] font-semibold uppercase tracking-[0.2em]">Ulasan ({reviews.length})</h3>
               <span className="material-symbols-outlined">
                 {reviewTab ? "expand_less" : "expand_more"}
               </span>
@@ -335,7 +326,7 @@ export default function ProductDetail({
           <div>
             <div className="flex items-center gap-3 mb-4">
               <span className="block text-[11px] font-bold uppercase tracking-widest text-secondary">
-                SELECT COLOR
+                PILIH WARNA
               </span>
               {selectedColor && (
                 <span className="text-[11px] tracking-widest text-primary uppercase">
@@ -371,7 +362,7 @@ export default function ProductDetail({
                   );
                 })
               ) : (
-                <span className="text-[12px] text-secondary">No colors available</span>
+                <span className="text-[12px] text-secondary">Tidak ada warna</span>
               )}
             </div>
           </div>
@@ -379,7 +370,7 @@ export default function ProductDetail({
           <div>
             <div className="flex items-center justify-between mb-4">
               <span className="block text-[11px] font-bold uppercase tracking-widest text-secondary">
-                SELECT FIT TYPE
+                PILIH MODEL
               </span>
             </div>
             <div className="flex flex-wrap gap-3">
@@ -412,14 +403,14 @@ export default function ProductDetail({
           <div>
             <div className="flex items-center justify-between mb-4">
               <span className="block text-[11px] font-bold uppercase tracking-widest text-secondary">
-                SELECT SIZE
+                PILIH UKURAN
               </span>
               <SizeGuide fitType={selectedFitType} />
             </div>
             <div className="flex flex-wrap gap-3">
               {product.fitType && product.fitType.length > 1 && !selectedFitType ? (
                 <span className="text-[12px] text-secondary tracking-widest uppercase font-medium border border-outline-variant/30 p-3 w-full text-center">
-                  PLEASE SELECT FIT TYPE / MODEL FIRST
+                  SILAKAN PILIH MODEL TERLEBIH DAHULU
                 </span>
               ) : selectedFitType && product.sizes && product.sizes[selectedFitType] && product.sizes[selectedFitType].length > 0 ? (
                 product.sizes[selectedFitType].map((size) => (
@@ -440,7 +431,7 @@ export default function ProductDetail({
                 ))
               ) : (
                 <span className="text-[12px] text-secondary">
-                  One Size Fits All
+                  Satu Ukuran (All Size)
                 </span>
               )}
             </div>
@@ -449,7 +440,7 @@ export default function ProductDetail({
           {/* Quantity Selector */}
           <div>
             <span className="block text-[11px] font-bold uppercase tracking-widest text-secondary mb-4">
-              QUANTITY
+              JUMLAH
             </span>
             <div className="flex items-center border border-outline-variant/50 w-fit">
               <button
@@ -483,7 +474,7 @@ export default function ProductDetail({
             disabled={isPending}
             className="w-full bg-primary text-on-primary font-semibold text-[13px] tracking-[0.2em] uppercase py-5 border border-primary hover:bg-transparent hover:text-primary transition-colors duration-300 disabled:opacity-50"
           >
-            {isPending ? "ADDING TO BAG..." : "ADD TO BAG"}
+            {isPending ? "MENAMBAHKAN..." : "TAMBAH KE KERANJANG"}
           </button>
         </div>
       </div>

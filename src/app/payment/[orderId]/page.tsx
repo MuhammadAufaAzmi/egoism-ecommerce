@@ -182,7 +182,7 @@ export default function PaymentPage() {
               href="/koleksi"
               className="block w-full text-secondary font-semibold uppercase tracking-[0.15em] py-4 border border-outline-variant/50 hover:border-primary hover:text-primary transition-colors duration-300"
             >
-              CONTINUE SHOPPING
+              KEMBALI BELANJA
             </Link>
           </div>
         </div>
@@ -198,7 +198,7 @@ export default function PaymentPage() {
             Order {orderId}
           </p>
           <h1 className="text-[28px] md:text-[36px] font-bold uppercase tracking-wide mb-4">
-            Payment Instructions
+            Instruksi Pembayaran
           </h1>
           {timeLeft && (
             <div className={`inline-block px-4 py-2 border ${isExpired ? 'border-red-500 bg-red-50 text-red-500' : 'border-amber-500 bg-amber-50 text-amber-600'}`}>
@@ -249,32 +249,143 @@ export default function PaymentPage() {
         {/* Info Bank Transfer */}
         <div className="border border-outline-variant/50 p-6 bg-surface mb-8 space-y-4">
           <p className="text-[11px] text-secondary tracking-widest uppercase border-b border-outline-variant/30 pb-3 mb-4">
-            Transfer ke salah satu rekening berikut
+            Transfer ke salah satu rekening atau e-wallet berikut
           </p>
 
-          <div className="flex justify-between items-center p-4 border border-outline-variant/30 bg-surface-container-lowest">
-            <div>
-              <p className="text-[14px] font-bold mb-1">
-                BCA (Bank Central Asia)
-              </p>
-              <p className="text-[11px] text-secondary uppercase tracking-widest">
-                A/N CHRESTELLA SANGGRA
-              </p>
+          <div className="flex flex-col gap-4">
+            {/* BCA */}
+            <div className="flex justify-between items-center p-4 border border-outline-variant/30 bg-surface-container-lowest">
+              <div>
+                <p className="text-[14px] font-bold mb-1">
+                  BCA (Bank Central Asia)
+                </p>
+                <p className="text-[11px] text-secondary uppercase tracking-widest">
+                  A/N CHRESTELLA SANGGRA
+                </p>
+              </div>
+              <div className="flex items-center gap-3">
+                <p className="text-[16px] font-bold tracking-widest">
+                  172 035 2733
+                </p>
+                <button
+                  type="button"
+                  onClick={() => handleCopy("1720352733", "BCA")}
+                  className="text-secondary hover:text-primary transition-colors flex items-center justify-center"
+                  title="Salin Nomor Rekening"
+                >
+                  <span className="material-symbols-outlined text-[20px]">
+                    {copied === "BCA" ? "check" : "content_copy"}
+                  </span>
+                </button>
+              </div>
             </div>
-            <div className="flex items-center gap-3">
-              <p className="text-[16px] font-bold tracking-widest">
-                172 035 2733
-              </p>
-              <button
-                type="button"
-                onClick={() => handleCopy("1720352733", "BCA")}
-                className="text-secondary hover:text-primary transition-colors flex items-center justify-center"
-                title="Salin Nomor Rekening"
-              >
-                <span className="material-symbols-outlined text-[20px]">
-                  {copied === "BCA" ? "check" : "content_copy"}
-                </span>
-              </button>
+
+            {/* MANDIRI */}
+            <div className="flex justify-between items-center p-4 border border-outline-variant/30 bg-surface-container-lowest">
+              <div>
+                <p className="text-[14px] font-bold mb-1">
+                  Bank Mandiri
+                </p>
+                <p className="text-[11px] text-secondary uppercase tracking-widest">
+                  A/N CHRESTELLA SANGGRA
+                </p>
+              </div>
+              <div className="flex items-center gap-3">
+                <p className="text-[16px] font-bold tracking-widest">
+                  123 4567 890123
+                </p>
+                <button
+                  type="button"
+                  onClick={() => handleCopy("1234567890123", "MANDIRI")}
+                  className="text-secondary hover:text-primary transition-colors flex items-center justify-center"
+                  title="Salin Nomor Rekening"
+                >
+                  <span className="material-symbols-outlined text-[20px]">
+                    {copied === "MANDIRI" ? "check" : "content_copy"}
+                  </span>
+                </button>
+              </div>
+            </div>
+
+            {/* BRI */}
+            <div className="flex justify-between items-center p-4 border border-outline-variant/30 bg-surface-container-lowest">
+              <div>
+                <p className="text-[14px] font-bold mb-1">
+                  Bank BRI
+                </p>
+                <p className="text-[11px] text-secondary uppercase tracking-widest">
+                  A/N CHRESTELLA SANGGRA
+                </p>
+              </div>
+              <div className="flex items-center gap-3">
+                <p className="text-[16px] font-bold tracking-widest">
+                  0987 6543 2109 876
+                </p>
+                <button
+                  type="button"
+                  onClick={() => handleCopy("098765432109876", "BRI")}
+                  className="text-secondary hover:text-primary transition-colors flex items-center justify-center"
+                  title="Salin Nomor Rekening"
+                >
+                  <span className="material-symbols-outlined text-[20px]">
+                    {copied === "BRI" ? "check" : "content_copy"}
+                  </span>
+                </button>
+              </div>
+            </div>
+
+            {/* BNI */}
+            <div className="flex justify-between items-center p-4 border border-outline-variant/30 bg-surface-container-lowest">
+              <div>
+                <p className="text-[14px] font-bold mb-1">
+                  Bank BNI
+                </p>
+                <p className="text-[11px] text-secondary uppercase tracking-widest">
+                  A/N CHRESTELLA SANGGRA
+                </p>
+              </div>
+              <div className="flex items-center gap-3">
+                <p className="text-[16px] font-bold tracking-widest">
+                  1122 3344 55
+                </p>
+                <button
+                  type="button"
+                  onClick={() => handleCopy("1122334455", "BNI")}
+                  className="text-secondary hover:text-primary transition-colors flex items-center justify-center"
+                  title="Salin Nomor Rekening"
+                >
+                  <span className="material-symbols-outlined text-[20px]">
+                    {copied === "BNI" ? "check" : "content_copy"}
+                  </span>
+                </button>
+              </div>
+            </div>
+
+            {/* GOPAY / OVO */}
+            <div className="flex justify-between items-center p-4 border border-outline-variant/30 bg-surface-container-lowest">
+              <div>
+                <p className="text-[14px] font-bold mb-1">
+                  GoPay / OVO / Dana
+                </p>
+                <p className="text-[11px] text-secondary uppercase tracking-widest">
+                  A/N CHRESTELLA SANGGRA
+                </p>
+              </div>
+              <div className="flex items-center gap-3">
+                <p className="text-[16px] font-bold tracking-widest">
+                  0812 3456 7890
+                </p>
+                <button
+                  type="button"
+                  onClick={() => handleCopy("081234567890", "EWALLET")}
+                  className="text-secondary hover:text-primary transition-colors flex items-center justify-center"
+                  title="Salin Nomor Handphone"
+                >
+                  <span className="material-symbols-outlined text-[20px]">
+                    {copied === "EWALLET" ? "check" : "content_copy"}
+                  </span>
+                </button>
+              </div>
             </div>
           </div>
 

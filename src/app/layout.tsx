@@ -8,6 +8,7 @@ import { ToastProvider } from "@/components/ui/Toast";
 import AnnouncementBar from "@/components/ui/AnnouncementBar";
 import BackToTop from "@/components/ui/BackToTop";
 import PromoPopup from "@/components/ui/PromoPopup";
+import CookieConsent from "@/components/ui/CookieConsent";
 
 import NextTopLoader from "nextjs-toploader";
 
@@ -91,6 +92,7 @@ export default function RootLayout({
           <MobileBottomNav />
           <BackToTop />
           <PromoPopup />
+          <CookieConsent />
         </ToastProvider>
         {/* Service Worker Registration */}
         <script

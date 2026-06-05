@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -12,6 +12,15 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
 
+  const [num1, setNum1] = useState(0);
+  const [num2, setNum2] = useState(0);
+  const [captchaAnswer, setCaptchaAnswer] = useState("");
+
+  useEffect(() => {
+    setNum1(Math.floor(Math.random() * 10) + 1);
+    setNum2(Math.floor(Math.random() * 10) + 1);
+  }, []);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -20,6 +29,16 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true);
     setMessage({ type: "", text: "" });
+
+    // CAPTCHA Validation
+    if (parseInt(captchaAnswer) !== num1 + num2) {
+      setMessage({ type: "error", text: "Jawaban CAPTCHA salah. Silakan coba lagi." });
+      setNum1(Math.floor(Math.random() * 10) + 1);
+      setNum2(Math.floor(Math.random() * 10) + 1);
+      setCaptchaAnswer("");
+      setLoading(false);
+      return;
+    }
 
     const res = await loginUser(formData);
 
@@ -61,10 +80,10 @@ export default function LoginPage() {
         <div className="w-full max-w-md">
           <div className="mb-12">
             <p className="text-[12px] leading-[16px] tracking-[0.1em] font-semibold text-on-surface-variant uppercase mb-2">
-              WELCOME BACK
+              SELAMAT DATANG KEMBALI
             </p>
             <h1 className="text-[40px] leading-[48px] md:text-[48px] md:leading-[56px] font-semibold uppercase tracking-wide">
-              SIGN IN
+              MASUK
             </h1>
           </div>
 
@@ -91,13 +110,13 @@ export default function LoginPage() {
                 <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
                 <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
               </svg>
-              CONTINUE WITH GOOGLE
+              LANJUTKAN DENGAN GOOGLE
             </Link>
           </div>
           
           <div className="flex items-center gap-4 mb-6">
             <div className="h-px flex-1 bg-primary/10"></div>
-            <span className="text-[10px] uppercase tracking-widest text-secondary font-semibold">OR</span>
+            <span className="text-[10px] uppercase tracking-widest text-secondary font-semibold">ATAU</span>
             <div className="h-px flex-1 bg-primary/10"></div>
           </div>
 
@@ -107,7 +126,7 @@ export default function LoginPage() {
                 htmlFor="email"
                 className="text-[12px] leading-[16px] tracking-[0.1em] font-semibold text-on-surface-variant uppercase"
               >
-                EMAIL ADDRESS
+                ALAMAT EMAIL
               </label>
               <input
                 id="email"
@@ -117,7 +136,7 @@ export default function LoginPage() {
                 value={formData.email}
                 onChange={handleChange}
                 className="w-full bg-transparent border-b border-primary/30 text-[15px] py-3 focus:outline-none focus:border-primary transition-colors duration-300 rounded-none text-primary"
-                placeholder="Enter your email"
+                placeholder="Masukkan email Anda"
               />
             </div>
 
@@ -126,7 +145,7 @@ export default function LoginPage() {
                 htmlFor="password"
                 className="text-[12px] leading-[16px] tracking-[0.1em] font-semibold text-on-surface-variant uppercase"
               >
-                PASSWORD
+                KATA SANDI
               </label>
               <input
                 id="password"
@@ -136,7 +155,25 @@ export default function LoginPage() {
                 value={formData.password}
                 onChange={handleChange}
                 className="w-full bg-transparent border-b border-primary/30 text-[15px] py-3 focus:outline-none focus:border-primary transition-colors duration-300 rounded-none text-primary"
-                placeholder="Enter your password"
+                placeholder="Masukkan kata sandi Anda"
+              />
+            </div>
+
+            <div className="flex flex-col space-y-2">
+              <label
+                htmlFor="captcha"
+                className="text-[12px] leading-[16px] tracking-[0.1em] font-semibold text-on-surface-variant uppercase"
+              >
+                VERIFIKASI KEAMANAN: BERAPA {num1} + {num2}?
+              </label>
+              <input
+                id="captcha"
+                type="number"
+                required
+                value={captchaAnswer}
+                onChange={(e) => setCaptchaAnswer(e.target.value)}
+                className="w-full bg-transparent border-b border-primary/30 text-[15px] py-3 focus:outline-none focus:border-primary transition-colors duration-300 rounded-none text-primary"
+                placeholder="Jawaban Anda"
               />
             </div>
 
@@ -151,14 +188,14 @@ export default function LoginPage() {
                   className="text-[12px] leading-[16px] tracking-[0.1em] font-semibold text-on-surface-variant cursor-pointer uppercase"
                   htmlFor="remember"
                 >
-                  REMEMBER ME
+                  INGAT SAYA
                 </label>
               </div>
               <Link
                 href="/forgot-password"
                 className="text-[12px] leading-[16px] tracking-[0.1em] font-semibold underline hover:text-on-surface-variant transition-colors duration-300 uppercase"
               >
-                FORGOT PASSWORD?
+                LUPA KATA SANDI?
               </Link>
             </div>
 
@@ -167,18 +204,18 @@ export default function LoginPage() {
               disabled={loading}
               className="w-full bg-primary text-on-primary text-[14px] tracking-[0.05em] font-medium py-4 mt-8 uppercase tracking-widest hover:opacity-80 transition-opacity duration-300 disabled:opacity-50"
             >
-              {loading ? "AUTHENTICATING..." : "SIGN IN"}
+              {loading ? "MEMPROSES..." : "MASUK"}
             </button>
           </form>
 
           <div className="mt-12 text-center">
             <p className="text-[16px] text-on-surface-variant">
-              DON'T HAVE AN ACCOUNT?{" "}
+              BELUM PUNYA AKUN?{" "}
               <Link
                 href="/register"
                 className="text-[12px] leading-[16px] tracking-[0.1em] font-semibold underline text-primary hover:text-on-surface-variant transition-colors duration-300 ml-2 uppercase"
               >
-                REGISTER
+                DAFTAR
               </Link>
             </p>
           </div>
