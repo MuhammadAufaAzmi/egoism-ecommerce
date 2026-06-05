@@ -1,25 +1,21 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import ReCAPTCHA from "react-google-recaptcha";
 import { loginUser } from "@/lib/auth";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [formData, setFormData] = useState({ email: "", password: "" });
+  const [formData, setFormData] = useState({ email: "", password: "", recaptchaToken: "" });
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
 
-  const [num1, setNum1] = useState(0);
-  const [num2, setNum2] = useState(0);
-  const [captchaAnswer, setCaptchaAnswer] = useState("");
-
-  useEffect(() => {
-    setNum1(Math.floor(Math.random() * 10) + 1);
-    setNum2(Math.floor(Math.random() * 10) + 1);
-  }, []);
+  const handleRecaptchaChange = (token: string | null) => {
+    setFormData({ ...formData, recaptchaToken: token || "" });
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -30,15 +26,7 @@ export default function LoginPage() {
     setLoading(true);
     setMessage({ type: "", text: "" });
 
-    // CAPTCHA Validation
-    if (parseInt(captchaAnswer) !== num1 + num2) {
-      setMessage({ type: "error", text: "Jawaban CAPTCHA salah. Silakan coba lagi." });
-      setNum1(Math.floor(Math.random() * 10) + 1);
-      setNum2(Math.floor(Math.random() * 10) + 1);
-      setCaptchaAnswer("");
-      setLoading(false);
-      return;
-    }
+    // Token verifikasi ditangani di sisi server melalui loginUser
 
     const res = await loginUser(formData);
 
@@ -159,21 +147,10 @@ export default function LoginPage() {
               />
             </div>
 
-            <div className="flex flex-col space-y-2">
-              <label
-                htmlFor="captcha"
-                className="text-[12px] leading-[16px] tracking-[0.1em] font-semibold text-on-surface-variant uppercase"
-              >
-                VERIFIKASI KEAMANAN: BERAPA {num1} + {num2}?
-              </label>
-              <input
-                id="captcha"
-                type="number"
-                required
-                value={captchaAnswer}
-                onChange={(e) => setCaptchaAnswer(e.target.value)}
-                className="w-full bg-transparent border-b border-primary/30 text-[15px] py-3 focus:outline-none focus:border-primary transition-colors duration-300 rounded-none text-primary"
-                placeholder="Jawaban Anda"
+            <div className="flex flex-col space-y-2 pt-2">
+              <ReCAPTCHA
+                sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ""}
+                onChange={handleRecaptchaChange}
               />
             </div>
 

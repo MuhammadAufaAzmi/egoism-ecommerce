@@ -38,10 +38,27 @@ export async function registerUser(formData: any) {
 // === LOGIN ===
 export async function loginUser(formData: any) {
   try {
-    const { email, password } = formData;
+    const { email, password, recaptchaToken } = formData;
 
     if (!email || !password) {
       return { success: false, message: "Email dan password wajib diisi." };
+    }
+
+    if (!recaptchaToken) {
+      return { success: false, message: "Harap selesaikan verifikasi CAPTCHA." };
+    }
+
+    const secretKey = process.env.RECAPTCHA_SECRET_KEY;
+    if (secretKey) {
+      const verifyUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${recaptchaToken}`;
+      const recaptchaRes = await fetch(verifyUrl, { method: "POST" });
+      const recaptchaData = await recaptchaRes.json();
+
+      if (!recaptchaData.success) {
+        return { success: false, message: "Verifikasi CAPTCHA gagal. Silakan coba lagi." };
+      }
+    } else {
+      console.warn("RECAPTCHA_SECRET_KEY tidak ditemukan di environment. Mengabaikan verifikasi CAPTCHA.");
     }
 
     const user = await prisma.user.findUnique({ where: { email } });
