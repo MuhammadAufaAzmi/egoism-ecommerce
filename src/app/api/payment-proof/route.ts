@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import nodemailer from "nodemailer";
 import { prisma } from "@/lib/prisma";
 import { v2 as cloudinary } from "cloudinary";
+import { cookies } from "next/headers";
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -22,7 +23,24 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // 1. Simpan file gambar ke Cloudinary
+    const cookieStore = await cookies();
+    const userId = cookieStore.get("user_id")?.value;
+
+    if (!userId) {
+      return NextResponse.json({ success: false, message: "Unauthorized." }, { status: 401 });
+    }
+
+    // 1. Verifikasi pesanan dan kepemilikan
+    const order = await (prisma as any).order.findUnique({
+      where: { orderNumber: orderId },
+      include: { user: true },
+    });
+
+    if (!order || order.userId !== userId) {
+      return NextResponse.json({ success: false, message: "Akses ditolak atau pesanan tidak ditemukan." }, { status: 403 });
+    }
+
+    // 2. Simpan file gambar ke Cloudinary
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
@@ -43,19 +61,13 @@ export async function POST(req: NextRequest) {
 
     const imagePath = uploadResult.secure_url;
 
-    // 2. Update field paymentProof di database
+    // 3. Update field paymentProof di database
     await (prisma as any).order.update({
       where: { orderNumber: orderId },
       data: {
         paymentProof: imagePath,
         status: "MENUNGGU KONFIRMASI",
       },
-    });
-
-    // 3. Ambil data order untuk info email
-    const order = await (prisma as any).order.findUnique({
-      where: { orderNumber: orderId },
-      include: { user: true },
     });
 
     // 4. Kirim email notifikasi ke admin

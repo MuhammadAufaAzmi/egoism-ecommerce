@@ -6,7 +6,7 @@ import { sendOrderCreatedEmail } from "@/lib/email";
 import crypto from "crypto";
 
 interface CheckoutOptions {
-  shippingCost?: number;
+  promoCode?: string;
   shippingZone?: string;
   shippingAddress?: string;
 }
@@ -39,15 +39,50 @@ export async function processCheckout(options?: CheckoutOptions) {
       itemsDescription += `${item.product.name} (${item.color}, ${item.size}) x${item.quantity}\n`;
     });
 
-    // 3. Hitung total dengan ongkir
-    const shippingCost = options?.shippingCost || 0;
-    const totalAmount = subtotal + shippingCost;
+    // 3. Hitung ongkos kirim secara aman di server
+    let shippingCost = 0;
+    if (options?.shippingZone) {
+      const zone = await (prisma as any).shippingZone.findUnique({
+        where: { province: options.shippingZone },
+      });
+      if (zone) shippingCost = zone.cost;
+    }
 
-    // 4. Generate Nomor Resi/Order Unik bergaya EGOISM (Cth: EGO-A7B2X)
+    // 4. Hitung diskon promo jika ada
+    let discountAmount = 0;
+    if (options?.promoCode) {
+      const promo = await prisma.promoCode.findUnique({
+        where: { code: options.promoCode.trim().toUpperCase() },
+      });
+      
+      const isActive = promo && promo.isActive;
+      const notExpired = promo && (!promo.expiresAt || new Date() <= promo.expiresAt);
+      const underMaxUses = promo && (promo.maxUses === 0 || promo.usedCount < promo.maxUses);
+      const meetsMinOrder = promo && subtotal >= promo.minOrder;
+
+      if (isActive && notExpired && underMaxUses && meetsMinOrder) {
+        if (promo.discountType === "percent") {
+          discountAmount = Math.round((subtotal * promo.discountValue) / 100);
+        } else {
+          discountAmount = promo.discountValue;
+        }
+        discountAmount = Math.min(discountAmount, subtotal);
+        
+        await prisma.promoCode.update({
+          where: { id: promo.id },
+          data: { usedCount: { increment: 1 } }
+        });
+      }
+    }
+
+    // 5. Total Akhir
+    const totalAmount = subtotal - discountAmount + shippingCost;
+
+    // 6. Generate Nomor Resi/Order Unik bergaya EGOISM (Cth: EGO-A7B2X)
     const randomStr = crypto.randomBytes(3).toString("hex").toUpperCase();
     const orderNumber = `EGO-${Date.now().toString().slice(-4)}-${randomStr}`;
 
-    // 5. Buat pesanan baru di tabel Order MySQL
+    // 7. Buat pesanan baru di tabel Order MySQL
     await (prisma as any).order.create({
       data: {
         orderNumber: orderNumber,
@@ -61,12 +96,12 @@ export async function processCheckout(options?: CheckoutOptions) {
       },
     });
 
-    // 6. Kosongkan keranjang belanja karena sudah dicheckout
+    // 8. Kosongkan keranjang belanja karena sudah dicheckout
     await (prisma as any).cart.deleteMany({
       where: { userId },
     });
 
-    // 7. Kirim email notifikasi ke customer
+    // 9. Kirim email notifikasi ke customer
     try {
       const user = await prisma.user.findUnique({ where: { id: userId } });
       if (user?.email) {
