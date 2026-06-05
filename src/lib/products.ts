@@ -175,13 +175,17 @@ export async function handleUpdateCartQuantity(
   currentQty: number,
   delta: number,
 ) {
+  const cookieStore = await cookies();
+  const userId = cookieStore.get("user_id")?.value;
+  if (!userId) return { success: false };
+
   const targetQty = currentQty + delta;
   try {
     if (targetQty <= 0) {
-      await prisma.cart.delete({ where: { id: cartId } });
+      await prisma.cart.deleteMany({ where: { id: cartId, userId: userId } });
     } else {
-      await prisma.cart.update({
-        where: { id: cartId },
+      await prisma.cart.updateMany({
+        where: { id: cartId, userId: userId },
         data: { quantity: targetQty },
       });
     }
@@ -194,8 +198,12 @@ export async function handleUpdateCartQuantity(
 }
 
 export async function handleRemoveCartItem(cartId: string) {
+  const cookieStore = await cookies();
+  const userId = cookieStore.get("user_id")?.value;
+  if (!userId) return { success: false };
+
   try {
-    await prisma.cart.delete({ where: { id: cartId } });
+    await prisma.cart.deleteMany({ where: { id: cartId, userId: userId } });
     revalidatePath("/keranjang");
     return { success: true };
   } catch (error) {

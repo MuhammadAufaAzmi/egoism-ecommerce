@@ -3,6 +3,20 @@
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { v2 as cloudinary } from "cloudinary";
+import { cookies } from "next/headers";
+
+async function verifyAdmin() {
+  const cookieStore = await cookies();
+  const userId = cookieStore.get("user_id")?.value;
+  if (!userId) return false;
+
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { role: true },
+  });
+  
+  return user?.role === "ADMIN";
+}
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -19,6 +33,10 @@ function extractPublicId(url: string) {
 
 // === ADMIN: UPDATE PRODUK ===
 export async function updateProduct(slug: string, input: any) {
+  if (!(await verifyAdmin())) {
+    return { success: false, message: "Unauthorized." };
+  }
+
   try {
     const existing = await prisma.product.findUnique({ where: { slug } });
     if (!existing) {
@@ -66,6 +84,10 @@ export async function updateProduct(slug: string, input: any) {
 
 // === ADMIN: HAPUS PRODUK ===
 export async function deleteProduct(slug: string) {
+  if (!(await verifyAdmin())) {
+    return { success: false, message: "Unauthorized." };
+  }
+
   try {
     const product = await prisma.product.findUnique({ where: { slug } });
     if (!product) {

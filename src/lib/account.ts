@@ -78,7 +78,7 @@ export async function saveUserAddress(data: any, addressId?: string, guestEmail?
     }
 
     if (addressId) {
-      await (prisma as any).address.update({ where: { id: addressId }, data });
+      await (prisma as any).address.updateMany({ where: { id: addressId, userId: userId }, data });
     } else {
       const count = await (prisma as any).address.count({ where: { userId } });
       await (prisma as any).address.create({
@@ -93,7 +93,9 @@ export async function saveUserAddress(data: any, addressId?: string, guestEmail?
 }
 
 export async function deleteUserAddress(addressId: string) {
-  await (prisma as any).address.delete({ where: { id: addressId } });
+  const userId = await getUserId();
+  if (!userId) return { success: false };
+  await (prisma as any).address.deleteMany({ where: { id: addressId, userId: userId } });
   return { success: true };
 }
 
@@ -104,8 +106,8 @@ export async function setAddressDefault(addressId: string) {
     where: { userId },
     data: { isDefault: false },
   });
-  await (prisma as any).address.update({
-    where: { id: addressId },
+  await (prisma as any).address.updateMany({
+    where: { id: addressId, userId: userId },
     data: { isDefault: true },
   });
   return { success: true };
