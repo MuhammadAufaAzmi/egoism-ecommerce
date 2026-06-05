@@ -54,7 +54,7 @@ export default function CheckoutPage() {
   const [loadingShipping, setLoadingShipping] = useState(false);
   const [shippingError, setShippingError] = useState("");
 
-  const totalQuantity = cartItems.reduce((sum, barang) => sum + item.quantity, 0);
+  const totalQuantity = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   // Fetch ongkir dari database lokal berdasarkan provinsi
   const fetchShippingZone = useCallback(async (province: string) => {
@@ -258,7 +258,7 @@ export default function CheckoutPage() {
   };
 
   const subtotal = cartItems.reduce(
-    (sum, barang) => sum + item.price * item.quantity,
+    (sum, item) => sum + item.price * item.quantity,
     0,
   );
   
