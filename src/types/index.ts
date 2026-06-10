@@ -8,7 +8,7 @@ export interface Product {
   images?: string[];
   description?: string;
   sizes?: string[];
-  colors?: string[];
+  colors?: { name: string; image: string }[];
   fitType?: "oversized" | "regular" | "crop" | "crop-tank" | "women-tank";
   activity?: string[];
   isNew?: boolean;

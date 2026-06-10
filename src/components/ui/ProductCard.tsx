@@ -60,7 +60,7 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
-  const colors: string[] = Array.isArray(product.colors) ? product.colors : [];
+  const colors: string[] = Array.isArray(product.colors) ? product.colors.map((c: any) => c.name) : [];
   const images: string[] = Array.isArray((product as any).images)
     ? (product as any).images
     : [];

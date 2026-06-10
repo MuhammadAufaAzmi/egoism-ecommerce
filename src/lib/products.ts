@@ -41,7 +41,17 @@ const parseProduct = (p: any) => {
   return {
     ...p,
     sizes: parsedSizes,
-    colors: p.colors ? (JSON.parse(p.colors) as string[]) : [],
+    colors: p.colors ? (function() {
+      try {
+        const parsed = JSON.parse(p.colors);
+        if (Array.isArray(parsed)) {
+          return parsed.map((c: any) => typeof c === 'string' ? { name: c, image: "" } : c);
+        }
+        return [];
+      } catch {
+        return [];
+      }
+    })() : [],
     images: p.images ? (JSON.parse(p.images) as string[]) : [],
     activity: p.activity ? (JSON.parse(p.activity) as string[]) : [],
     fitType: parsedFitType,

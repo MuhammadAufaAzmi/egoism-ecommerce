@@ -63,7 +63,7 @@ interface ProductDetailProps {
     image: string;
     description: string;
     sizes: Record<string, string[]>;
-    colors: string[];
+    colors: { name: string; image: string }[];
     fitType?: string[];
     images?: string[];
   };
@@ -81,7 +81,7 @@ export default function ProductDetail({
   const router = useRouter();
   const [selectedSize, setSelectedSize] = useState<string>("");
   const [selectedColor, setSelectedColor] = useState<string>(
-    product.colors && product.colors.length === 1 ? product.colors[0] : ""
+    product.colors && product.colors.length === 1 ? product.colors[0].name : ""
   );
   const [selectedFitType, setSelectedFitType] = useState<string>(
     product.fitType && product.fitType.length === 1 ? product.fitType[0] : ""
@@ -111,8 +111,12 @@ export default function ProductDetail({
   const validImageSrc =
     product.image && product.image.trim() !== "" ? product.image : null;
     
+  // Jika warna dengan image dipilih, jadikan sebagai gambar utama
+  const selectedColorObj = product.colors?.find(c => c.name === selectedColor);
+  const colorImageSrc = selectedColorObj?.image && selectedColorObj.image.trim() !== "" ? selectedColorObj.image : null;
+
   const allImages = [validImageSrc, ...(product.images || [])].filter(Boolean) as string[];
-  const activeImageSrc = allImages[activeIndex] || validImageSrc;
+  const activeImageSrc = colorImageSrc || allImages[activeIndex] || validImageSrc;
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
@@ -336,23 +340,30 @@ export default function ProductDetail({
             </div>
             <div className="flex flex-wrap gap-3">
               {product.colors && product.colors.length > 0 ? (
-                product.colors.map((color) => {
-                  const hexColor = COLOR_MAP[color.toUpperCase()] ?? "#888";
+                product.colors.map((colorObj) => {
+                  const color = colorObj.name;
+                  const colorImage = colorObj.image;
                   const isSelected = selectedColor === color;
-                  const isLight = ["WHITE", "CREAM", "BEIGE", "SAND", "TAN", "KHAKI", "LIGHT GREY"].includes(color.toUpperCase());
+                  
                   return (
                     <button
                       key={color}
                       title={color}
                       onClick={() => { setSelectedColor(color); setMessage({ type: "", text: "" }); }}
-                      className={`flex items-center gap-3 px-4 py-2 border transition-all duration-200 bg-surface ${
+                      className={`flex items-center gap-3 p-1 border transition-all duration-200 bg-surface ${
                         isSelected ? "border-primary ring-1 ring-primary" : "border-outline-variant/30 hover:border-primary/50"
                       }`}
                     >
-                      <svg width="24" height="24" viewBox="0 0 24 24" fill={hexColor} stroke={isLight ? "#e5e5e5" : hexColor} strokeWidth="1" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M7 4V5H17V4H21V10H19V21H5V10H3V4H7ZM9 4C9 5.65685 10.3431 7 12 7C13.6569 7 15 5.65685 15 4H9Z" />
-                      </svg>
-                      <span className="text-[13px] font-medium tracking-wide capitalize">
+                      {colorImage ? (
+                        <div className="w-10 h-10 relative bg-surface-container flex-shrink-0">
+                          <Image src={colorImage} alt={color} fill className="object-cover" />
+                        </div>
+                      ) : (
+                        <div className="w-10 h-10 bg-surface-container flex items-center justify-center flex-shrink-0 text-[10px] text-secondary">
+                          NO IMG
+                        </div>
+                      )}
+                      <span className="text-[13px] font-medium tracking-wide capitalize px-2">
                         {color.toLowerCase()}
                       </span>
                     </button>
