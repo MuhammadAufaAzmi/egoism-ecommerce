@@ -93,7 +93,8 @@ export default function SizeGuide({ fitType }: { fitType?: string | null }) {
   let activeChart = sizeChartsData["regular"];
 
   if (fitType) {
-    const ft = fitType.toLowerCase();
+    // Normalisasi string: lowercase dan ubah spasi menjadi dash
+    const ft = fitType.toLowerCase().replace(/\s+/g, '-');
     if (ft === "oversized") activeChart = sizeChartsData["oversized"];
     else if (ft === "crop") activeChart = sizeChartsData["crop"];
     else if (ft === "crop-oversize") activeChart = sizeChartsData["crop-oversize"];
