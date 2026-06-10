@@ -133,9 +133,9 @@ export default function AdminProdukPage() {
                   filteredProducts.map((product) => (
                     <tr key={product.id} className="hover:bg-surface-container-low/50 transition-colors">
                       <td className="p-4">
-                        <div className="w-16 h-20 bg-surface-container-low relative flex-shrink-0">
+                        <div className="w-16 h-16 bg-surface-container-low relative flex-shrink-0">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                          <img src={product.image} alt={product.name} loading="lazy" className="w-full h-full object-cover" />
                         </div>
                       </td>
                       <td className="p-4">

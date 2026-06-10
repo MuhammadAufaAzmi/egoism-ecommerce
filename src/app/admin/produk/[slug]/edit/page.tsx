@@ -313,7 +313,7 @@ export default function EditProductPage() {
               {imagePreview || currentImage ? (
                 <div className="flex flex-col items-center space-y-3 w-full relative">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={imagePreview || currentImage} alt="Preview" className="h-32 object-contain border border-outline-variant/30" />
+                  <img src={imagePreview || currentImage} alt="Preview" loading="lazy" className="h-32 object-contain border border-outline-variant/30" />
                   
                   {/* Tombol Cancel hanya muncul jika mengupload gambar baru */}
                   {imagePreview && (
@@ -359,8 +359,8 @@ export default function EditProductPage() {
             {(currentGallery.length > 0 || galleryPreviews.length > 0) && (
               <div className="flex flex-wrap gap-4 mt-4">
                 {currentGallery.map((preview, idx) => (
-                  <div key={`cur-${idx}`} className="relative w-24 h-32 border border-outline-variant/30">
-                    <img src={preview} alt={`Current Gallery ${idx}`} className="w-full h-full object-cover" />
+                  <div key={`cur-${idx}`} className="relative w-32 h-32 border border-outline-variant/30">
+                    <img src={preview} alt={`Current Gallery ${idx}`} loading="lazy" className="w-full h-full object-cover" />
                     <button type="button" onClick={(e) => { e.stopPropagation(); removeCurrentGalleryImage(idx); }}
                       className="absolute -top-2 -right-2 bg-red-500 text-white w-6 h-6 flex items-center justify-center rounded-full text-xs shadow-md">
                       X
@@ -368,8 +368,8 @@ export default function EditProductPage() {
                   </div>
                 ))}
                 {galleryPreviews.map((preview, idx) => (
-                  <div key={`new-${idx}`} className="relative w-24 h-32 border border-outline-variant/30">
-                    <img src={preview} alt={`New Gallery ${idx}`} className="w-full h-full object-cover" />
+                  <div key={`new-${idx}`} className="relative w-32 h-32 border border-outline-variant/30">
+                    <img src={preview} alt={`New Gallery ${idx}`} loading="lazy" className="w-full h-full object-cover" />
                     <button type="button" onClick={(e) => { e.stopPropagation(); removeGalleryImage(idx); }}
                       className="absolute -top-2 -right-2 bg-red-500 text-white w-6 h-6 flex items-center justify-center rounded-full text-xs shadow-md">
                       X

@@ -681,6 +681,7 @@ export default function CheckoutPage() {
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={item.image}
+                        loading="lazy"
                         alt={item.name}
                         className="w-full h-full object-cover"
                       />

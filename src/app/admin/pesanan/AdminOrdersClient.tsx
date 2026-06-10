@@ -800,6 +800,7 @@ export default function AdminOrdersClient({
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={detailModal.order.paymentProof}
+                      loading="lazy"
                       alt="Bukti Pembayaran"
                       className="w-full max-h-[300px] object-contain border border-outline-variant/20 cursor-pointer"
                       onClick={() => {

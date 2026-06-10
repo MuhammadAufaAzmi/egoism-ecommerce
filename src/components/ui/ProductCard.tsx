@@ -103,7 +103,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   return (
     <div className="group cursor-pointer block">
       {/* Image Container */}
-      <div className="w-full aspect-[0.73] overflow-hidden mb-4 bg-surface-container relative shadow-none group-hover:shadow-xl transition-shadow duration-500">
+      <div className="relative aspect-square overflow-hidden bg-surface-container-low mb-4 flex items-center justify-center group-hover:scale-[1.02] transition-transform duration-500">
         <Link href={`/produk/${product.slug}`} className="absolute inset-0 z-0">
           {/* Main image */}
           <Image

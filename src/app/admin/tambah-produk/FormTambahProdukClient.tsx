@@ -410,6 +410,7 @@ export default function FormTambahProdukClient() {
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={imagePreview}
+                    loading="lazy"
                     alt="Garment Preview"
                     className="h-32 object-contain border border-outline-variant/30"
                   />
@@ -474,8 +475,8 @@ export default function FormTambahProdukClient() {
             {galleryPreviews.length > 0 && (
               <div className="flex flex-wrap gap-4 mt-4">
                 {galleryPreviews.map((preview, idx) => (
-                  <div key={idx} className="relative w-24 h-32 border border-outline-variant/30">
-                    <img src={preview} alt={`Gallery ${idx}`} className="w-full h-full object-cover" />
+                  <div key={idx} className="relative w-32 h-32 border border-outline-variant/30">
+                    <img src={preview} alt={`Gallery ${idx}`} loading="lazy" className="w-full h-full object-cover" />
                     <button
                       type="button"
                       onClick={(e) => { e.stopPropagation(); removeGalleryImage(idx); }}

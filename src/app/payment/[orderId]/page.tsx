@@ -424,6 +424,7 @@ export default function PaymentPage() {
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={filePreview}
+                    loading="lazy"
                     alt="Preview bukti transfer"
                     className="max-h-52 object-contain border border-outline-variant/30"
                   />

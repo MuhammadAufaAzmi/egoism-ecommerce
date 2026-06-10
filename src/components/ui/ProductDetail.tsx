@@ -201,7 +201,7 @@ export default function ProductDetail({
       {/* Product Image Section */}
       <div className="flex flex-col gap-4">
         <div 
-          className="bg-surface-container-low relative aspect-[0.75] w-full border border-outline-variant/20 flex items-center justify-center overflow-hidden cursor-crosshair group"
+          className="bg-surface-container-low relative aspect-square w-full border border-outline-variant/20 flex items-center justify-center overflow-hidden cursor-crosshair group"
           onMouseMove={handleMouseMove}
           onMouseEnter={() => setIsZooming(true)}
           onMouseLeave={() => setIsZooming(false)}
@@ -229,7 +229,7 @@ export default function ProductDetail({
               <button 
                 key={idx}
                 onClick={() => setActiveIndex(idx)}
-                className={`relative w-20 md:w-24 aspect-[0.75] border flex-shrink-0 transition-colors ${activeIndex === idx ? "border-primary" : "border-outline-variant/20 hover:border-primary/50"}`}
+                className={`relative w-20 md:w-24 aspect-square border flex-shrink-0 transition-colors ${activeIndex === idx ? "border-primary" : "border-outline-variant/20 hover:border-primary/50"}`}
               >
                 <Image src={src} alt={`${product.name} ${idx}`} fill className="object-cover" />
               </button>
@@ -345,19 +345,16 @@ export default function ProductDetail({
                       key={color}
                       title={color}
                       onClick={() => { setSelectedColor(color); setMessage({ type: "", text: "" }); }}
-                      className={`w-9 h-9 rounded-full transition-all duration-200 flex items-center justify-center ${
-                        isSelected ? "ring-2 ring-offset-2 ring-primary scale-110" : "hover:scale-110"
-                      } ${isLight ? "border border-outline-variant/30" : ""}`}
-                      style={{ backgroundColor: hexColor }}
+                      className={`flex items-center gap-3 px-4 py-2 border transition-all duration-200 bg-surface ${
+                        isSelected ? "border-primary ring-1 ring-primary" : "border-outline-variant/30 hover:border-primary/50"
+                      }`}
                     >
-                      {isSelected && (
-                        <span
-                          className="text-[14px] font-bold"
-                          style={{ color: isLight ? "#1a1a1a" : "#ffffff" }}
-                        >
-                          ✓
-                        </span>
-                      )}
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill={hexColor} stroke={isLight ? "#e5e5e5" : hexColor} strokeWidth="1" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M7 4V5H17V4H21V10H19V21H5V10H3V4H7ZM9 4C9 5.65685 10.3431 7 12 7C13.6569 7 15 5.65685 15 4H9Z" />
+                      </svg>
+                      <span className="text-[13px] font-medium tracking-wide capitalize">
+                        {color.toLowerCase()}
+                      </span>
                     </button>
                   );
                 })

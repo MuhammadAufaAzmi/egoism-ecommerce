@@ -1,10 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
 import ProductCard from "@/components/ui/ProductCard";
-import StatsCounter from "@/components/ui/StatsCounter";
+import dynamic from "next/dynamic";
 import ScrollReveal from "@/components/ui/ScrollReveal";
 import ParallaxHero from "@/components/home/ParallaxHero";
-import TrainCategorySection from "@/components/home/TrainCategorySection";
+
+const TrainCategorySection = dynamic(() => import("@/components/home/TrainCategorySection"));
+const StatsCounter = dynamic(() => import("@/components/ui/StatsCounter"));
 import { getProducts } from "@/lib/products";
 import { cookies } from "next/headers";
 

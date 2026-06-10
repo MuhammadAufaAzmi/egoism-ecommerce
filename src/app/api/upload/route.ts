@@ -55,7 +55,7 @@ export async function POST(req: Request) {
           folder: "egoism/products",
           format: "webp",
           transformation: [
-            { width: 1200, crop: "limit" },
+            { width: 1080, height: 1080, crop: "fill", gravity: "auto" },
             { quality: "auto:good" }
           ]
         },
