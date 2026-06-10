@@ -7,6 +7,12 @@ import { getProductBySlug } from "@/lib/products";
 import { updateProduct } from "@/lib/admin-products";
 import { useToast } from "@/components/ui/Toast";
 
+type ColorVariant = {
+  name: string;
+  file: File | null;
+  preview: string;
+};
+
 export default function EditProductPage() {
   const router = useRouter();
   const params = useParams();
@@ -23,8 +29,9 @@ export default function EditProductPage() {
     price: "",
     category: "men",
     description: "",
-    colors: "",
   });
+  
+  const [colorVariants, setColorVariants] = useState<ColorVariant[]>([]);
   const [selectedFitTypes, setSelectedFitTypes] = useState<string[]>([]);
   const [selectedSizes, setSelectedSizes] = useState<Record<string, string[]>>({});
   const [selectedActivities, setSelectedActivities] = useState<string[]>([]);
@@ -60,8 +67,20 @@ export default function EditProductPage() {
         price: String(product.price),
         category: product.category,
         description: product.description || "",
-        colors: product.colors?.join(", ") || "",
       });
+      
+      // Initialize colors with thumbnails
+      if (product.colors && Array.isArray(product.colors)) {
+        const initialColors = product.colors.map((c: any) => ({
+          name: typeof c === 'string' ? c : (c.name || ""),
+          file: null,
+          preview: typeof c !== 'string' && c.image ? c.image : "",
+        }));
+        setColorVariants(initialColors);
+      } else {
+        setColorVariants([]);
+      }
+
       setSelectedFitTypes(Array.isArray(product.fitType) ? product.fitType : [product.fitType || "regular"]);
       setSelectedSizes((Array.isArray(product.sizes) ? {} : product.sizes) || {});
       setSelectedActivities(product.activity || []);
@@ -74,6 +93,30 @@ export default function EditProductPage() {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const addColorVariant = () => {
+    setColorVariants([...colorVariants, { name: "", file: null, preview: "" }]);
+  };
+
+  const removeColorVariant = (index: number) => {
+    setColorVariants(colorVariants.filter((_, i) => i !== index));
+  };
+
+  const handleColorNameChange = (index: number, name: string) => {
+    const newVariants = [...colorVariants];
+    newVariants[index].name = name;
+    setColorVariants(newVariants);
+  };
+
+  const handleColorImageChange = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const newVariants = [...colorVariants];
+      newVariants[index].file = file;
+      newVariants[index].preview = URL.createObjectURL(file);
+      setColorVariants(newVariants);
+    }
   };
 
   const handleSizeChange = (fit: string, size: string) => {
@@ -154,13 +197,14 @@ export default function EditProductPage() {
         const uploadRes = await fetch("/api/upload", { method: "POST", body: uploadFormData });
         const uploadData = await uploadRes.json();
         if (!uploadData.success) {
-          showToast(uploadData.message || "Gagal mengunggah foto.", "error");
+          showToast(uploadData.message || "Gagal mengunggah foto utama.", "error");
           setSaving(false);
           return;
         }
         imagePath = uploadData.imagePath;
       }
 
+      // Upload gallery images
       const savedGalleryPaths: string[] = [];
       for (const file of galleryFiles) {
         const galFormData = new FormData();
@@ -172,10 +216,27 @@ export default function EditProductPage() {
 
       const finalGallery = [...currentGallery, ...savedGalleryPaths];
 
-      const cleanColorsArray = formData.colors
-        .split(",")
-        .map((c) => c.trim().toUpperCase())
-        .filter((c) => c !== "");
+      // Upload color images
+      const finalColors = [];
+      for (const color of colorVariants) {
+        if (!color.name.trim()) continue;
+        
+        let colorImagePath = color.preview && !color.preview.startsWith("blob:") ? color.preview : "";
+        
+        // If it's a new file, upload it
+        if (color.file) {
+          const colorFormData = new FormData();
+          colorFormData.append("file", color.file);
+          const colorRes = await fetch("/api/upload", { method: "POST", body: colorFormData });
+          const colorData = await colorRes.json();
+          if (colorData.success) colorImagePath = colorData.imagePath;
+        }
+        
+        finalColors.push({
+          name: color.name.trim().toUpperCase(),
+          image: colorImagePath
+        });
+      }
 
       const result = await updateProduct(slug, {
         name: formData.name.trim(),
@@ -188,7 +249,7 @@ export default function EditProductPage() {
         images: finalGallery,
         description: formData.description.trim(),
         sizes: selectedSizes,
-        colors: cleanColorsArray.length > 0 ? cleanColorsArray : ["BLACK"],
+        colors: finalColors.length > 0 ? finalColors : [{ name: "BLACK", image: "" }],
       });
 
       if (result.success) {
@@ -295,11 +356,57 @@ export default function EditProductPage() {
             </div>
           </div>
 
-          <div className="flex flex-col space-y-2">
-            <label className="font-semibold uppercase tracking-wider text-secondary text-[12px]">Colors (comma separated)</label>
-            <input type="text" name="colors" value={formData.colors} onChange={handleChange}
-              className="w-full bg-background border border-outline-variant/50 p-3 text-primary focus:outline-none focus:border-primary transition-colors"
-              placeholder="e.g. BLACK, WHITE, DARK ASH" />
+          {/* Color Variants */}
+          <div className="flex flex-col space-y-4">
+            <span className="font-semibold uppercase tracking-wider text-secondary text-[12px]">
+              Varian Warna & Thumbnail
+            </span>
+            <p className="text-[11px] text-secondary tracking-wider">Tambahkan warna beserta foto baju sesuai warna tersebut.</p>
+            
+            {colorVariants.map((color, idx) => (
+              <div key={idx} className="flex flex-col md:flex-row items-center gap-4 bg-surface-container-low p-4 border border-outline-variant/30 relative">
+                <button
+                  type="button"
+                  onClick={() => removeColorVariant(idx)}
+                  className="absolute top-2 right-2 text-red-500 hover:text-red-700 text-sm font-bold"
+                >
+                  ✕
+                </button>
+                <div className="flex-1 w-full">
+                  <label className="text-[11px] font-semibold text-primary uppercase block mb-1">Nama Warna</label>
+                  <input
+                    type="text"
+                    value={color.name}
+                    onChange={(e) => handleColorNameChange(idx, e.target.value)}
+                    className="w-full bg-background border border-outline-variant/50 p-2 text-[13px] text-primary focus:outline-none focus:border-primary transition-colors"
+                    placeholder="e.g. BLACK"
+                  />
+                </div>
+                <div className="flex-shrink-0 flex items-center gap-4">
+                  {color.preview && (
+                    <img src={color.preview} loading="lazy" alt="Preview" className="w-16 h-16 object-cover border border-outline-variant/30" />
+                  )}
+                  <div>
+                    <label className="block bg-background border border-dashed border-outline-variant/50 px-4 py-2 cursor-pointer hover:border-primary text-[11px] uppercase tracking-widest text-center transition-colors">
+                      {color.preview ? "Ganti Foto" : "Upload Foto"}
+                      <input
+                        type="file"
+                        onChange={(e) => handleColorImageChange(idx, e)}
+                        accept="image/*"
+                        className="sr-only"
+                      />
+                    </label>
+                  </div>
+                </div>
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={addColorVariant}
+              className="w-full py-3 border border-dashed border-primary text-primary text-[12px] font-semibold uppercase tracking-widest hover:bg-primary/5 transition-colors"
+            >
+              + Tambah Warna Baru
+            </button>
           </div>
 
           {/* Image */}
