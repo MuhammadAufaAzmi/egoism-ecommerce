@@ -9,10 +9,17 @@ export default function ParallaxHero({ children }: { children: React.ReactNode }
     const bg = bgRef.current;
     if (!bg) return;
 
+    let ticking = false;
     const handleScroll = () => {
-      const scrollY = window.scrollY;
-      // Move bg at 40% of scroll speed — classic parallax
-      bg.style.transform = `translateY(${scrollY * 0.4}px)`;
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const scrollY = window.scrollY;
+          // Move bg at 40% of scroll speed — classic parallax
+          bg.style.transform = `translateY(${scrollY * 0.4}px)`;
+          ticking = false;
+        });
+        ticking = true;
+      }
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });

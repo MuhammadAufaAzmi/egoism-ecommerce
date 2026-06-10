@@ -41,14 +41,21 @@ function ParallaxCard({
     const bg = bgRef.current;
     if (!wrapper || !bg) return;
 
+    let ticking = false;
     const handleScroll = () => {
-      const rect = wrapper.getBoundingClientRect();
-      const windowH = window.innerHeight;
-      // Relative position: 0 = element center is at viewport center
-      const relativePos = (rect.top + rect.height / 2 - windowH / 2) / windowH;
-      // Parallax shift ±55px
-      const shift = relativePos * 55;
-      bg.style.transform = `translateY(${shift}px) scale(1.18)`;
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const rect = wrapper.getBoundingClientRect();
+          const windowH = window.innerHeight;
+          // Relative position: 0 = element center is at viewport center
+          const relativePos = (rect.top + rect.height / 2 - windowH / 2) / windowH;
+          // Parallax shift ±55px
+          const shift = relativePos * 55;
+          bg.style.transform = `translateY(${shift}px) scale(1.18)`;
+          ticking = false;
+        });
+        ticking = true;
+      }
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
