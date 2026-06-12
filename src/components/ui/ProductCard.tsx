@@ -141,6 +141,21 @@ export default function ProductCard({ product }: ProductCardProps) {
           />
         </div>
 
+        {/* Mobile Quick Add Button */}
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setQuickAddOpen(true);
+          }}
+          className="absolute bottom-4 right-4 z-10 md:hidden bg-primary text-on-primary p-2.5 rounded-full shadow-lg"
+          aria-label="Quick Add"
+        >
+          <svg aria-hidden="true" className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 4v16m8-8H4" />
+          </svg>
+        </button>
+
         {/* Quick Add Overlay */}
         <div className="absolute inset-x-0 bottom-0 translate-y-full group-hover:translate-y-0 transition-transform duration-400 ease-out z-20">
           {!quickAddOpen ? (
@@ -250,7 +265,7 @@ export default function ProductCard({ product }: ProductCardProps) {
               />
             ))}
             {colors.length > 5 && (
-              <span className="text-[9px] text-secondary self-center">
+              <span className="text-[9px] text-gray-400 self-center font-medium">
                 +{colors.length - 5}
               </span>
             )}

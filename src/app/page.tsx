@@ -45,20 +45,22 @@ export default async function HomePage() {
               EGOISM — SS26
             </p>
           </div>
-          <div className="hero-text-line mb-2">
-            <span style={{ animationDelay: "0.3s" }}>
-              <h1 className="font-heading text-[44px] md:text-[96px] leading-[1.05] text-on-primary font-bold tracking-tight uppercase">
-                THE NEW
-              </h1>
-            </span>
-          </div>
-          <div className="hero-text-line mb-8">
-            <span style={{ animationDelay: "0.5s" }}>
-              <p className="font-heading text-[44px] md:text-[96px] leading-[1.05] text-on-primary font-bold tracking-tight uppercase">
-                COLLECTION
-              </p>
-            </span>
-          </div>
+          <h1 className="flex flex-col items-center">
+            <div className="hero-text-line mb-2">
+              <span style={{ animationDelay: "0.3s" }}>
+                <span className="font-heading text-[44px] md:text-[96px] leading-[1.05] text-on-primary font-bold tracking-tight uppercase block">
+                  THE NEW
+                </span>
+              </span>
+            </div>
+            <div className="hero-text-line mb-8">
+              <span style={{ animationDelay: "0.5s" }}>
+                <span className="font-heading text-[44px] md:text-[96px] leading-[1.05] text-on-primary font-bold tracking-tight uppercase block">
+                  COLLECTION
+                </span>
+              </span>
+            </div>
+          </h1>
 
           {/* Kelompokkan Tombol Navigasi Hero */}
           <div className="flex flex-col sm:flex-row items-center gap-4 animate-fade-in-up delay-700">
@@ -221,6 +223,34 @@ export default async function HomePage() {
             <div className="w-16 h-[1px] bg-secondary/30 mx-auto mt-10" />
           </div>
         </ScrollReveal>
+      </section>
+      {/* ========================================
+          TRUST SIGNALS & NEWSLETTER
+          ======================================== */}
+      <section className="w-full py-[80px] md:py-[100px] bg-background flex flex-col items-center px-5 md:px-16">
+        <ScrollReveal>
+          <div className="max-w-[800px] w-full text-center mb-16">
+            <h3 className="text-[12px] md:text-[14px] leading-[16px] tracking-[0.4em] font-semibold text-secondary uppercase mb-4">
+              SECURE CHECKOUT
+            </h3>
+            <p className="text-[20px] md:text-[28px] font-heading text-primary uppercase font-bold tracking-tight mb-8">
+              MANUAL PAYMENT ACCEPTED
+            </p>
+            <div className="flex flex-wrap justify-center items-center gap-6 md:gap-10 opacity-70">
+              {/* Fake bank logos using text as placeholder to not break images */}
+              <div className="px-6 py-3 border border-outline-variant/30 flex items-center justify-center font-bold tracking-wider text-primary">
+                BCA
+              </div>
+              <div className="px-6 py-3 border border-outline-variant/30 flex items-center justify-center font-bold tracking-wider text-primary">
+                MANDIRI
+              </div>
+              <div className="px-6 py-3 border border-outline-variant/30 flex items-center justify-center font-bold tracking-wider text-primary">
+                QRIS
+              </div>
+            </div>
+          </div>
+        </ScrollReveal>
+
       </section>
     </div>
   );

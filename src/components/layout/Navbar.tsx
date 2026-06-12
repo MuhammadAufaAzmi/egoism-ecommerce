@@ -148,7 +148,7 @@ export default function Navbar() {
   return (
     <>
       {/* Announcement Bar */}
-      <div className="w-full bg-[#1a1a18] text-white py-2 px-4 text-center text-[10px] md:text-[11px] font-bold tracking-[0.2em] uppercase flex items-center justify-center gap-2">
+      <div className="w-full bg-[#1a1a18] text-white py-2 px-4 text-center text-[12px] md:text-[13px] font-bold tracking-[0.2em] uppercase flex items-center justify-center gap-2">
         <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
         FREE SHIPPING JABODETABEK AREA
       </div>
@@ -173,7 +173,7 @@ export default function Navbar() {
                   className={`text-[13px] font-medium tracking-[0.15em] uppercase transition-colors duration-300 pb-1 border-b ${
                     isActive
                       ? "text-primary border-primary"
-                      : "text-secondary border-transparent hover:text-primary hover:border-primary/50"
+                      : "text-secondary border-transparent hover:text-primary hover:border-primary"
                   }`}
                 >
                   {link.label}
@@ -191,6 +191,7 @@ export default function Navbar() {
               aria-label="Open search bar"
             >
               <svg
+                aria-hidden="true"
                 className="w-5 h-5"
                 fill="none"
                 stroke="currentColor"
@@ -211,7 +212,7 @@ export default function Navbar() {
               title="Saved Items"
               aria-label="Wishlist"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg aria-hidden="true" className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
               </svg>
             </Link>
@@ -221,7 +222,7 @@ export default function Navbar() {
               className="relative text-secondary hover:text-primary transition-colors"
               aria-label="Shopping bag"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg aria-hidden="true" className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
               </svg>
               {cartCount > 0 && (
@@ -238,7 +239,7 @@ export default function Navbar() {
                   className={`text-[13px] font-medium tracking-[0.15em] uppercase transition-colors duration-300 pb-1 border-b ${
                     pathname === "/my-account"
                       ? "text-primary border-primary"
-                      : "text-secondary border-transparent hover:text-primary hover:border-primary/50"
+                      : "text-secondary border-transparent hover:text-primary hover:border-primary"
                   }`}
                 >
                   MY ACCOUNT
@@ -267,7 +268,7 @@ export default function Navbar() {
               className="relative text-primary focus:outline-none"
               aria-label="Shopping bag"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg aria-hidden="true" className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
               </svg>
               {cartCount > 0 && (
@@ -282,6 +283,7 @@ export default function Navbar() {
               aria-label="Toggle search bar"
             >
               <svg
+                aria-hidden="true"
                 className="w-5 h-5"
                 fill="none"
                 stroke="currentColor"
@@ -302,6 +304,7 @@ export default function Navbar() {
               aria-label="Toggle navigation menu"
             >
               <svg
+                aria-hidden="true"
                 className="w-6 h-6"
                 fill="none"
                 stroke="currentColor"

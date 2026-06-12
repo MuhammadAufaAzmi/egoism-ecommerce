@@ -20,6 +20,7 @@ const montserrat = Montserrat({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://www.egoism.id"),
   title: "EGOISM — Luxury Minimalist Fashion",
   description: "Premium streetwear brand with minimalist and elegant designs.",
   manifest: "/manifest.json",
@@ -32,6 +33,22 @@ export const metadata: Metadata = {
     title: "EGOISM",
     description: "Luxury Minimalist Fashion",
     type: "website",
+    url: "https://www.egoism.id",
+    siteName: "EGOISM",
+    images: [
+      {
+        url: "/hero-main.png",
+        width: 1200,
+        height: 630,
+        alt: "EGOISM Collection",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "EGOISM",
+    description: "Luxury Minimalist Fashion",
+    images: ["/hero-main.png"],
   },
 };
 
