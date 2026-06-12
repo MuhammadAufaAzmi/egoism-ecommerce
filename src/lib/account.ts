@@ -1,16 +1,16 @@
 "use server";
-
+import { getSession, clearSession, createSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { cookies } from "next/headers";
 
 export async function getUserId() {
   const cookieStore = await cookies();
-  return cookieStore.get("user_id")?.value;
+  return (await getSession())?.userId;
 }
 
 export async function isGuestUser() {
   const cookieStore = await cookies();
-  return cookieStore.get("user_role")?.value === "GUEST";
+  return (await getSession())?.role === "GUEST";
 }
 
 // FITUR PROFIL

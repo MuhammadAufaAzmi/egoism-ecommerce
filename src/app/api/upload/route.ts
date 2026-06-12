@@ -1,3 +1,4 @@
+import { getSession, clearSession, createSession } from "@/lib/session";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
@@ -22,8 +23,8 @@ export async function POST(req: Request) {
     }
 
     // CEK AUTENTIKASI: Hanya admin yang boleh upload
-    const cookieStore = await cookies();
-    const userId = cookieStore.get("user_id")?.value;
+    const session = await getSession();
+  const userId = session?.userId;
     
     if (!userId) {
       return NextResponse.json(
@@ -43,6 +44,26 @@ export async function POST(req: Request) {
         { status: 403 }
       );
     }
+
+    // --- PROTEKSI UPLOAD ---
+    // 1. Validasi Tipe File (MIME Type)
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+    if (!allowedTypes.includes(file.type)) {
+      return NextResponse.json(
+        { success: false, message: "Tipe file tidak diizinkan. Hanya JPG, PNG, dan WEBP yang diperbolehkan." },
+        { status: 400 }
+      );
+    }
+
+    // 2. Validasi Ukuran File (Max 5MB)
+    const MAX_SIZE = 5 * 1024 * 1024; // 5 MB
+    if (file.size > MAX_SIZE) {
+      return NextResponse.json(
+        { success: false, message: "Ukuran file terlalu besar. Maksimal 5MB." },
+        { status: 400 }
+      );
+    }
+    // -----------------------
 
     // Ubah file menjadi buffer data mentah
     const bytes = await file.arrayBuffer();

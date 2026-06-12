@@ -1,3 +1,4 @@
+import { getSession, clearSession, createSession } from "@/lib/session";
 import Image from "next/image";
 import Link from "next/link";
 import { cookies } from "next/headers";
@@ -25,8 +26,8 @@ interface CartItem {
 }
 
 export default async function KeranjangPage() {
-  const cookieStore = await cookies();
-  const userId = cookieStore.get("user_id")?.value;
+  const session = await getSession();
+  const userId = session?.userId;
 
   if (!userId) {
     redirect("/login");

@@ -1,11 +1,12 @@
+import { getSession, clearSession, createSession } from "@/lib/session";
 import { getWishlist } from "@/lib/wishlist";
 import ProductCard from "@/components/ui/ProductCard";
 import Link from "next/link";
 import { cookies } from "next/headers";
 
 export default async function WishlistPage() {
-  const cookieStore = await cookies();
-  const userId = cookieStore.get("user_id")?.value;
+  const session = await getSession();
+  const userId = session?.userId;
   
   if (!userId) {
     return (

@@ -1,9 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { decrypt } from "@/lib/session";
 
 export async function GET(req: NextRequest) {
   try {
-    const userId = req.cookies.get("user_id")?.value;
+    const sessionToken = req.cookies.get("session")?.value;
+    if (!sessionToken) {
+      return NextResponse.json({ authenticated: false }, { status: 401 });
+    }
+
+    const payload = await decrypt(sessionToken);
+    const userId = payload?.userId;
 
     if (!userId) {
       return NextResponse.json({ authenticated: false }, { status: 401 });

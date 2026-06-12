@@ -1,5 +1,5 @@
 "use server";
-
+import { getSession, clearSession, createSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { cookies } from "next/headers";
 import { sendOrderCreatedEmail } from "@/lib/email";
@@ -13,8 +13,8 @@ interface CheckoutOptions {
 
 export async function processCheckout(options?: CheckoutOptions) {
   try {
-    const cookieStore = await cookies();
-    const userId = cookieStore.get("user_id")?.value;
+    const session = await getSession();
+  const userId = session?.userId;
 
     if (!userId) {
       return { success: false, message: "Silakan login terlebih dahulu." };

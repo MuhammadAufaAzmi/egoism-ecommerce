@@ -1,13 +1,13 @@
 "use server";
-
+import { getSession, clearSession, createSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { v2 as cloudinary } from "cloudinary";
 import { cookies } from "next/headers";
 
 async function verifyAdmin() {
-  const cookieStore = await cookies();
-  const userId = cookieStore.get("user_id")?.value;
+  const session = await getSession();
+  const userId = session?.userId;
   if (!userId) return false;
 
   const user = await prisma.user.findUnique({

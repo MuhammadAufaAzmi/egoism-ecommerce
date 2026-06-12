@@ -1,14 +1,12 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { Product } from "@/types";
+import type { Product } from "@/types";
 import { revalidatePath } from "next/cache";
-import { cookies } from "next/headers";
 import crypto from "crypto";
-
 import { unstable_cache } from "next/cache";
+import { getSession, createSession } from "@/lib/session";
 
-export type { Product };
 
 // === HELPER ===
 const parseProduct = (p: any) => {
@@ -202,8 +200,8 @@ export async function handleUpdateCartQuantity(
   currentQty: number,
   delta: number,
 ) {
-  const cookieStore = await cookies();
-  const userId = cookieStore.get("user_id")?.value;
+  const session = await getSession();
+  const userId = session?.userId;
   if (!userId) return { success: false };
 
   const targetQty = currentQty + delta;
@@ -225,8 +223,8 @@ export async function handleUpdateCartQuantity(
 }
 
 export async function handleRemoveCartItem(cartId: string) {
-  const cookieStore = await cookies();
-  const userId = cookieStore.get("user_id")?.value;
+  const session = await getSession();
+  const userId = session?.userId;
   if (!userId) return { success: false };
 
   try {
@@ -246,8 +244,8 @@ export async function handleAddToCart(
   fitType: string = "regular",
 ) {
   try {
-    const cookieStore = await cookies();
-    let userId = cookieStore.get("user_id")?.value;
+    const session = await getSession();
+    let userId = session?.userId;
 
     if (!userId) {
       // GUEST USER CREATION
@@ -264,20 +262,8 @@ export async function handleAddToCart(
         }
       });
       
-      // Menggunakan await cookies() set (Next.js 14/15)
-      cookieStore.set("user_id", newGuest.id, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        maxAge: 60 * 60 * 24 * 30, // 30 days
-      });
-      
-      cookieStore.set("user_role", "GUEST", {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        maxAge: 60 * 60 * 24 * 30,
-      });
+      // BUAT SESI JWT AMAN UNTUK GUEST
+      await createSession(newGuest.id, "GUEST");
 
       userId = newGuest.id;
     }

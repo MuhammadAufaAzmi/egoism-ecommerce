@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useTransition } from "react";
-import { Product } from "@/lib/products";
+import type { Product } from "@/types";
 import WishlistButton from "@/components/ui/WishlistButton";
 import { handleAddToCart } from "@/lib/products";
 

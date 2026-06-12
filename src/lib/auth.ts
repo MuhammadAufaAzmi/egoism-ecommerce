@@ -2,9 +2,9 @@
 
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
-import { cookies } from "next/headers";
 import crypto from "crypto";
 import { sendPasswordResetEmail } from "@/lib/email";
+import { createSession } from "@/lib/session";
 
 // === REGISTRASI ===
 export async function registerUser(formData: any) {
@@ -72,19 +72,10 @@ export async function loginUser(formData: any) {
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid)
       return { success: false, message: "Email atau password salah!" };
-    const cookieStore = await cookies();
-    cookieStore.set("user_role", user.role, {
-      httpOnly: true, // PERBAIKAN: Mencegah XSS membaca cookie role
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 60 * 60 * 24,
-      path: "/",
-    });
-    cookieStore.set("user_id", user.id, {
-      httpOnly: true, // PERBAIKAN: Mencegah XSS membaca cookie id
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 60 * 60 * 24,
-      path: "/",
-    });
+      
+    // BUAT SESI JWT AMAN
+    await createSession(user.id, user.role);
+
     return {
       success: true,
       message: `Selamat datang kembali, ${user.firstName || "User"}!`,
@@ -165,10 +156,13 @@ export async function resetPassword(token: string, newPassword: string) {
 }
 
 // === CHANGE PASSWORD ===
+import { getSession } from "@/lib/session";
+
 export async function changePassword(currentPass: string, newPass: string) {
   try {
-    const cookieStore = await cookies();
-    const userId = cookieStore.get("user_id")?.value;
+    const session = await getSession();
+    const userId = session?.userId;
+    
     if (!userId) return { success: false, message: "Sesi telah berakhir. Silakan login ulang." };
 
     const user = await prisma.user.findUnique({ where: { id: userId } });

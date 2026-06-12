@@ -1,5 +1,5 @@
 "use server";
-
+import { getSession, clearSession, createSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { cookies } from "next/headers";
 import { sendOrderStatusEmail } from "@/lib/email";
@@ -18,8 +18,8 @@ function extractPublicId(url: string) {
 }
 // Fungsi keamanan untuk memastikan hanya ADMIN yang bisa mengeksekusi
 async function verifyAdmin() {
-  const cookieStore = await cookies();
-  const userId = cookieStore.get("user_id")?.value;
+  const session = await getSession();
+  const userId = session?.userId;
   if (!userId) return false;
 
   const user = await prisma.user.findUnique({

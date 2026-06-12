@@ -1,10 +1,11 @@
+import { getSession, clearSession, createSession } from "@/lib/session";
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 
 async function verifyAdmin() {
-  const cookieStore = await cookies();
-  const userId = cookieStore.get("user_id")?.value;
+  const session = await getSession();
+  const userId = session?.userId;
   if (!userId) return false;
   const user = await prisma.user.findUnique({ where: { id: userId }, select: { role: true } });
   return user?.role === "ADMIN";

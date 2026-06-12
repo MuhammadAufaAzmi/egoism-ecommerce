@@ -1,11 +1,11 @@
 "use server";
-
+import { getSession, clearSession, createSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { cookies } from "next/headers";
 
 export async function canUserReview(productId: string) {
-  const cookieStore = await cookies();
-  const userId = cookieStore.get("user_id")?.value;
+  const session = await getSession();
+  const userId = session?.userId;
 
   if (!userId) return false;
 
@@ -36,8 +36,8 @@ export async function canUserReview(productId: string) {
 }
 
 export async function addReview(productId: string, rating: number, comment: string) {
-  const cookieStore = await cookies();
-  const userId = cookieStore.get("user_id")?.value;
+  const session = await getSession();
+  const userId = session?.userId;
 
   if (!userId) return { success: false, message: "Silakan login terlebih dahulu." };
   if (rating < 1 || rating > 5) return { success: false, message: "Rating tidak valid." };

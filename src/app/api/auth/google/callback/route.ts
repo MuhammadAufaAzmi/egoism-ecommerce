@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { cookies } from "next/headers";
+import { createSession } from "@/lib/session";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -68,19 +69,7 @@ export async function GET(request: Request) {
     }
 
     // 4. Set Session Cookies
-    const cookieStore = await cookies();
-    cookieStore.set("user_role", user.role, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 60 * 60 * 24,
-      path: "/",
-    });
-    cookieStore.set("user_id", user.id, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 60 * 60 * 24,
-      path: "/",
-    });
+    await createSession(user.id, user.role);
 
     // 5. Redirect to Home
     return NextResponse.redirect(`${baseUrl}/`);
