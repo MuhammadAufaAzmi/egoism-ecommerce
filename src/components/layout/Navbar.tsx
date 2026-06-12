@@ -5,12 +5,14 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { getCartItems } from "@/lib/products";
+import { SlideOverCart } from "@/components/ui/untitled/SlideOverCart";
 
 export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isCartOpen, setIsCartOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [cartCount, setCartCount] = useState(0);
@@ -217,9 +219,9 @@ export default function Navbar() {
               </svg>
             </Link>
 
-            <Link
-              href="/keranjang"
-              className="relative text-secondary hover:text-primary transition-colors"
+            <button
+              onClick={() => setIsCartOpen(true)}
+              className="relative text-secondary hover:text-primary transition-colors focus:outline-none"
               aria-label="Shopping bag"
             >
               <svg aria-hidden="true" className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -230,7 +232,7 @@ export default function Navbar() {
                   {cartCount}
                 </span>
               )}
-            </Link>
+            </button>
 
             {isLoggedIn ? (
               <div className="flex items-center gap-4">
@@ -263,8 +265,8 @@ export default function Navbar() {
 
           {/* MOBILE HAMBURGER & SEARCH */}
           <div className="md:hidden flex items-center gap-4">
-            <Link
-              href="/keranjang"
+            <button
+              onClick={() => setIsCartOpen(true)}
               className="relative text-primary focus:outline-none"
               aria-label="Shopping bag"
             >
@@ -276,7 +278,7 @@ export default function Navbar() {
                   {cartCount}
                 </span>
               )}
-            </Link>
+            </button>
             <button
               onClick={() => setIsSearchOpen(!isSearchOpen)}
               className="text-primary focus:outline-none"
@@ -452,13 +454,15 @@ export default function Navbar() {
               >
                 WISHLIST
               </Link>
-              <Link
-                href="/keranjang"
-                onClick={() => setIsOpen(false)}
-                className="text-[14px] font-medium tracking-[0.1em] text-secondary hover:text-primary transition-colors uppercase py-2"
+              <button
+                onClick={() => {
+                  setIsOpen(false);
+                  setIsCartOpen(true);
+                }}
+                className="text-left w-full text-[14px] font-medium tracking-[0.1em] text-secondary hover:text-primary transition-colors uppercase py-2"
               >
                 CART ({cartCount})
-              </Link>
+              </button>
               {isLoggedIn ? (
                 <>
                   <Link
@@ -516,6 +520,9 @@ export default function Navbar() {
           </div>
         </div>
       )}
+
+      {/* SLIDE-OVER CART */}
+      <SlideOverCart isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
     </>
   );
 }

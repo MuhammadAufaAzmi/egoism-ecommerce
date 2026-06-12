@@ -6,6 +6,7 @@ import { useState, useTransition } from "react";
 import type { Product } from "@/types";
 import WishlistButton from "@/components/ui/WishlistButton";
 import { handleAddToCart } from "@/lib/products";
+import { toast } from "sonner";
 
 // Peta warna nama → hex CSS untuk color swatches
 const COLOR_MAP: Record<string, string> = {
@@ -72,7 +73,6 @@ export default function ProductCard({ product }: ProductCardProps) {
   const [quickAddColor, setQuickAddColor] = useState("");
   const [quickAddOpen, setQuickAddOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
-  const [addMsg, setAddMsg] = useState<{ type: string; text: string } | null>(null);
 
   const displayPrice = (price: number) =>
     new Intl.NumberFormat("id-ID", {
@@ -88,14 +88,12 @@ export default function ProductCard({ product }: ProductCardProps) {
     startTransition(async () => {
       const result = await handleAddToCart(product.id, size, color);
       if (result.success) {
-        setAddMsg({ type: "success", text: "Added!" });
+        toast.success(`Berhasil ditambahkan: ${product.name} (${size})`);
         setTimeout(() => {
-          setAddMsg(null);
           setQuickAddOpen(false);
-        }, 1200);
+        }, 500);
       } else {
-        setAddMsg({ type: "error", text: result.message });
-        setTimeout(() => setAddMsg(null), 2000);
+        toast.error(result.message);
       }
     });
   };
@@ -199,13 +197,7 @@ export default function ProductCard({ product }: ProductCardProps) {
               )}
 
               {/* Size selector */}
-              {addMsg ? (
-                <p
-                  className={`text-center text-[11px] tracking-widest uppercase py-1 ${addMsg.type === "success" ? "text-green-600" : "text-red-400"}`}
-                >
-                  {addMsg.text}
-                </p>
-              ) : sizes.length > 0 ? (
+              {sizes.length > 0 ? (
                 <div className="flex flex-wrap gap-1 justify-center">
                   {sizes.map((size) => (
                     <button

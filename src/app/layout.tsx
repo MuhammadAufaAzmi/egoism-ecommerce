@@ -9,6 +9,7 @@ import AnnouncementBar from "@/components/ui/AnnouncementBar";
 import BackToTop from "@/components/ui/BackToTop";
 import PromoPopup from "@/components/ui/PromoPopup";
 import CookieConsent from "@/components/ui/CookieConsent";
+import { Toaster } from "sonner";
 
 import NextTopLoader from "nextjs-toploader";
 
@@ -101,6 +102,7 @@ export default function RootLayout({
           speed={200}
           shadow="0 0 10px #1a1a1a,0 0 5px #1a1a1a"
         />
+        <Toaster position="top-right" />
         <ToastProvider>
           <AnnouncementBar />
           <Navbar />

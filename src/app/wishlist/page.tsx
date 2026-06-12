@@ -3,6 +3,8 @@ import { getWishlist } from "@/lib/wishlist";
 import ProductCard from "@/components/ui/ProductCard";
 import Link from "next/link";
 import { cookies } from "next/headers";
+import { EmptyState } from "@/components/ui/untitled/EmptyState";
+import { HeartCrack } from "lucide-react";
 
 export default async function WishlistPage() {
   const session = await getSession();
@@ -38,16 +40,16 @@ export default async function WishlistPage() {
         </div>
 
         {wishlist.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 border border-dashed border-outline-variant/30 bg-surface-container-low/30">
-            <span className="material-symbols-outlined text-[64px] text-outline-variant/50 mb-6">heart_broken</span>
-            <h2 className="text-[20px] font-bold uppercase tracking-widest mb-4">Wishlist Anda Kosong</h2>
-            <p className="text-[14px] text-secondary tracking-wider text-center mb-8 max-w-md">
-              Anda belum menyimpan satupun produk. Klik ikon hati pada produk untuk menyimpannya di sini.
-            </p>
-            <Link href="/koleksi" className="px-8 py-4 bg-primary text-on-primary font-bold uppercase tracking-widest hover:opacity-90 transition-opacity">
-              MULAI BELANJA
-            </Link>
-          </div>
+          <EmptyState
+            icon={HeartCrack}
+            title="Wishlist Anda Kosong"
+            description="Anda belum menyimpan satupun produk. Klik ikon hati pada produk untuk menyimpannya di sini."
+            action={
+              <Link href="/koleksi" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-black hover:bg-gray-800 transition-colors">
+                MULAI BELANJA
+              </Link>
+            }
+          />
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-12">
             {wishlist.map((item) => (

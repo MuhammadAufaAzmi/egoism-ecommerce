@@ -10,6 +10,8 @@ import {
   getProducts,
 } from "@/lib/products";
 import ProductCard from "@/components/ui/ProductCard";
+import { EmptyState } from "@/components/ui/untitled/EmptyState";
+import { ShoppingBag } from "lucide-react";
 
 export const metadata = { title: "Shopping Bag — EGOISM" };
 
@@ -63,17 +65,19 @@ export default async function KeranjangPage() {
 
         {items.length === 0 ? (
           <div className="flex flex-col items-center">
-            <div className="text-center py-24 mb-12">
-              <p className="text-[18px] text-secondary mb-8">
-                Your bag is empty.
-              </p>
-              <Link
-                href="/koleksi"
-                className="inline-block border border-primary px-10 py-4 text-[14px] tracking-[0.05em] font-medium uppercase text-primary hover:bg-primary hover:text-on-primary transition-colors"
-              >
-                EXPLORE COLLECTION
-              </Link>
-            </div>
+            <EmptyState 
+              icon={ShoppingBag}
+              title="Your bag is empty"
+              description="Looks like you haven't added anything to your cart yet. Explore our latest arrivals."
+              action={
+                <Link
+                  href="/koleksi"
+                  className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-black hover:bg-gray-800 transition-colors"
+                >
+                  Explore Collection
+                </Link>
+              }
+            />
             
             <div className="w-full pt-16 border-t border-outline-variant/30">
               <h2 className="text-[20px] font-medium text-primary uppercase mb-8 tracking-widest text-center">
