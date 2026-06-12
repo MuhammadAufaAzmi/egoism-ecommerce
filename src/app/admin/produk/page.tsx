@@ -17,7 +17,12 @@ export default function AdminProdukPage() {
 
   useEffect(() => {
     getProducts().then((data) => {
-      setProducts(data);
+      const sorted = data.sort((a, b) => {
+        const dateA = a.updatedAt ? new Date(a.updatedAt).getTime() : 0;
+        const dateB = b.updatedAt ? new Date(b.updatedAt).getTime() : 0;
+        return dateB - dateA;
+      });
+      setProducts(sorted);
       setLoading(false);
     });
   }, []);
@@ -116,13 +121,14 @@ export default function AdminProdukPage() {
                   <th className="p-4 font-semibold uppercase tracking-widest text-[10px] text-secondary">Kategori</th>
                   <th className="p-4 font-semibold uppercase tracking-widest text-[10px] text-secondary">Harga</th>
                   <th className="p-4 font-semibold uppercase tracking-widest text-[10px] text-secondary">Size</th>
+                  <th className="p-4 font-semibold uppercase tracking-widest text-[10px] text-secondary">Terakhir Diedit</th>
                   <th className="p-4 font-semibold uppercase tracking-widest text-[10px] text-secondary text-right">Aksi</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-outline-variant/20">
                 {filteredProducts.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="p-16 text-center">
+                    <td colSpan={7} className="p-16 text-center">
                       <span className="material-symbols-outlined text-[48px] text-outline-variant/50 block mb-3">inventory_2</span>
                       <p className="text-secondary uppercase tracking-wider text-[12px] font-medium">
                         {searchQuery ? "Tidak ada produk yang cocok." : "Belum ada produk."}
@@ -169,6 +175,13 @@ export default function AdminProdukPage() {
                             <span className="text-[10px] text-secondary">N/A</span>
                           )}
                         </div>
+                      </td>
+                      <td className="p-4">
+                        <p className="text-[10px] text-secondary uppercase tracking-widest">
+                          {product.updatedAt 
+                            ? new Intl.DateTimeFormat('id-ID', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(product.updatedAt)).replace('.', ':')
+                            : "N/A"}
+                        </p>
                       </td>
                       <td className="p-4 text-right">
                         <div className="flex items-center justify-end gap-2">
