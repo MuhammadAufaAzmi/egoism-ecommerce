@@ -6,6 +6,8 @@ import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import crypto from "crypto";
 
+import { unstable_cache } from "next/cache";
+
 export type { Product };
 
 // === HELPER ===
@@ -59,39 +61,54 @@ const parseProduct = (p: any) => {
 };
 
 // === LOGIKA PRODUK ===
-export const getProducts = async () => {
-  const dbProducts = await prisma.product.findMany();
-  return dbProducts.map(parseProduct);
-};
+export const getProducts = unstable_cache(
+  async () => {
+    const dbProducts = await prisma.product.findMany();
+    return dbProducts.map(parseProduct);
+  },
+  ["products-all"],
+  { revalidate: 3600, tags: ["products"] }
+);
 
-export const getProductBySlug = async (slug: string) => {
-  // PERBAIKAN: Menambahkan ': any' untuk membungkam cache error TypeScript bawaan VS Code
-  const p: any = await prisma.product.findUnique({
-    where: { slug },
-  });
-  if (!p) return null;
-  return parseProduct(p);
-};
+export const getProductBySlug = unstable_cache(
+  async (slug: string) => {
+    const p: any = await prisma.product.findUnique({
+      where: { slug },
+    });
+    if (!p) return null;
+    return parseProduct(p);
+  },
+  ["product-by-slug"],
+  { revalidate: 3600, tags: ["products"] }
+);
 
-export const getRelatedProducts = async (currentSlug: string, category: string, limit: number = 4) => {
-  const dbProducts = await prisma.product.findMany({
-    where: {
-      category,
-      NOT: { slug: currentSlug },
-    },
-    take: limit,
-  });
-  return dbProducts.map(parseProduct);
-};
+export const getRelatedProducts = unstable_cache(
+  async (currentSlug: string, category: string, limit: number = 4) => {
+    const dbProducts = await prisma.product.findMany({
+      where: {
+        category,
+        NOT: { slug: currentSlug },
+      },
+      take: limit,
+    });
+    return dbProducts.map(parseProduct);
+  },
+  ["related-products"],
+  { revalidate: 3600, tags: ["products"] }
+);
 
-export const getProductsByCategory = async (category: "men" | "women") => {
-  const dbProducts = await prisma.product.findMany({
-    where: {
-      OR: [{ category: category }, { category: "unisex" }],
-    },
-  });
-  return dbProducts.map(parseProduct);
-};
+export const getProductsByCategory = unstable_cache(
+  async (category: "men" | "women") => {
+    const dbProducts = await prisma.product.findMany({
+      where: {
+        OR: [{ category: category }, { category: "unisex" }],
+      },
+    });
+    return dbProducts.map(parseProduct);
+  },
+  ["category-products"],
+  { revalidate: 3600, tags: ["products"] }
+);
 
 export const getValidRecentProducts = async (ids: string[]) => {
   try {
