@@ -26,7 +26,7 @@ function checkRateLimit(ip: string): boolean {
 // --- MIDDLEWARE ---
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const ip = request.ip || request.headers.get("x-forwarded-for") || "unknown";
+  const ip = request.headers.get("x-forwarded-for") || "unknown";
 
   // 1. Terapkan Rate Limiting pada API endpoints
   if (pathname.startsWith("/api/")) {
