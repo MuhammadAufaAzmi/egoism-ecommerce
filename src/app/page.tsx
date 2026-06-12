@@ -224,34 +224,7 @@ export default async function HomePage() {
           </div>
         </ScrollReveal>
       </section>
-      {/* ========================================
-          TRUST SIGNALS & NEWSLETTER
-          ======================================== */}
-      <section className="w-full py-[80px] md:py-[100px] bg-background flex flex-col items-center px-5 md:px-16">
-        <ScrollReveal>
-          <div className="max-w-[800px] w-full text-center mb-16">
-            <h3 className="text-[12px] md:text-[14px] leading-[16px] tracking-[0.4em] font-semibold text-secondary uppercase mb-4">
-              SECURE CHECKOUT
-            </h3>
-            <p className="text-[20px] md:text-[28px] font-heading text-primary uppercase font-bold tracking-tight mb-8">
-              MANUAL PAYMENT ACCEPTED
-            </p>
-            <div className="flex flex-wrap justify-center items-center gap-6 md:gap-10 opacity-70">
-              {/* Fake bank logos using text as placeholder to not break images */}
-              <div className="px-6 py-3 border border-outline-variant/30 flex items-center justify-center font-bold tracking-wider text-primary">
-                BCA
-              </div>
-              <div className="px-6 py-3 border border-outline-variant/30 flex items-center justify-center font-bold tracking-wider text-primary">
-                MANDIRI
-              </div>
-              <div className="px-6 py-3 border border-outline-variant/30 flex items-center justify-center font-bold tracking-wider text-primary">
-                QRIS
-              </div>
-            </div>
-          </div>
-        </ScrollReveal>
 
-      </section>
     </div>
   );
 }
