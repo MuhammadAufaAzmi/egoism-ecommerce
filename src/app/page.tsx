@@ -1,3 +1,6 @@
+import BlurText from "@/components/ui/reactbits/BlurText";
+import ScrollVelocity from "@/components/ui/reactbits/ScrollVelocity";
+import SpotlightCard from "@/components/ui/reactbits/SpotlightCard";
 import Image from "next/image";
 import Link from "next/link";
 import ProductCard from "@/components/ui/ProductCard";
@@ -45,21 +48,14 @@ export default async function HomePage() {
               EGOISM — SS26
             </p>
           </div>
+
+
           <h1 className="flex flex-col items-center">
-            <div className="hero-text-line mb-2">
-              <span style={{ animationDelay: "0.3s" }}>
-                <span className="font-heading text-[44px] md:text-[96px] leading-[1.05] text-on-primary font-bold tracking-tight uppercase block">
-                  THE NEW
-                </span>
-              </span>
-            </div>
-            <div className="hero-text-line mb-8">
-              <span style={{ animationDelay: "0.5s" }}>
-                <span className="font-heading text-[44px] md:text-[96px] leading-[1.05] text-on-primary font-bold tracking-tight uppercase block">
-                  COLLECTION
-                </span>
-              </span>
-            </div>
+            <BlurText 
+              text="THE NEW COLLECTION" 
+              delay={150} 
+              className="font-heading text-[44px] md:text-[96px] leading-[1.05] text-on-primary font-bold tracking-tight uppercase text-center" 
+            />
           </h1>
 
           {/* Kelompokkan Tombol Navigasi Hero */}
@@ -125,7 +121,9 @@ export default async function HomePage() {
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
           {products.slice(0, 4).map((product: any, index: number) => (
             <ScrollReveal key={product.id} delay={index * 150}>
-              <ProductCard product={product} />
+              <SpotlightCard>
+                <ProductCard product={product} />
+              </SpotlightCard>
             </ScrollReveal>
           ))}
         </div>
@@ -152,7 +150,9 @@ export default async function HomePage() {
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-6">
             {products.slice(4, 14).map((product: any, index: number) => (
               <ScrollReveal key={product.id} delay={index * 100}>
-                <ProductCard product={product} />
+                <SpotlightCard>
+                  <ProductCard product={product} />
+                </SpotlightCard>
               </ScrollReveal>
             ))}
           </div>
@@ -181,21 +181,21 @@ export default async function HomePage() {
           ======================================== */}
       <StatsCounter />
 
+
+
+
       {/* ========================================
           BRAND STORY — About Egoism
           ======================================== */}
       <section className="relative w-full py-[120px] md:py-[180px] bg-surface overflow-hidden flex items-center justify-center border-t border-outline-variant/30">
-        {/* Infinite Marquee Background */}
-        <div className="absolute inset-0 flex flex-col justify-center gap-8 sm:gap-16 opacity-[0.03] pointer-events-none select-none overflow-hidden">
-          <div className="marquee-track font-heading font-bold text-[80px] sm:text-[140px] md:text-[200px] uppercase text-primary leading-none">
-            <span className="px-4">EGOISM PERFORMANCE • LUXURY STREETWEAR •</span>
-            <span className="px-4">EGOISM PERFORMANCE • LUXURY STREETWEAR •</span>
-          </div>
-          <div className="marquee-track-reverse font-heading font-bold text-[80px] sm:text-[140px] md:text-[200px] uppercase text-primary leading-none">
-            <span className="px-4">ONLY YOU MATTER • NO EXCUSES •</span>
-            <span className="px-4">ONLY YOU MATTER • NO EXCUSES •</span>
-            <span className="px-4">ONLY YOU MATTER • NO EXCUSES •</span>
-          </div>
+        {/* Infinite Marquee Background using ReactBits ScrollVelocity */}
+        <div className="absolute inset-0 flex flex-col justify-center gap-8 sm:gap-16 opacity-[0.05] pointer-events-none select-none overflow-hidden">
+          <ScrollVelocity baseVelocity={2} className="font-heading font-bold text-[80px] sm:text-[140px] md:text-[200px] uppercase text-primary leading-none">
+            EGOISM PERFORMANCE • LUXURY STREETWEAR • 
+          </ScrollVelocity>
+          <ScrollVelocity baseVelocity={-2} className="font-heading font-bold text-[80px] sm:text-[140px] md:text-[200px] uppercase text-primary leading-none">
+            ONLY YOU MATTER • NO EXCUSES • 
+          </ScrollVelocity>
         </div>
 
         <ScrollReveal>
