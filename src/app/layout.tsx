@@ -5,7 +5,6 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import MobileBottomNav from "@/components/layout/MobileBottomNav";
 import { ToastProvider } from "@/components/ui/Toast";
-import AnnouncementBar from "@/components/ui/AnnouncementBar";
 import BackToTop from "@/components/ui/BackToTop";
 import PromoPopup from "@/components/ui/PromoPopup";
 import CookieConsent from "@/components/ui/CookieConsent";
@@ -101,7 +100,6 @@ export default function RootLayout({
         />
         <Toaster position="top-right" />
         <ToastProvider>
-          <AnnouncementBar />
           <Navbar />
           <main className="flex-grow">{children}</main>
           <Footer />

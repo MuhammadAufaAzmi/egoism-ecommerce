@@ -1,4 +1,4 @@
-import { cookies } from "next/headers";
+import { getSession } from "@/lib/session";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
@@ -6,8 +6,8 @@ import Link from "next/link";
 export const metadata = { title: "Kelola User — Admin EGOISM" };
 
 export default async function AdminUsersPage() {
-  const cookieStore = await cookies();
-  if (cookieStore.get("user_role")?.value !== "ADMIN") redirect("/");
+  const session = await getSession();
+  if (session?.role !== "ADMIN") redirect("/");
 
   const users = await prisma.user.findMany({
     where: { role: "USER" },

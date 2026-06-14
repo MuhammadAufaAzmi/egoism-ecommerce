@@ -1,4 +1,4 @@
-import { cookies } from "next/headers";
+import { getSession } from "@/lib/session";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getAdminAnalytics } from "@/lib/admin";
@@ -11,8 +11,8 @@ const STATUS_COLOR: Record<string, string> = {
 };
 
 export default async function AdminPage() {
-  const cookieStore = await cookies();
-  if (cookieStore.get("user_role")?.value !== "ADMIN") {
+  const session = await getSession();
+  if (session?.role !== "ADMIN") {
     redirect("/");
   }
 

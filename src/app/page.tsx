@@ -1,7 +1,6 @@
 import BlurText from "@/components/ui/reactbits/BlurText";
 import ScrollVelocity from "@/components/ui/reactbits/ScrollVelocity";
 import SpotlightCard from "@/components/ui/reactbits/SpotlightCard";
-import { Accordion } from "@/components/ui/untitled/Accordion";
 import Image from "next/image";
 import Link from "next/link";
 import ProductCard from "@/components/ui/ProductCard";
@@ -13,15 +12,16 @@ const TrainCategorySection = dynamic(() => import("@/components/home/TrainCatego
 const StatsCounter = dynamic(() => import("@/components/ui/StatsCounter"));
 import { getProducts } from "@/lib/products";
 import { cookies } from "next/headers";
+import { getSession } from "@/lib/session";
 
 export default async function HomePage() {
   // 1. Ambil data pakaian secara realtime dari database
   const products = await getProducts();
   const featuredProducts = products.slice(0, 3);
 
-  // 2. Ambil data role dari cookies browser untuk pengecekan tombol admin
-  const cookieStore = await cookies();
-  const userRole = cookieStore.get("user_role")?.value;
+  // 2. Ambil data role dari session aman
+  const session = await getSession();
+  const userRole = session?.role;
 
   return (
     <div className="pt-[90px]">
@@ -211,39 +211,7 @@ export default async function HomePage() {
         </ScrollReveal>
       </section>
 
-      {/* ========================================
-          FAQ SECTION — Untitled UI Accordion
-          ======================================== */}
-      <section className="w-full py-[100px] md:py-[120px] bg-background px-5 md:px-16 border-t border-outline-variant/30">
-        <div className="max-w-[800px] mx-auto text-center mb-12">
-          <h2 className="font-heading text-[32px] md:text-[48px] leading-[1.1] text-primary uppercase tracking-tight font-bold mb-4">
-            FREQUENTLY ASKED QUESTIONS
-          </h2>
-          <p className="text-sm md:text-base text-secondary">
-            Everything you need to know about our products, shipping, and returns.
-          </p>
-        </div>
-        <Accordion 
-          items={[
-            {
-              question: "Berapa lama waktu pengiriman untuk Jabodetabek?",
-              answer: "Pesanan reguler di area Jabodetabek biasanya memakan waktu 1-3 hari kerja. Pesanan instan/sameday akan tiba di hari yang sama jika dipesan sebelum pukul 14:00 WIB."
-            },
-            {
-              question: "Apakah saya bisa menukar ukuran jika tidak pas?",
-              answer: "Tentu. Kami menerima penukaran ukuran (size exchange) dalam waktu 3 hari setelah barang diterima, asalkan label belum dilepas dan barang belum dicuci atau dipakai."
-            },
-            {
-              question: "Material apa yang digunakan pada koleksi ini?",
-              answer: "Kami menggunakan katun supima premium kelas berat (heavyweight supima cotton 235gsm) yang dirancang khusus untuk kenyamanan maksimal dan daya tahan tinggi, cocok untuk iklim tropis maupun cuaca dingin."
-            },
-            {
-              question: "Apakah metode pembayaran manual aman?",
-              answer: "Sangat aman. Setiap transaksi transfer bank manual ke rekening resmi EGOISM akan diverifikasi oleh tim kami dalam waktu maksimal 30 menit. Anda cukup mengunggah bukti transfer pada dashboard pesanan Anda."
-            }
-          ]} 
-        />
-      </section>
+
 
       {/* ========================================
           QUOTE SECTION — Enhanced Typography
