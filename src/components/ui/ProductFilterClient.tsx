@@ -3,6 +3,7 @@
 import React, { useState, useMemo } from "react";
 import ProductCard from "@/components/ui/ProductCard";
 import ScrollReveal from "@/components/ui/ScrollReveal";
+import SpotlightCard from "@/components/ui/reactbits/SpotlightCard";
 
 interface ProductFilterClientProps {
   initialProducts: any[];
@@ -368,7 +369,9 @@ export default function ProductFilterClient({
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 md:gap-x-6 gap-y-10 md:gap-y-16">
             {processedProducts.map((product, index) => (
               <ScrollReveal key={product.id} delay={index * 100}>
-                <ProductCard product={product} />
+                <SpotlightCard>
+                  <ProductCard product={product} />
+                </SpotlightCard>
               </ScrollReveal>
             ))}
           </div>

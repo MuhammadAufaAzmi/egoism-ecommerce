@@ -79,7 +79,7 @@ export function SlideOverCart({ isOpen, onClose }: SlideOverCartProps) {
       {/* Backdrop */}
       <div
         className={cn(
-          "fixed inset-0 bg-black/50 backdrop-blur-sm z-50 transition-opacity duration-300",
+          "fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] transition-opacity duration-300",
           isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
         )}
         onClick={onClose}
@@ -88,7 +88,7 @@ export function SlideOverCart({ isOpen, onClose }: SlideOverCartProps) {
       {/* Drawer */}
       <div
         className={cn(
-          "fixed top-0 right-0 h-full w-full sm:w-[400px] bg-white z-50 shadow-2xl flex flex-col transition-transform duration-300 ease-in-out transform",
+          "fixed top-0 right-0 h-full w-full sm:w-[400px] bg-white z-[100] shadow-2xl flex flex-col transition-transform duration-300 ease-in-out transform",
           isOpen ? "translate-x-0" : "translate-x-full"
         )}
       >

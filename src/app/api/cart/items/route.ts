@@ -27,7 +27,7 @@ export async function GET() {
       fitType: item.product.fitType,
       price: item.product.price,
       quantity: item.quantity,
-      image: Array.isArray(item.product.images) ? (item.product.images as string[])[0] : (typeof item.product.images === "string" ? JSON.parse(item.product.images)[0] : ""),
+      image: item.product.image,
       productId: item.productId,
       slug: item.product.slug,
     }));
