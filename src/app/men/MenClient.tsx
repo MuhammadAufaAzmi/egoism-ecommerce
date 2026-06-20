@@ -3,6 +3,7 @@
 import React, { useState, useMemo } from "react";
 import ProductCard from "@/components/ui/ProductCard";
 import ScrollReveal from "@/components/ui/ScrollReveal";
+import SpotlightCard from "@/components/ui/reactbits/SpotlightCard";
 
 interface MenClientProps {
   initialProducts: any[];
@@ -301,7 +302,9 @@ export default function MenClient({ initialProducts }: MenClientProps) {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-16">
             {processedProducts.map((product, index) => (
               <ScrollReveal key={product.id} delay={index * 100}>
-                <ProductCard product={product} />
+                <SpotlightCard>
+                  <ProductCard product={product} />
+                </SpotlightCard>
               </ScrollReveal>
             ))}
           </div>

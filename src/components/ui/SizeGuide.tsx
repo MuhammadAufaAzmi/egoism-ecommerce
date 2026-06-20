@@ -2,88 +2,95 @@
 
 import { useState } from "react";
 
-const sizeChartsData: Record<string, { label: string, columns: string[], data: Record<string, string>[] }> = {
+const sizeChartsData: Record<string, { label: string, columns: string[], data: Record<string, string>[], notes?: string }> = {
+  "regular": {
+    label: "REGULAR FIT",
+    columns: ["SIZE", "LEBAR", "PANJANG"],
+    data: [
+      { size: "S", lebar: "48", panjang: "68" },
+      { size: "M", lebar: "50", panjang: "70" },
+      { size: "L", lebar: "52", panjang: "72" },
+      { size: "XL", lebar: "54", panjang: "74" },
+      { size: "XXL", lebar: "56", panjang: "76" },
+      { size: "3XL", lebar: "58", panjang: "79" },
+      { size: "4XL", lebar: "61", panjang: "80" },
+      { size: "5XL", lebar: "63", panjang: "81" },
+    ],
+    notes: "Combed 30s."
+  },
   "oversized": {
-    label: "OVERSIZED T-SHIRT",
+    label: "OVERSIZE",
     columns: ["SIZE", "LEBAR", "PANJANG"],
     data: [
       { size: "M", lebar: "53", panjang: "72" },
       { size: "L", lebar: "57", panjang: "74" },
       { size: "XL", lebar: "60", panjang: "75" },
       { size: "XXL", lebar: "63", panjang: "77" },
-    ]
+    ],
+    notes: "Material: 24s combed."
   },
-  "regular": {
-    label: "REGULAR T-SHIRT",
-    columns: ["SIZE", "LEBAR", "PANJANG"],
+  "muscle-tank": {
+    label: "MUSCLE TANK MAN",
+    columns: ["SIZE", "LEBAR DADA", "PANJANG KAOS"],
+    data: [
+      { size: "M", lebar: "47", panjang: "67" },
+      { size: "L", lebar: "49", panjang: "69" },
+      { size: "XL", lebar: "52", panjang: "72" },
+      { size: "XXL", lebar: "56", panjang: "74" },
+    ],
+    notes: "Material: Cotton Combed 30S. Rekomendasi Berat Badan: M (50-60Kg), L (61-70Kg), XL (71-85Kg), XXL (86-110Kg)."
+  },
+  "long-sleeve": {
+    label: "LONG SLEEVE",
+    columns: ["SIZE", "LEBAR DADA", "PANJANG BADAN"],
     data: [
       { size: "S", lebar: "45", panjang: "68" },
-      { size: "M", lebar: "47", panjang: "70" },
-      { size: "L", lebar: "50", panjang: "72" },
-      { size: "XL", lebar: "53", panjang: "74" },
-      { size: "XXL", lebar: "56", panjang: "75" },
-      { size: "3XL", lebar: "59", panjang: "76" },
-      { size: "4XL", lebar: "61", panjang: "80" },
-      { size: "5XL", lebar: "63", panjang: "81" },
-    ]
+      { size: "M", lebar: "48", panjang: "70" },
+      { size: "L", lebar: "51", panjang: "73" },
+      { size: "XL", lebar: "54", panjang: "74" },
+    ],
+    notes: "Material: Cotton combed 30s. Rekomendasi Berat: S (40-48kg), M (50-60kg), L (60-75kg)."
   },
-  "crop-muscle-tank": {
-    label: "CROP MUSCLE TANK",
+  "crop-tank": {
+    label: "CROP TANK",
     columns: ["SIZE", "LEBAR DADA", "PANJANG"],
     data: [
       { size: "S", lebar: "42", panjang: "35" },
       { size: "M", lebar: "46", panjang: "38" },
       { size: "L", lebar: "50", panjang: "41" },
-    ]
-  },
-  "muscle-tank": {
-    label: "MUSCLE TANK",
-    columns: ["SIZE", "LEBAR", "PANJANG"],
-    data: [
-      { size: "M", lebar: "49", panjang: "69" },
-      { size: "L", lebar: "52", panjang: "72" },
-      { size: "XL", lebar: "56", panjang: "74" },
-      { size: "XXL", lebar: "56", panjang: "74" },
-      { size: "4XL", lebar: "60", panjang: "76" },
-    ]
+    ],
+    notes: "Materials: Cotton combed 24s."
   },
   "women-tank": {
     label: "MUSCLE TANK FEMALE",
-    columns: ["SIZE", "LEBAR", "PANJANG"],
+    columns: ["SIZE", "LEBAR DADA", "PANJANG"],
     data: [
-      { size: "S", lebar: "47", panjang: "56" },
-      { size: "M", lebar: "51", panjang: "60" },
-    ]
+      { size: "S", lebar: "47", panjang: "51" },
+      { size: "M", lebar: "56", panjang: "60" },
+    ],
+    notes: "Materials: Cotton combed 30s."
   },
   "crop": {
-    label: "CROP REGULAR FIT",
-    columns: ["SIZE", "LEBAR", "PANJANG"],
+    label: "CROP REG TSHIRT",
+    columns: ["SIZE", "LINGKAR DADA", "PANJANG BADAN"],
     data: [
-      { size: "M", lebar: "42", panjang: "84" },
-      { size: "L", lebar: "44", panjang: "88" },
-      { size: "XL", lebar: "48", panjang: "92" },
-      { size: "XXL", lebar: "50", panjang: "94" },
-    ]
+      { size: "S", lebar: "-", panjang: "-" },
+      { size: "M", lebar: "84", panjang: "42" },
+      { size: "L", lebar: "88", panjang: "44" },
+      { size: "XL", lebar: "92", panjang: "48" },
+      { size: "XXL", lebar: "94", panjang: "50" },
+    ],
+    notes: "Material: Cotton Combed 30s (Adem, tidak panas). Rekomendasi BB: S(40-45kg), M(45-50kg), L(50-55kg), XL(55-60kg). Kalo tidak mau terlalu ketat, bisa naik size."
   },
   "crop-oversize": {
     label: "CROP OVERSIZE",
-    columns: ["SIZE", "LEBAR", "PANJANG"],
+    columns: ["SIZE", "LINGKAR DADA", "PANJANG"],
     data: [
-      { size: "M", lebar: "90", panjang: "43" },
-      { size: "L", lebar: "96", panjang: "47" },
-      { size: "XL", lebar: "100", panjang: "52" },
-    ]
-  },
-  "long-sleeve": {
-    label: "LONG SLEEVE",
-    columns: ["SIZE", "LEBAR", "PANJANG"],
-    data: [
-      { size: "S", lebar: "45", panjang: "68" },
-      { size: "M", lebar: "47", panjang: "70" },
-      { size: "L", lebar: "50", panjang: "72" },
-      { size: "XL", lebar: "53", panjang: "74" },
-      { size: "XXL", lebar: "56", panjang: "75" },
-    ]
+      { size: "M", lebar: "98", panjang: "43" },
+      { size: "L", lebar: "100", panjang: "47" },
+      { size: "XL", lebar: "106", panjang: "52" },
+    ],
+    notes: "Material: Cotton Combed 30s."
   }
 };
 
@@ -158,7 +165,13 @@ export default function SizeGuide({ fitType }: { fitType?: string | null }) {
               </table>
             </div>
 
-            <p className="text-[11px] text-secondary mt-6 leading-relaxed">
+            {activeChart.notes && (
+              <p className="text-[11px] text-primary mt-6 leading-relaxed font-medium">
+                {activeChart.notes}
+              </p>
+            )}
+
+            <p className="text-[11px] text-secondary mt-2 leading-relaxed">
               Toleransi ukuran ±1-2 cm. Jika berada di antara 2 ukuran, kami sarankan memilih ukuran yang lebih besar untuk fit yang lebih nyaman.
             </p>
           </div>
