@@ -105,8 +105,8 @@ export default function SizeGuide({ fitType }: { fitType?: string | null }) {
     if (ft === "oversized") activeChart = sizeChartsData["oversized"];
     else if (ft === "crop") activeChart = sizeChartsData["crop"];
     else if (ft === "crop-oversize") activeChart = sizeChartsData["crop-oversize"];
-    else if (ft === "crop-tank") activeChart = sizeChartsData["crop-muscle-tank"];
-    else if (ft === "crop-muscle-tank") activeChart = sizeChartsData["crop-muscle-tank"];
+    else if (ft === "crop-tank") activeChart = sizeChartsData["crop-tank"];
+    else if (ft === "crop-muscle-tank") activeChart = sizeChartsData["crop-tank"];
     else if (ft === "muscle-tank") activeChart = sizeChartsData["muscle-tank"];
     else if (ft === "women-tank") activeChart = sizeChartsData["women-tank"];
     else if (ft === "long-sleeve") activeChart = sizeChartsData["long-sleeve"];
