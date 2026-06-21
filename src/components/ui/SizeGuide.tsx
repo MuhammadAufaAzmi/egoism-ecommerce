@@ -100,16 +100,19 @@ export default function SizeGuide({ fitType }: { fitType?: string | null }) {
   let activeChart = sizeChartsData["regular"];
 
   if (fitType) {
-    // Normalisasi string: lowercase dan ubah spasi menjadi dash
-    const ft = fitType.toLowerCase().replace(/\s+/g, '-');
-    if (ft === "oversized") activeChart = sizeChartsData["oversized"];
-    else if (ft === "crop") activeChart = sizeChartsData["crop"];
-    else if (ft === "crop-oversize") activeChart = sizeChartsData["crop-oversize"];
-    else if (ft === "crop-tank") activeChart = sizeChartsData["crop-tank"];
-    else if (ft === "crop-muscle-tank") activeChart = sizeChartsData["crop-tank"];
-    else if (ft === "muscle-tank") activeChart = sizeChartsData["muscle-tank"];
-    else if (ft === "women-tank") activeChart = sizeChartsData["women-tank"];
-    else if (ft === "long-sleeve") activeChart = sizeChartsData["long-sleeve"];
+    const ft = fitType.toLowerCase();
+    if (ft.includes("oversize") && ft.includes("crop")) activeChart = sizeChartsData["crop-oversize"];
+    else if (ft.includes("oversize")) activeChart = sizeChartsData["oversized"];
+    else if (ft.includes("crop") && ft.includes("tank")) activeChart = sizeChartsData["crop-tank"];
+    else if (ft.includes("crop")) activeChart = sizeChartsData["crop"];
+    else if (ft.includes("women") || ft.includes("female")) activeChart = sizeChartsData["women-tank"];
+    else if (ft.includes("muscle") || ft.includes("tank")) activeChart = sizeChartsData["muscle-tank"];
+    else if (ft.includes("long sleeve") || ft.includes("long-sleeve")) activeChart = sizeChartsData["long-sleeve"];
+  }
+
+  // Fallback pengaman agar activeChart tidak pernah undefined
+  if (!activeChart) {
+    activeChart = sizeChartsData["regular"];
   }
 
   return (
