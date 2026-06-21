@@ -67,11 +67,6 @@ export async function processCheckout(options?: CheckoutOptions) {
           discountAmount = promo.discountValue;
         }
         discountAmount = Math.min(discountAmount, subtotal);
-        
-        await prisma.promoCode.update({
-          where: { id: promo.id },
-          data: { usedCount: { increment: 1 } }
-        });
       }
     }
 
@@ -82,42 +77,55 @@ export async function processCheckout(options?: CheckoutOptions) {
     const randomStr = crypto.randomBytes(3).toString("hex").toUpperCase();
     const orderNumber = `EGO-${Date.now().toString().slice(-4)}-${randomStr}`;
 
-    // 7. Buat pesanan baru di tabel Order MySQL
-    await (prisma as any).order.create({
-      data: {
-        orderNumber: orderNumber,
-        userId: userId,
-        items: itemsDescription.trim(),
-        total: totalAmount,
-        shippingCost: shippingCost,
-        shippingZone: options?.shippingZone || null,
-        shippingAddress: options?.shippingAddress || null,
-        status: "MENUNGGU PEMBAYARAN", // Status awal
-      },
-    });
-
-    // 8. Kosongkan keranjang belanja karena sudah dicheckout
-    await (prisma as any).cart.deleteMany({
-      where: { userId },
-    });
-
-    // 9. Kirim email notifikasi ke customer
-    try {
-      const user = await prisma.user.findUnique({ where: { id: userId } });
-      if (user?.email) {
-        await sendOrderCreatedEmail(
-          user.email,
-          user.firstName || "Customer",
-          orderNumber,
-          totalAmount,
-          itemsDescription.trim()
-        );
+    // 7. Mulai transaksi database untuk memastikan integritas data
+    await prisma.$transaction(async (tx: any) => {
+      // 7a. Potong kuota promo jika digunakan
+      if (options?.promoCode && discountAmount > 0) {
+        await tx.promoCode.update({
+          where: { code: options.promoCode.trim().toUpperCase() },
+          data: { usedCount: { increment: 1 } }
+        });
       }
-    } catch (emailErr) {
-      console.error("Email notification failed (non-blocking):", emailErr);
-    }
+
+      // 7b. Buat pesanan baru
+      await tx.order.create({
+        data: {
+          orderNumber: orderNumber,
+          userId: userId,
+          items: itemsDescription.trim(),
+          total: totalAmount,
+          shippingCost: shippingCost,
+          shippingZone: options?.shippingZone || null,
+          shippingAddress: options?.shippingAddress || null,
+          status: "MENUNGGU PEMBAYARAN",
+        },
+      });
+
+      // 7c. Kosongkan keranjang belanja
+      await tx.cart.deleteMany({
+        where: { userId },
+      });
+    });
+
+    // 8. Kirim email notifikasi ke customer (Asynchronous, non-blocking)
+    prisma.user.findUnique({ where: { id: userId } })
+      .then(async (user: any) => {
+        if (user?.email) {
+          await sendOrderCreatedEmail(
+            user.email,
+            user.firstName || "Customer",
+            orderNumber,
+            totalAmount,
+            itemsDescription.trim()
+          );
+        }
+      })
+      .catch((emailErr: any) => {
+        console.error("Email notification failed (non-blocking):", emailErr);
+      });
 
     return { success: true, orderId: orderNumber };
+
   } catch (error) {
     console.error("Checkout Error:", error);
     return {

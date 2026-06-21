@@ -162,12 +162,8 @@ export default function ProductDetail({
     });
 
     startTransition(async () => {
-      // Panggil handleAddToCart sebanyak quantity yang dipilih
-      let result = { success: false, message: "" };
-      for (let i = 0; i < quantity; i++) {
-        result = await handleAddToCart(product.id, finalSize, finalColor, finalFitType);
-        if (!result.success) break;
-      }
+      // Panggil handleAddToCart sekaligus dengan quantity yang dipilih
+      const result = await handleAddToCart(product.id, finalSize, finalColor, finalFitType, quantity);
 
       if (result.success) {
         setMessage({

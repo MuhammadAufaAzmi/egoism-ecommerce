@@ -242,6 +242,7 @@ export async function handleAddToCart(
   size: string,
   color: string,
   fitType: string = "regular",
+  quantity: number = 1
 ) {
   try {
     const session = await getSession();
@@ -251,6 +252,8 @@ export async function handleAddToCart(
       // GUEST USER CREATION
       const guestId = crypto.randomUUID();
       const guestEmail = `guest_${guestId.substring(0, 8)}@egoism.local`;
+      const bcrypt = require("bcryptjs");
+      const hashedGuestPassword = await bcrypt.hash(`GUEST_ACCOUNT::${guestId}`, 10);
       
       const newGuest = await prisma.user.create({
         data: {
@@ -258,7 +261,7 @@ export async function handleAddToCart(
           email: guestEmail,
           firstName: "Guest",
           role: "GUEST",
-          password: `GUEST_ACCOUNT::${guestId}`
+          password: hashedGuestPassword
         }
       });
       
@@ -281,7 +284,7 @@ export async function handleAddToCart(
     if (existingCartItem) {
       await prisma.cart.update({
         where: { id: existingCartItem.id },
-        data: { quantity: existingCartItem.quantity + 1 },
+        data: { quantity: existingCartItem.quantity + quantity },
       });
     } else {
       await prisma.cart.create({
@@ -291,7 +294,7 @@ export async function handleAddToCart(
           size: size,
           color: color,
           fitType: fitType,
-          quantity: 1,
+          quantity: quantity,
         },
       });
     }
