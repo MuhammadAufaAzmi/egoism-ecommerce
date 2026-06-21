@@ -36,26 +36,46 @@ export async function getAdminAnalytics() {
   const now = new Date();
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
-  const [orders, totalProducts, totalUsers, monthlyOrders] = await Promise.all([
-    (prisma as any).order.findMany({ orderBy: { createdAt: "desc" } }),
+  // Jalankan semua query berat secara bersamaan dalam Promise.all (Aggregate sangat cepat di DB)
+  const [
+    totalOrders,
+    totalProducts,
+    totalUsers,
+    monthlyOrdersCount,
+    revenueAgg,
+    monthlyRevenueAgg,
+    recentOrdersData
+  ] = await Promise.all([
+    prisma.order.count(),
     prisma.product.count(),
     prisma.user.count({ where: { role: "USER" } }),
-    (prisma as any).order.findMany({
-      where: { createdAt: { gte: startOfMonth } },
+    prisma.order.count({ where: { createdAt: { gte: startOfMonth } } }),
+    
+    // Total Revenue (excluding cancelled)
+    prisma.order.aggregate({
+      _sum: { total: true },
+      where: { status: { not: "DIBATALKAN" } }
     }),
+    
+    // Monthly Revenue (excluding cancelled)
+    prisma.order.aggregate({
+      _sum: { total: true },
+      where: { 
+        status: { not: "DIBATALKAN" },
+        createdAt: { gte: startOfMonth }
+      }
+    }),
+
+    // 5 Recent Orders
+    prisma.order.findMany({
+      take: 5,
+      orderBy: { createdAt: "desc" },
+      include: { user: { select: { firstName: true, lastName: true, email: true } } },
+    })
   ]);
 
-  const totalOrders = orders.length;
-
-  // Revenue total (exclude cancelled)
-  const totalRevenue = orders
-    .filter((o: any) => o.status !== "DIBATALKAN")
-    .reduce((sum: number, o: any) => sum + o.total, 0);
-
-  // Revenue bulan ini
-  const monthlyRevenue = monthlyOrders
-    .filter((o: any) => o.status !== "DIBATALKAN")
-    .reduce((sum: number, o: any) => sum + o.total, 0);
+  const totalRevenue = revenueAgg._sum.total || 0;
+  const monthlyRevenue = monthlyRevenueAgg._sum.total || 0;
 
   const formatIDR = (n: number) =>
     new Intl.NumberFormat("id-ID", {
@@ -64,23 +84,16 @@ export async function getAdminAnalytics() {
       minimumFractionDigits: 0,
     }).format(n);
 
-  // 5 recent orders
-  const recentOrders = await (prisma as any).order.findMany({
-    take: 5,
-    orderBy: { createdAt: "desc" },
-    include: { user: { select: { firstName: true, lastName: true, email: true } } },
-  });
-
   return {
     totalOrders,
     totalProducts,
     totalUsers,
     totalRevenue,
     formattedRevenue: formatIDR(totalRevenue),
-    monthlyOrdersCount: monthlyOrders.length,
+    monthlyOrdersCount,
     monthlyRevenue,
     formattedMonthlyRevenue: formatIDR(monthlyRevenue),
-    recentOrders: recentOrders.map((o: any) => ({
+    recentOrders: recentOrdersData.map((o: any) => ({
       id: o.id,
       orderNumber: o.orderNumber,
       status: o.status,

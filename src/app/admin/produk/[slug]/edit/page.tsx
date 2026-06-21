@@ -188,55 +188,60 @@ export default function EditProductPage() {
     }
 
     try {
+      // Helper function untuk upload
+      const uploadFile = async (file: File) => {
+        const formData = new FormData();
+        formData.append("file", file);
+        const res = await fetch("/api/upload", { method: "POST", body: formData });
+        const data = await res.json();
+        if (!data.success) throw new Error(data.message || "Upload failed");
+        return data.imagePath;
+      };
+
+      const uploadPromises: Promise<void>[] = [];
       let imagePath = currentImage;
-
-      // Upload new image if selected
-      if (imageFile) {
-        const uploadFormData = new FormData();
-        uploadFormData.append("file", imageFile);
-        const uploadRes = await fetch("/api/upload", { method: "POST", body: uploadFormData });
-        const uploadData = await uploadRes.json();
-        if (!uploadData.success) {
-          showToast(uploadData.message || "Gagal mengunggah foto utama.", "error");
-          setSaving(false);
-          return;
-        }
-        imagePath = uploadData.imagePath;
-      }
-
-      // Upload gallery images
       const savedGalleryPaths: string[] = [];
-      for (const file of galleryFiles) {
-        const galFormData = new FormData();
-        galFormData.append("file", file);
-        const galRes = await fetch("/api/upload", { method: "POST", body: galFormData });
-        const galData = await galRes.json();
-        if (galData.success) savedGalleryPaths.push(galData.imagePath);
+      const finalColors: { name: string, image: string }[] = [];
+
+      // 1. Upload main image
+      if (imageFile) {
+        uploadPromises.push(
+          uploadFile(imageFile).then(path => { imagePath = path; })
+        );
       }
 
-      const finalGallery = [...currentGallery, ...savedGalleryPaths];
+      // 2. Upload gallery images
+      galleryFiles.forEach((file, idx) => {
+        uploadPromises.push(
+          uploadFile(file).then(path => { savedGalleryPaths[idx] = path; })
+        );
+      });
 
-      // Upload color images
-      const finalColors = [];
-      for (const color of colorVariants) {
-        if (!color.name.trim()) continue;
+      // 3. Upload color variant images
+      colorVariants.forEach((color, idx) => {
+        if (!color.name.trim()) return;
         
         let colorImagePath = color.preview && !color.preview.startsWith("blob:") ? color.preview : "";
+        finalColors[idx] = { name: color.name.trim().toUpperCase(), image: colorImagePath };
         
-        // If it's a new file, upload it
         if (color.file) {
-          const colorFormData = new FormData();
-          colorFormData.append("file", color.file);
-          const colorRes = await fetch("/api/upload", { method: "POST", body: colorFormData });
-          const colorData = await colorRes.json();
-          if (colorData.success) colorImagePath = colorData.imagePath;
+          uploadPromises.push(
+            uploadFile(color.file).then(path => { finalColors[idx].image = path; })
+          );
         }
-        
-        finalColors.push({
-          name: color.name.trim().toUpperCase(),
-          image: colorImagePath
-        });
+      });
+
+      // Eksekusi semua upload secara paralel (bersamaan) -> Jauh lebih cepat!
+      try {
+        await Promise.all(uploadPromises);
+      } catch (err: any) {
+        showToast(err.message || "Gagal mengunggah foto.", "error");
+        setSaving(false);
+        return;
       }
+
+      const finalGallery = [...currentGallery, ...savedGalleryPaths.filter(Boolean)];
+      const filteredColors = finalColors.filter(Boolean);
 
       const result = await updateProduct(slug, {
         name: formData.name.trim(),
@@ -249,7 +254,7 @@ export default function EditProductPage() {
         images: finalGallery,
         description: formData.description.trim(),
         sizes: selectedSizes,
-        colors: finalColors.length > 0 ? finalColors : [{ name: "BLACK", image: "" }],
+        colors: filteredColors.length > 0 ? filteredColors : [{ name: "BLACK", image: "" }],
       });
 
       if (result.success) {
