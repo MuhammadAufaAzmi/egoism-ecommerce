@@ -11,17 +11,17 @@ interface ActivityCard {
 }
 
 const WOMEN_ACTIVITIES: ActivityCard[] = [
-  { label: "RUNNING", activity: "running", image: "/activity-running.png" },
-  { label: "LIFTING", activity: "gym", image: "/activity-lifting.png" },
-  { label: "HIIT", activity: "crossfit", image: "/activity-hiit.png" },
-  { label: "PILATES", activity: "pilates", image: "/activity-pilates.png" },
+  { label: "RUNNING", activity: "running", image: "/activity-women-hyrox-era.jpg" },
+  { label: "LIFTING", activity: "gym", image: "/activity-hybrid-hype-color.jpg" },
+  { label: "HIIT", activity: "crossfit", image: "/activity-hybrid-hype-white.jpg" },
+  { label: "PILATES", activity: "pilates", image: "/activity-wallballs-lattes.jpg" },
 ];
 
 const MEN_ACTIVITIES: ActivityCard[] = [
-  { label: "HYROX", activity: "hyrox", image: "/activity-men-hyrox.png" },
-  { label: "CROSSFIT", activity: "crossfit", image: "/activity-men-crossfit.png" },
-  { label: "RUNNING", activity: "running", image: "/activity-men-running.png" },
-  { label: "GYM", activity: "gym", image: "/activity-men-gym.png" },
+  { label: "HYROX", activity: "hyrox", image: "/activity-eat-work-sleep.jpg" },
+  { label: "CROSSFIT", activity: "crossfit", image: "/activity-hybrid-hype-color.jpg" },
+  { label: "RUNNING", activity: "running", image: "/activity-wallballs-lattes.jpg" },
+  { label: "GYM", activity: "gym", image: "/activity-hybrid-hype-white.jpg" },
 ];
 
 function ParallaxCard({
