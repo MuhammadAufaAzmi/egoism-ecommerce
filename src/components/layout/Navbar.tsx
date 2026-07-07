@@ -164,9 +164,9 @@ export default function Navbar() {
               <Image 
                 src="/logo-egoism.png" 
                 alt="EGOISM LIFTING TEE" 
-                width={150} 
-                height={50} 
-                className="w-[120px] md:w-[150px] h-auto object-contain invert" 
+                width={120} 
+                height={40} 
+                className="w-[90px] md:w-[110px] h-auto object-contain invert" 
                 priority
               />
             </Link>
