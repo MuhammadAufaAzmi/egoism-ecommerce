@@ -123,6 +123,7 @@ export async function processCheckout(options?: CheckoutOptions) {
     });
 
     // 8. Kirim email notifikasi ke customer (Asynchronous, non-blocking)
+    // TODO: Gunakan sistem Queue atau vendor email khusus seperti BullMQ
     prisma.user.findUnique({ where: { id: userId } })
       .then(async (user: any) => {
         if (user?.email) {
@@ -136,7 +137,7 @@ export async function processCheckout(options?: CheckoutOptions) {
         }
       })
       .catch((emailErr: any) => {
-        console.error("Email notification failed (non-blocking):", emailErr);
+        console.error("[CRITICAL ALERT] Email notification failed for order " + orderNumber + ":", emailErr);
       });
 
     return { success: true, orderId: orderNumber };

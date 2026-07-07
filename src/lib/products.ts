@@ -249,26 +249,7 @@ export async function handleAddToCart(
     let userId = session?.userId;
 
     if (!userId) {
-      // GUEST USER CREATION
-      const guestId = crypto.randomUUID();
-      const guestEmail = `guest_${guestId.substring(0, 8)}@egoism.local`;
-      const bcrypt = require("bcryptjs");
-      const hashedGuestPassword = await bcrypt.hash(`GUEST_ACCOUNT::${guestId}`, 10);
-      
-      const newGuest = await prisma.user.create({
-        data: {
-          id: guestId,
-          email: guestEmail,
-          firstName: "Guest",
-          role: "GUEST",
-          password: hashedGuestPassword
-        }
-      });
-      
-      // BUAT SESI JWT AMAN UNTUK GUEST
-      await createSession(newGuest.id, "GUEST");
-
-      userId = newGuest.id;
+      return { success: false, message: "Silakan login untuk menambah ke keranjang." };
     }
 
     const existingCartItem = await prisma.cart.findFirst({

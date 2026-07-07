@@ -27,6 +27,7 @@ export default function CheckoutPage() {
   const [paymentMethod, setPembayaranMethod] = useState("manual");
   const [orderSuccess, setOrderSuccess] = useState(false);
   const [isGuest, setIsGuest] = useState(false);
+  const [agreeTerms, setAgreeTerms] = useState(false);
 
   // Inline address form
   const [showAddressForm, setShowAddressForm] = useState(false);
@@ -134,6 +135,11 @@ export default function CheckoutPage() {
   }, [router, fetchShippingZone]);
 
   const handlePlaceOrder = async () => {
+    if (!agreeTerms) {
+      showToast("Anda harus menyetujui Syarat & Ketentuan.", "warning");
+      return;
+    }
+
     if (!address) {
       showToast("Silakan tambah alamat pengiriman terlebih dahulu.", "warning");
       setShowAddressForm(true);
@@ -369,6 +375,7 @@ export default function CheckoutPage() {
   // Cek apakah checkout bisa dilakukan
   // ========================
   const canPlaceOrder =
+    agreeTerms &&
     address &&
     shippingZone &&
     !isProcessing &&
@@ -839,6 +846,19 @@ export default function CheckoutPage() {
                     through your Account page as long as they have not been
                     dispatched yet.
                   </p>
+                </div>
+
+                <div className="flex items-center gap-2 mb-6">
+                  <input
+                    type="checkbox"
+                    id="terms"
+                    checked={agreeTerms}
+                    onChange={(e) => setAgreeTerms(e.target.checked)}
+                    className="w-4 h-4 accent-primary"
+                  />
+                  <label htmlFor="terms" className="text-[12px] cursor-pointer text-primary">
+                    Saya setuju dengan Syarat & Ketentuan
+                  </label>
                 </div>
               </div>
 

@@ -6,12 +6,23 @@ import { createSession } from "@/lib/session";
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const code = searchParams.get("code");
+  const state = searchParams.get("state");
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
   const redirectUri = `${baseUrl}/api/auth/google/callback`;
 
   if (!code) {
     return NextResponse.redirect(`${baseUrl}/login?error=OAuthCodeMissing`);
   }
+
+  const cookieStore = await cookies();
+  const savedState = cookieStore.get("oauth_state")?.value;
+  
+  if (!state || !savedState || state !== savedState) {
+    return NextResponse.redirect(`${baseUrl}/login?error=InvalidState`);
+  }
+  
+  cookieStore.delete("oauth_state");
+
 
   try {
     // 1. Exchange code for access token
