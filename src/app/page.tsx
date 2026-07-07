@@ -35,7 +35,7 @@ export default async function HomePage() {
             src="/new-collection-bg.jpg"
             alt="EGOISM Campaign"
             fill
-            className="object-cover object-[center_30%]"
+            className="object-cover object-center"
             priority
             fetchPriority="high"
           />
