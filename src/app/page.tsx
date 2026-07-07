@@ -32,7 +32,7 @@ export default async function HomePage() {
         {/* ParallaxHero wraps the background so it scrolls at a different speed */}
         <ParallaxHero>
           <Image
-            src="/hero-main.png"
+            src="/new-collection-bg.jpg"
             alt="EGOISM Campaign"
             fill
             className="object-cover object-center"
