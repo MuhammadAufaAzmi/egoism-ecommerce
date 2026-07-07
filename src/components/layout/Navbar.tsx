@@ -166,7 +166,7 @@ export default function Navbar() {
                 alt="EGOISM LIFTING TEE" 
                 width={150} 
                 height={50} 
-                className="w-[120px] md:w-[150px] h-auto object-contain" 
+                className="w-[120px] md:w-[150px] h-auto object-contain invert mix-blend-screen" 
                 priority
               />
             </Link>
