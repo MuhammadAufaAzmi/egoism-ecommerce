@@ -55,7 +55,7 @@ export default function LoginPage() {
       {/* Left: Image */}
       <section className="hidden md:block md:w-1/2 relative bg-surface min-h-screen animate-fade-in">
         <Image
-          src="/login-campaign.png"
+          src="/login-campaign-new.jpg"
           alt="EGOISM Campaign"
           fill
           className="object-cover object-center"
