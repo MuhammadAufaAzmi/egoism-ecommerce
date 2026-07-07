@@ -86,9 +86,9 @@ export async function loginUser(formData: any) {
         role: user.role,
       },
     };
-  } catch (error) {
+  } catch (error: any) {
     console.error(error);
-    return { success: false, message: "Terjadi kesalahan sistem saat login." };
+    return { success: false, message: "Kesalahan Sistem: " + (error.message || "Unknown error") };
   }
 }
 
