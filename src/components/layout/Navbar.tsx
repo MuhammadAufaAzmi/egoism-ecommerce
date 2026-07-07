@@ -159,9 +159,16 @@ export default function Navbar() {
           <div className="flex-1 md:flex-none">
             <Link
               href="/"
-              className="text-[24px] md:text-[28px] font-bold uppercase tracking-[0.2em] text-primary hover:opacity-80 transition-opacity"
+              className="hover:opacity-80 transition-opacity block"
             >
-              EGOISM
+              <Image 
+                src="/logo-egoism.jpg" 
+                alt="EGOISM LIFTING TEE" 
+                width={150} 
+                height={50} 
+                className="w-[120px] md:w-[150px] h-auto object-contain" 
+                priority
+              />
             </Link>
           </div>
 

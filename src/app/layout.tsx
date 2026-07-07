@@ -21,8 +21,8 @@ const montserrat = Montserrat({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.egoism.id"),
-  title: "EGOISM — Luxury Minimalist Fashion",
-  description: "Premium streetwear brand with minimalist and elegant designs.",
+  title: "Egoism lifting tee official store",
+  description: "Egoism lifting tee official store",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
@@ -30,8 +30,8 @@ export const metadata: Metadata = {
     title: "EGOISM",
   },
   openGraph: {
-    title: "EGOISM",
-    description: "Luxury Minimalist Fashion",
+    title: "Egoism lifting tee official store",
+    description: "Egoism lifting tee official store",
     type: "website",
     url: "https://www.egoism.id",
     siteName: "EGOISM",
@@ -46,8 +46,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "EGOISM",
-    description: "Luxury Minimalist Fashion",
+    title: "Egoism lifting tee official store",
+    description: "Egoism lifting tee official store",
     images: ["/hero-main.png"],
   },
 };
