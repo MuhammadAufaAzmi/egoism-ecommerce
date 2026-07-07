@@ -162,11 +162,11 @@ export default function Navbar() {
               className="hover:opacity-80 transition-opacity block"
             >
               <Image 
-                src="/logo-egoism.jpg" 
+                src="/logo-egoism.png" 
                 alt="EGOISM LIFTING TEE" 
                 width={150} 
                 height={50} 
-                className="w-[120px] md:w-[150px] h-auto object-contain invert mix-blend-screen" 
+                className="w-[120px] md:w-[150px] h-auto object-contain invert" 
                 priority
               />
             </Link>
