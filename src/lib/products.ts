@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import crypto from "crypto";
 import { unstable_cache } from "next/cache";
 import { getSession, createSession } from "@/lib/session";
+import { getProductPrice } from "@/lib/utils";
 
 
 // === HELPER ===
@@ -58,19 +59,6 @@ const parseProduct = (p: any) => {
     fitType: parsedFitType,
   };
 };
-
-export function getProductPrice(product: any, fitType?: string, size?: string): number {
-  if (!product.priceOverrides || product.priceOverrides === "{}" || !fitType || !size) return product.price;
-  try {
-    const overrides = typeof product.priceOverrides === 'string' ? JSON.parse(product.priceOverrides) : product.priceOverrides;
-    if (overrides[fitType] && overrides[fitType][size]) {
-      return Number(overrides[fitType][size]);
-    }
-  } catch (e) {
-    console.error("Failed to parse price overrides", e);
-  }
-  return product.price;
-}
 
 // === LOGIKA PRODUK ===
 export const getProducts = unstable_cache(

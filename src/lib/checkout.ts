@@ -3,7 +3,7 @@ import { getSession, clearSession, createSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { cookies } from "next/headers";
 import { sendOrderCreatedEmail } from "@/lib/email";
-import { getProductPrice } from "@/lib/products";
+import { getProductPrice } from "@/lib/utils";
 import crypto from "crypto";
 
 interface CheckoutOptions {
