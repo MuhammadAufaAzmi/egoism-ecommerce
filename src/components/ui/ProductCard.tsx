@@ -81,6 +81,8 @@ export default function ProductCard({ product }: ProductCardProps) {
       minimumFractionDigits: 0,
     }).format(price);
 
+  const hasOverrides = (product as any).priceOverrides && (product as any).priceOverrides !== "{}" && (product as any).priceOverrides !== null;
+
   const sizes: string[] = Array.isArray(product.sizes) ? product.sizes : [];
 
   const handleQuickAdd = (size: string) => {
@@ -274,7 +276,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             </p>
           )}
           <p className="text-[12px] leading-[16px] tracking-[0.1em] font-semibold text-secondary">
-            {displayPrice(product.price)}
+            {hasOverrides ? `Mulai dari ${displayPrice(product.price)}` : displayPrice(product.price)}
           </p>
         </div>
       </Link>

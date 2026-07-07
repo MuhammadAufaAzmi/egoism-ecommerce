@@ -45,6 +45,7 @@ model Product {
   images      String   @default("[]") // JSON string array untuk galeri
   description String   @db.Text
   sizes       String   // JSON string array, contoh: ["S","M","L","XL"]
+  priceOverrides String? @db.Text // JSON string mapping fitType and size to specific prices.
   colors      String   @default("[]") // JSON string array, contoh: ["BLACK","WHITE"]
   fitType     String   @default("[\"regular\"]") // JSON string array, contoh: ["regular", "oversized"]
   activity    String   @default("[]") // JSON string array, contoh: ["gym","crossfit","running"]

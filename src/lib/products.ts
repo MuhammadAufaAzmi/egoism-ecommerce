@@ -41,6 +41,7 @@ const parseProduct = (p: any) => {
   return {
     ...p,
     sizes: parsedSizes,
+    priceOverrides: p.priceOverrides ? p.priceOverrides : "{}",
     colors: p.colors ? (function() {
       try {
         const parsed = JSON.parse(p.colors);
@@ -57,6 +58,19 @@ const parseProduct = (p: any) => {
     fitType: parsedFitType,
   };
 };
+
+export function getProductPrice(product: any, fitType?: string, size?: string): number {
+  if (!product.priceOverrides || product.priceOverrides === "{}" || !fitType || !size) return product.price;
+  try {
+    const overrides = typeof product.priceOverrides === 'string' ? JSON.parse(product.priceOverrides) : product.priceOverrides;
+    if (overrides[fitType] && overrides[fitType][size]) {
+      return Number(overrides[fitType][size]);
+    }
+  } catch (e) {
+    console.error("Failed to parse price overrides", e);
+  }
+  return product.price;
+}
 
 // === LOGIKA PRODUK ===
 export const getProducts = unstable_cache(
@@ -184,7 +198,7 @@ export async function getCartItems(userId: string) {
       color: item.color,
       size: item.size,
       fitType: item.fitType,
-      price: item.product.price,
+      price: getProductPrice(item.product, item.fitType, item.size),
       quantity: item.quantity,
       image: item.product.image,
       productId: item.productId,

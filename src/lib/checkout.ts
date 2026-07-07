@@ -3,6 +3,7 @@ import { getSession, clearSession, createSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { cookies } from "next/headers";
 import { sendOrderCreatedEmail } from "@/lib/email";
+import { getProductPrice } from "@/lib/products";
 import crypto from "crypto";
 
 interface CheckoutOptions {
@@ -35,7 +36,8 @@ export async function processCheckout(options?: CheckoutOptions) {
     let itemsDescription = "";
 
     cartItems.forEach((item: any) => {
-      subtotal += item.product.price * item.quantity;
+      const itemPrice = getProductPrice(item.product, item.fitType, item.size);
+      subtotal += itemPrice * item.quantity;
       itemsDescription += `${item.product.name} (${item.color}, ${item.size}) x${item.quantity}\n`;
     });
 

@@ -100,6 +100,23 @@ export default function ProductDetail({
   const [isPending, startTransition] = useTransition();
   const [message, setMessage] = useState({ type: "", text: "" });
 
+  const getDynamicPrice = () => {
+    let basePrice = product.price;
+    if ((product as any).priceOverrides && selectedFitType && selectedSize) {
+      try {
+        const overrides = typeof (product as any).priceOverrides === 'string' 
+          ? JSON.parse((product as any).priceOverrides) 
+          : (product as any).priceOverrides;
+        if (overrides[selectedFitType] && overrides[selectedFitType][selectedSize]) {
+          return Number(overrides[selectedFitType][selectedSize]);
+        }
+      } catch(e) {}
+    }
+    return basePrice;
+  };
+
+  const currentPrice = getDynamicPrice();
+
   const displayPrice = (price: number) => {
     return new Intl.NumberFormat("id-ID", {
       style: "currency",
@@ -267,7 +284,7 @@ export default function ProductDetail({
           )}
 
           <p className="text-[20px] md:text-[24px] font-medium text-primary mb-8 tracking-tight">
-            {displayPrice(product.price)}
+            {displayPrice(currentPrice)}
           </p>
           <div className="border-t border-outline-variant/30 pt-6 mb-8">
             <p className="text-[14px] text-secondary leading-relaxed whitespace-pre-line mt-6">
