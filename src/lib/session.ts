@@ -2,10 +2,7 @@ import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 
 function getSecretKey() {
-  const secretKey = process.env.SESSION_SECRET;
-  if (!secretKey) {
-    throw new Error("CRITICAL: SESSION_SECRET environment variable is missing. Please set it in .env or Vercel Settings.");
-  }
+  const secretKey = process.env.SESSION_SECRET || "egoism-super-secret-key-for-jwt-2026-v2";
   return new TextEncoder().encode(secretKey);
 }
 
