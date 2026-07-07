@@ -42,10 +42,15 @@ export async function processCheckout(options?: CheckoutOptions) {
     // 3. Hitung ongkos kirim secara aman di server
     let shippingCost = 0;
     if (options?.shippingZone) {
-      const zone = await (prisma as any).shippingZone.findUnique({
-        where: { province: options.shippingZone },
-      });
-      if (zone) shippingCost = zone.cost;
+      const isJabodetabek = ["DKI JAKARTA", "BANTEN", "JAWA BARAT"].includes(options.shippingZone.toUpperCase());
+      if (isJabodetabek) {
+        shippingCost = 0;
+      } else {
+        const zone = await (prisma as any).shippingZone.findUnique({
+          where: { province: options.shippingZone },
+        });
+        if (zone) shippingCost = zone.cost;
+      }
     }
 
     // 4. Hitung diskon promo jika ada
@@ -53,14 +58,16 @@ export async function processCheckout(options?: CheckoutOptions) {
     if (options?.promoCode) {
       const promo = await prisma.promoCode.findUnique({
         where: { code: options.promoCode.trim().toUpperCase() },
+        include: { usages: { where: { userId } } }
       });
       
       const isActive = promo && promo.isActive;
       const notExpired = promo && (!promo.expiresAt || new Date() <= promo.expiresAt);
       const underMaxUses = promo && (promo.maxUses === 0 || promo.usedCount < promo.maxUses);
       const meetsMinOrder = promo && subtotal >= promo.minOrder;
+      const notUsedByUser = promo && (!promo.usages || promo.usages.length === 0);
 
-      if (isActive && notExpired && underMaxUses && meetsMinOrder) {
+      if (isActive && notExpired && underMaxUses && meetsMinOrder && notUsedByUser) {
         if (promo.discountType === "percent") {
           discountAmount = Math.round((subtotal * promo.discountValue) / 100);
         } else {
@@ -81,9 +88,17 @@ export async function processCheckout(options?: CheckoutOptions) {
     await prisma.$transaction(async (tx: any) => {
       // 7a. Potong kuota promo jika digunakan
       if (options?.promoCode && discountAmount > 0) {
-        await tx.promoCode.update({
+        const updatedPromo = await tx.promoCode.update({
           where: { code: options.promoCode.trim().toUpperCase() },
           data: { usedCount: { increment: 1 } }
+        });
+
+        await tx.promoUsage.create({
+          data: {
+            promoId: updatedPromo.id,
+            userId: userId,
+            orderId: orderNumber
+          }
         });
       }
 

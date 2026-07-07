@@ -1,10 +1,10 @@
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 
-// Secret key for JWT signing. It should ideally be in process.env.SESSION_SECRET.
-// If not provided, we fall back to a generated secret for development, 
-// though a static secret in env is strongly recommended for production so sessions survive restarts.
-const secretKey = process.env.SESSION_SECRET || "egoism-super-secret-key-for-jwt-2026-v2";
+const secretKey = process.env.SESSION_SECRET;
+if (!secretKey) {
+  throw new Error("CRITICAL: SESSION_SECRET environment variable is missing. Please set it in .env");
+}
 const key = new TextEncoder().encode(secretKey);
 
 export async function encrypt(payload: any) {

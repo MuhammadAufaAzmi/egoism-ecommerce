@@ -155,10 +155,9 @@ export async function cancelUserOrder(orderId: string) {
 
   if (
     order.status !== "MENUNGGU PEMBAYARAN" &&
-    order.status !== "MENUNGGU KONFIRMASI" &&
-    order.status !== "DIPROSES"
+    order.status !== "MENUNGGU KONFIRMASI"
   ) {
-    return { success: false, message: "Pesanan ini sudah tidak dapat dibatalkan." };
+    return { success: false, message: "Pesanan ini sudah tidak dapat dibatalkan karena sudah masuk antrean produksi (DIPROSES) atau sudah dikirim." };
   }
 
   await (prisma as any).order.update({

@@ -24,11 +24,12 @@ model User {
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
 
-  carts     Cart[]
-  addresses Address[]
-  orders    Order[]
-  wishlists Wishlist[]
-  reviews   Review[]
+  carts      Cart[]
+  addresses  Address[]
+  orders     Order[]
+  wishlists  Wishlist[]
+  reviews    Review[]
+  promoUsages PromoUsage[]
 }
 
 // ==========================================
@@ -173,4 +174,20 @@ model PromoCode {
   expiresAt     DateTime?
   isActive      Boolean  @default(true)
   createdAt     DateTime @default(now())
+
+  usages        PromoUsage[]
+}
+
+// ==========================================
+// 9. PROMO USAGE (Tracking Per User)
+// ==========================================
+model PromoUsage {
+  id        String   @id @default(uuid())
+  promoId   String
+  userId    String
+  orderId   String   // The order number where it was used
+  usedAt    DateTime @default(now())
+
+  promo     PromoCode @relation(fields: [promoId], references: [id])
+  user      User      @relation(fields: [userId], references: [id])
 }
