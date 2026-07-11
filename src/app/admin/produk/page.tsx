@@ -16,16 +16,33 @@ export default function AdminProdukPage() {
   const [deletingSlug, setDeletingSlug] = useState<string | null>(null);
 
   useEffect(() => {
-    getProducts().then((data) => {
-      const sorted = data.sort((a, b) => {
-        const dateA = a.updatedAt ? new Date(a.updatedAt).getTime() : 0;
-        const dateB = b.updatedAt ? new Date(b.updatedAt).getTime() : 0;
-        return dateB - dateA;
+    // Verify admin access first (matching promo/shipping pattern)
+    fetch("/api/auth/me")
+      .then((r) => r.json())
+      .then((d) => {
+        if (!d.authenticated || d.user?.role !== "ADMIN") {
+          router.push("/");
+          return;
+        }
+        // Only fetch products after auth verified
+        return getProducts();
+      })
+      .then((data) => {
+        if (data) {
+          const sorted = data.sort((a: any, b: any) => {
+            const dateA = a.updatedAt ? new Date(a.updatedAt).getTime() : 0;
+            const dateB = b.updatedAt ? new Date(b.updatedAt).getTime() : 0;
+            return dateB - dateA;
+          });
+          setProducts(sorted);
+        }
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Failed to load products:", err);
+        setLoading(false);
       });
-      setProducts(sorted);
-      setLoading(false);
-    });
-  }, []);
+  }, [router]);
 
   const filteredProducts = products.filter((p) => {
     const q = searchQuery.toLowerCase();
