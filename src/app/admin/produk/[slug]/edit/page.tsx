@@ -44,6 +44,7 @@ export default function EditProductPage() {
     { value: "crop-tank", label: "Crop tank" },
     { value: "crop", label: "Crop regular fit" },
     { value: "crop-oversize", label: "Crop Oversize" },
+    { value: "women-tank", label: "Muscle Tank Female" },
   ];
   const [currentImage, setCurrentImage] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);

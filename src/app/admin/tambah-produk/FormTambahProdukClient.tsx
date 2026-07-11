@@ -60,6 +60,7 @@ export default function FormTambahProdukClient() {
     { value: "crop-tank", label: "Crop tank" },
     { value: "crop", label: "Crop regular fit" },
     { value: "crop-oversize", label: "Crop Oversize" },
+    { value: "women-tank", label: "Muscle Tank Female" },
   ];
 
   const [selectedSizes, setSelectedSizes] = useState<Record<string, string[]>>({});

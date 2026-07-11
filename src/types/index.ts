@@ -9,7 +9,7 @@ export interface Product {
   description?: string;
   sizes?: string[];
   colors?: { name: string; image: string }[];
-  fitType?: "oversized" | "regular" | "crop" | "crop-tank" | "women-tank";
+  fitType?: "regular" | "oversized" | "long-sleeve" | "muscle-tank" | "crop-tank" | "crop" | "crop-oversize" | "women-tank";
   activity?: string[];
   isNew?: boolean;
   isSale?: boolean;
