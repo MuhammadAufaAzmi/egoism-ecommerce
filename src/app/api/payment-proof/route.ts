@@ -1,9 +1,8 @@
-import { getSession, clearSession, createSession } from "@/lib/session";
+import { getSession } from "@/lib/session";
 import { NextRequest, NextResponse } from "next/server";
 import nodemailer from "nodemailer";
 import { prisma } from "@/lib/prisma";
 import { v2 as cloudinary } from "cloudinary";
-import { cookies } from "next/headers";
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -25,7 +24,7 @@ export async function POST(req: NextRequest) {
     }
 
     const session = await getSession();
-  const userId = session?.userId;
+    const userId = session?.userId;
 
     if (!userId) {
       return NextResponse.json({ success: false, message: "Unauthorized." }, { status: 401 });
@@ -41,7 +40,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, message: "Akses ditolak atau pesanan tidak ditemukan." }, { status: 403 });
     }
 
-    // 2. Simpan file gambar ke Cloudinary
+    // 2. Validasi: hanya izinkan upload jika status masih MENUNGGU PEMBAYARAN
+    if (order.status !== "MENUNGGU PEMBAYARAN") {
+      return NextResponse.json({ success: false, message: `Bukti pembayaran tidak dapat diupload. Status pesanan saat ini: "${order.status}".` }, { status: 400 });
+    }
+
+    // 3. Simpan file gambar ke Cloudinary
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
@@ -62,7 +66,7 @@ export async function POST(req: NextRequest) {
 
     const imagePath = uploadResult.secure_url;
 
-    // 3. Update field paymentProof di database
+    // 4. Update field paymentProof di database
     await (prisma as any).order.update({
       where: { orderNumber: orderId },
       data: {
@@ -71,7 +75,7 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // 4. Kirim email notifikasi ke admin
+    // 5. Kirim email notifikasi ke admin
     const transporter = nodemailer.createTransport({
       host: "smtp.gmail.com",
       port: 587,

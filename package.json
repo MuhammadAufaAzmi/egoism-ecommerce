@@ -8,15 +8,18 @@
     "start": "next start",
     "lint": "next lint",
     "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts",
-    "seed:products": "node prisma/seed-products.js"
+    "seed:products": "node prisma/seed-products.js",
+    "import:mass": "node scripts/mass-import.js"
   },
   "dependencies": {
+    "@google/genai": "^2.10.0",
     "@prisma/client": "^5.22.0",
     "@react-spring/web": "^10.1.1",
     "bcryptjs": "^3.0.3",
     "cloudinary": "^2.10.0",
     "clsx": "^2.1.1",
     "framer-motion": "^12.40.0",
+    "jimp": "^1.6.1",
     "jose": "^6.2.3",
     "lucide-react": "^1.17.0",
     "next": "^16.2.9",

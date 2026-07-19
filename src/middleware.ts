@@ -45,7 +45,11 @@ export async function middleware(request: NextRequest) {
     }
 
     try {
-      const secretKey = process.env.SESSION_SECRET || "egoism-super-secret-key-for-jwt-2026-v2";
+      const secretKey = process.env.SESSION_SECRET;
+      if (!secretKey) {
+        console.error("FATAL: SESSION_SECRET not set");
+        return NextResponse.redirect(new URL("/login", request.url));
+      }
       const key = new TextEncoder().encode(secretKey);
       
       const { payload } = await jwtVerify(sessionToken, key, {

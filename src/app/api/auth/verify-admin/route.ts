@@ -5,8 +5,8 @@ import { prisma } from "@/lib/prisma";
 export async function GET(req: NextRequest) {
   // Hanya terima request dari middleware internal
   const secret = req.headers.get("x-middleware-secret");
-  const expectedSecret = process.env.INTERNAL_API_SECRET || "fallback-secret";
-  if (secret !== expectedSecret) {
+  const expectedSecret = process.env.INTERNAL_API_SECRET;
+  if (!expectedSecret || secret !== expectedSecret) {
     return NextResponse.json({ isAdmin: false }, { status: 403 });
   }
 

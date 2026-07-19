@@ -2,7 +2,10 @@ import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 
 function getSecretKey() {
-  const secretKey = process.env.SESSION_SECRET || "egoism-super-secret-key-for-jwt-2026-v2";
+  const secretKey = process.env.SESSION_SECRET;
+  if (!secretKey) {
+    throw new Error("FATAL: SESSION_SECRET environment variable is not set. Cannot sign/verify JWT tokens.");
+  }
   return new TextEncoder().encode(secretKey);
 }
 

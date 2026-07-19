@@ -254,6 +254,11 @@ export async function handleAddToCart(
       return { success: false, message: "Silakan login untuk menambah ke keranjang." };
     }
 
+    // Validasi quantity
+    if (typeof quantity !== "number" || !Number.isInteger(quantity) || quantity <= 0 || quantity >= 100) {
+      return { success: false, message: "Jumlah tidak valid (harus 1-99)." };
+    }
+
     const existingCartItem = await prisma.cart.findFirst({
       where: {
         userId: userId,

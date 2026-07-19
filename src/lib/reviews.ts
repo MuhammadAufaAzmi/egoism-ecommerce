@@ -9,15 +9,21 @@ export async function canUserReview(productId: string) {
 
   if (!userId) return false;
 
+  const product = await prisma.product.findUnique({
+    where: { id: productId },
+    select: { name: true },
+  });
+
+  if (!product) return false;
+
   // Cek apakah user pernah beli produk ini dan statusnya DITERIMA
   const hasPurchased = await (prisma as any).order.findFirst({
     where: {
       userId,
       status: "DITERIMA",
-      // Kita asumsikan items menyimpan nama produk.
-      // Jika relasi langsung ke orderItem ada akan lebih akurat, 
-      // tapi kita cek dari Cart item logikanya.
-      // Untuk EGOISM v1, jika dia punya status DITERIMA kita izinkan (simplified).
+      items: {
+        contains: product.name,
+      }
     },
   });
 
@@ -40,7 +46,11 @@ export async function addReview(productId: string, rating: number, comment: stri
   const userId = session?.userId;
 
   if (!userId) return { success: false, message: "Silakan login terlebih dahulu." };
-  if (rating < 1 || rating > 5) return { success: false, message: "Rating tidak valid." };
+  if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
+    return { success: false, message: "Rating tidak valid." };
+  }
+
+  const sanitizedComment = comment.replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
   try {
     await (prisma as any).review.create({
@@ -48,7 +58,7 @@ export async function addReview(productId: string, rating: number, comment: stri
         userId,
         productId,
         rating,
-        comment,
+        comment: sanitizedComment,
       },
     });
 

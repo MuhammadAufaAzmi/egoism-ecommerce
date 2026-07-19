@@ -165,5 +165,21 @@ export async function cancelUserOrder(orderId: string) {
     data: { status: "DIBATALKAN" },
   });
 
+  // Rollback promo usage jika order ini menggunakan promo
+  try {
+    const promoUsage = await (prisma as any).promoUsage.findFirst({
+      where: { orderId: orderId, userId: userId },
+    });
+    if (promoUsage) {
+      await (prisma as any).promoUsage.delete({ where: { id: promoUsage.id } });
+      await (prisma as any).promoCode.update({
+        where: { id: promoUsage.promoId },
+        data: { usedCount: { decrement: 1 } },
+      });
+    }
+  } catch (promoErr) {
+    console.error("Failed to rollback promo usage (non-blocking):", promoErr);
+  }
+
   return { success: true, message: "Pesanan berhasil dibatalkan." };
 }

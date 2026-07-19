@@ -142,11 +142,41 @@ export async function getAllOrders() {
   }));
 }
 
+// Whitelist transisi status order yang valid
+const VALID_TRANSITIONS: Record<string, string[]> = {
+  "MENUNGGU PEMBAYARAN": ["MENUNGGU KONFIRMASI", "DIBATALKAN"],
+  "MENUNGGU KONFIRMASI": ["DIPROSES", "DIBATALKAN", "MENUNGGU PEMBAYARAN"],
+  "DIPROSES": ["DIKIRIM", "DIBATALKAN"],
+  "DIKIRIM": ["DITERIMA"],
+  "DITERIMA": ["SELESAI"],
+  "SELESAI": [],
+  "DIBATALKAN": [],
+};
+
 export async function updateOrderStatus(orderId: string, newStatus: string, trackingNumber?: string) {
   if (!(await verifyAdmin()))
     return { success: false, message: "Unauthorized" };
 
   try {
+    // Ambil status saat ini untuk validasi transisi
+    const currentOrder = await (prisma as any).order.findUnique({
+      where: { id: orderId },
+      select: { status: true },
+    });
+
+    if (!currentOrder) {
+      return { success: false, message: "Pesanan tidak ditemukan." };
+    }
+
+    // Validasi transisi status
+    const allowedNextStatuses = VALID_TRANSITIONS[currentOrder.status];
+    if (!allowedNextStatuses || !allowedNextStatuses.includes(newStatus)) {
+      return {
+        success: false,
+        message: `Transisi status tidak valid: "${currentOrder.status}" → "${newStatus}". Status yang diizinkan: ${allowedNextStatuses?.join(", ") || "tidak ada (status final)"}.`,
+      };
+    }
+
     const updateData: any = { status: newStatus };
     if (trackingNumber !== undefined) {
       updateData.trackingNumber = trackingNumber;
