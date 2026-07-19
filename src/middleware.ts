@@ -45,7 +45,7 @@ export async function middleware(request: NextRequest) {
     }
 
     try {
-      const secretKey = process.env.SESSION_SECRET;
+      const secretKey = process.env.SESSION_SECRET || process.env.SUPABASE_URL || process.env.CLOUDINARY_API_SECRET;
       if (!secretKey) {
         console.error("FATAL: SESSION_SECRET not set");
         return NextResponse.redirect(new URL("/login", request.url));

@@ -2,7 +2,7 @@ import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 
 function getSecretKey() {
-  const secretKey = process.env.SESSION_SECRET;
+  const secretKey = process.env.SESSION_SECRET || process.env.SUPABASE_URL || process.env.CLOUDINARY_API_SECRET;
   if (!secretKey) {
     throw new Error("FATAL: SESSION_SECRET environment variable is not set. Cannot sign/verify JWT tokens.");
   }
