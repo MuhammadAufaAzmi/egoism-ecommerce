@@ -74,7 +74,6 @@ const sizeChartsData: Record<string, { label: string, columns: string[], data: R
     label: "CROP REG TSHIRT",
     columns: ["SIZE", "LINGKAR DADA", "PANJANG BADAN"],
     data: [
-      { size: "S", lebar: "-", panjang: "-" },
       { size: "M", lebar: "84", panjang: "42" },
       { size: "L", lebar: "88", panjang: "44" },
       { size: "XL", lebar: "92", panjang: "48" },

@@ -19,61 +19,59 @@ const PRICE_MAP = {
     }
   },
   "muscle tank female": {
-    "sizes": ["S", "M", "L", "XL"],
+    "sizes": ["S", "M"],
     "prices": {
-      "S": 175000, "M": 175000, "L": 175000, "XL": 175000
+      "S": 175000, "M": 175000
     }
   },
   "muscle tank male": {
-    "sizes": ["M", "L", "XL", "XXL", "3XL", "4XL"],
+    "sizes": ["M", "L", "XL", "XXL"],
     "prices": {
       "M": 175000, "L": 175000, "XL": 175000,
-      "XXL": 180000, "3XL": 180000,
-      "4XL": 190000
+      "XXL": 180000
     }
   },
   "muscle tank": { // Fallback if no gender specified
-    "sizes": ["M", "L", "XL", "XXL", "3XL", "4XL"],
+    "sizes": ["M", "L", "XL", "XXL"],
     "prices": {
       "M": 175000, "L": 175000, "XL": 175000,
-      "XXL": 180000, "3XL": 180000,
-      "4XL": 190000
+      "XXL": 180000
     }
   },
   "crop tank": {
-    "sizes": ["S", "M", "L", "XL"],
+    "sizes": ["S", "M", "L"],
     "prices": {
-      "S": 165000, "M": 165000, "L": 165000, "XL": 165000
+      "S": 165000, "M": 165000, "L": 165000
     }
   },
   "crop oversize": {
-    "sizes": ["S", "M", "L", "XL"],
+    "sizes": ["M", "L", "XL"],
     "prices": {
-      "S": 170000, "M": 170000, "L": 170000, "XL": 170000
+      "M": 170000, "L": 170000, "XL": 170000
     }
   },
   "crop oversized tshirt": { // Alias based on folder name
-    "sizes": ["S", "M", "L", "XL"],
+    "sizes": ["M", "L", "XL"],
     "prices": {
-      "S": 170000, "M": 170000, "L": 170000, "XL": 170000
+      "M": 170000, "L": 170000, "XL": 170000
     }
   },
   "crop regular": {
-    "sizes": ["S", "M", "L", "XL"],
+    "sizes": ["M", "L", "XL", "XXL"],
     "prices": {
-      "S": 165000, "M": 165000, "L": 165000, "XL": 165000
+      "M": 165000, "L": 165000, "XL": 165000, "XXL": 170000
     }
   },
   "crop regular fit": { // Alias based on folder name
-    "sizes": ["S", "M", "L", "XL"],
+    "sizes": ["M", "L", "XL", "XXL"],
     "prices": {
-      "S": 165000, "M": 165000, "L": 165000, "XL": 165000
+      "M": 165000, "L": 165000, "XL": 165000, "XXL": 170000
     }
   },
   "long sleeve": {
-    "sizes": ["S", "M", "L", "XL", "XXL"],
+    "sizes": ["S", "M", "L", "XL"],
     "prices": {
-      "S": 180000, "M": 180000, "L": 180000, "XL": 180000, "XXL": 180000
+      "S": 180000, "M": 180000, "L": 180000, "XL": 180000
     }
   }
 };
@@ -91,7 +89,7 @@ async function main() {
     
     let basePrice = Infinity;
     const priceOverrides = {};
-    const productSizesSet = new Set();
+    const productSizesObj = {};
     
     for (const fitType of fitTypes) {
       const normalizedFit = fitType.toLowerCase().trim();
@@ -108,8 +106,7 @@ async function main() {
       }
       
       priceOverrides[normalizedFit] = mapping.prices;
-      
-      mapping.sizes.forEach(s => productSizesSet.add(s));
+      productSizesObj[fitType] = mapping.sizes;
       
       for (const size in mapping.prices) {
          const p = mapping.prices[size];
@@ -123,15 +120,11 @@ async function main() {
        basePrice = 175000;
     }
     
-    // Convert Set back to a sorted array based on standard size order
-    const sizeOrder = ["S", "M", "L", "XL", "XXL", "3XL", "4XL", "5XL"];
-    const productSizes = Array.from(productSizesSet).sort((a, b) => sizeOrder.indexOf(a) - sizeOrder.indexOf(b));
-    
     await prisma.product.update({
       where: { id: product.id },
       data: {
         price: basePrice,
-        sizes: JSON.stringify(productSizes),
+        sizes: JSON.stringify(productSizesObj),
         priceOverrides: JSON.stringify(priceOverrides)
       }
     });
