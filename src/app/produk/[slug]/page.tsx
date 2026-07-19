@@ -44,11 +44,8 @@ export async function generateMetadata({
   };
 }
 
-// === Static Params (optional, for SSG) ===
-export async function generateStaticParams() {
-  const products = await getProducts();
-  return products.map((p: any) => ({ slug: p.slug }));
-}
+// Dihapus agar Vercel tidak timeout membangun 143+ halaman ke database Singapura dari server Washington DC.
+// Next.js otomatis akan merender halaman secara dinamis/on-demand.
 
 export default async function ProductPage({
   params,
